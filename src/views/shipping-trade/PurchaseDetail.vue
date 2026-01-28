@@ -129,18 +129,35 @@
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">电话:</span>
-                            <span class="contact-value masked">{{ showContact ? publisher.phone : '****' }}</span>
+                            <span class="contact-value masked">{{ (intentionStatus === 'accepted' || showContact) ? publisher.phone : '****' }}</span>
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">微信:</span>
-                            <span class="contact-value masked">{{ showContact ? publisher.wechat : '****' }}</span>
+                            <span class="contact-value masked">{{ (intentionStatus === 'accepted' || showContact) ? publisher.wechat : '****' }}</span>
                         </div>
                         <div class="contact-item">
                             <span class="contact-label">邮箱:</span>
-                            <span class="contact-value masked">{{ showContact ? publisher.email : '****' }}</span>
+                            <span class="contact-value masked">{{ (intentionStatus === 'accepted' || showContact) ? publisher.email : '****' }}</span>
                         </div>
                     </div>
-                    <button class="contact-btn" @click="handleContact">意向对接</button>
+                    <button 
+                      v-if="intentionStatus === null" 
+                      class="contact-btn" 
+                      @click="handleContact">
+                      意向对接
+                    </button>
+                    <button 
+                      v-else-if="intentionStatus === 'pending'" 
+                      class="contact-btn waiting" 
+                      disabled>
+                      等待对方回复
+                    </button>
+                    <button 
+                      v-else-if="intentionStatus === 'rejected'" 
+                      class="contact-btn" 
+                      @click="handleContact">
+                      意向对接
+                    </button>
                 </div>
             </aside>
     </div>
@@ -164,6 +181,7 @@ const router = useRouter()
 
 // Intention Dialog state
 const isIntentionDialogOpen = ref(false)
+const intentionStatus = ref(null) // null | 'pending' | 'accepted' | 'rejected'
 
 const isFavorited = ref(false)
 const showContact = ref(false)
@@ -295,6 +313,8 @@ const handleIntentionSubmit = (intentionData) => {
         purchaseId: route.params.id,
         ...intentionData
     })
+    intentionStatus.value = 'pending'
+    isIntentionDialogOpen.value = false
 }
 
 // 计算当前可见的推荐列表
@@ -747,7 +767,7 @@ onMounted(() => {
     box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
 }
 
-.contact-btn:hover {
+.contact-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #0284C7, #0891B2);
     box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
     transform: translateY(-2px);
@@ -755,6 +775,17 @@ onMounted(() => {
 
 .contact-btn:active {
     transform: translateY(0);
+}
+
+.contact-btn.waiting {
+    background: linear-gradient(135deg, #94A3B8, #64748B);
+    cursor: not-allowed;
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+}
+
+.contact-btn.waiting:hover {
+    background: linear-gradient(135deg, #94A3B8, #64748B);
+    transform: none;
 }
 
 @media (max-width: 1200px) {

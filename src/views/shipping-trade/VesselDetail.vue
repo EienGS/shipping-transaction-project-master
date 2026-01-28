@@ -169,22 +169,39 @@
             <div class="contact-info">
               <div class="contact-item">
                 <span class="contact-label">联系人:</span>
-                <span class="contact-value">{{showContact ? publisherData.contact : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.contact : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">电话:</span>
-                <span class="contact-value">{{showContact ? publisherData.phone : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.phone : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">微信:</span>
-                <span class="contact-value">{{showContact ? publisherData.wechat : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.wechat : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">邮箱:</span>
-                <span class="contact-value">{{showContact ? publisherData.email : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.email : '***'}}</span>
               </div>
             </div>
-            <button class="contact-publisher-btn" @click="handleContactPublisher">意向对接</button>
+            <button 
+              v-if="intentionStatus === null" 
+              class="contact-publisher-btn" 
+              @click="handleContactPublisher">
+              意向对接
+            </button>
+            <button 
+              v-else-if="intentionStatus === 'pending'" 
+              class="contact-publisher-btn waiting" 
+              disabled>
+              等待对方回复
+            </button>
+            <button 
+              v-else-if="intentionStatus === 'rejected'" 
+              class="contact-publisher-btn" 
+              @click="handleContactPublisher">
+              意向对接
+            </button>
           </div>
         </section>
 
@@ -236,6 +253,7 @@ const router = useRouter()
 
 // Intention Dialog state
 const isIntentionDialogOpen = ref(false)
+const intentionStatus = ref(null) // null | 'pending' | 'accepted' | 'rejected'
 
 // 船舶基础数据
 const vesselData = ref({
@@ -407,6 +425,8 @@ const handleIntentionSubmit = (intentionData) => {
     vesselId: route.params.id,
     ...intentionData
   })
+  intentionStatus.value = 'pending'
+  isIntentionDialogOpen.value = false
 }
 
 const viewMoreFromPublisher = () => {
