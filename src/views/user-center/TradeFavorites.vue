@@ -51,6 +51,7 @@
             </select>
           </div>
 
+          <button class="btn-search" @click="applyFilters">搜索</button>
           <button class="btn-reset" @click="resetFilters">重置</button>
         </div>
       </div>
@@ -286,6 +287,171 @@ const viewVesselDetail = (id) => {
 
 .search-filter-section {
   margin-bottom: 32px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  padding: 28px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.search-controls {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.search-input:hover {
+  border-color: #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0EA5E9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-input::placeholder {
+  color: #94A3B8;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #64748B;
+  pointer-events: none;
+}
+
+/* Inline Filter Controls */
+.filter-controls-inline {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.filter-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.filter-select {
+  padding: 11px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23475569' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 30px;
+}
+
+.filter-select:hover {
+  border-color: #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #0EA5E9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-search {
+  padding: 11px 24px;
+  border: 1px solid #0EA5E9;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+  white-space: nowrap;
+}
+
+.btn-search:hover {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-search:active {
+  transform: translateY(0);
+}
+
+.btn-reset {
+  padding: 11px 24px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #64748B;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  white-space: nowrap;
+}
+
+.btn-reset:hover {
+  background-color: #F8FAFC;
+  border-color: #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-reset:active {
+  background-color: #F1F5F9;
 }
 
 .page-title {
@@ -303,7 +469,7 @@ const viewVesselDetail = (id) => {
 }
 
 .search-input-wrapper {
-  flex: 1;
+  width: 300px;
   position: relative;
   min-width: 0;
 }
@@ -344,17 +510,16 @@ const viewVesselDetail = (id) => {
 
 .filter-item {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 140px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 .filter-item label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #64748B;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .filter-select {
@@ -378,18 +543,33 @@ const viewVesselDetail = (id) => {
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
-.btn-reset {
+.btn-reset,
+.btn-search {
   padding: 9px 16px;
-  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  background-color: #FFFFFF;
-  color: #475569;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-search {
+  background-color: #0EA5E9;
+  border: 1px solid #0EA5E9;
+  color: #FFFFFF;
+}
+
+.btn-search:hover {
+  background-color: #0284C7;
+  border-color: #0284C7;
+}
+
+.btn-reset {
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #475569;
 }
 
 .btn-reset:hover {
@@ -401,20 +581,27 @@ const viewVesselDetail = (id) => {
 .active-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 10px;
 }
 
 .filter-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background-color: #EFF6FF;
+  gap: 8px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
   border: 1px solid #BFDBFE;
   border-radius: 20px;
   font-size: 13px;
   color: #1E40AF;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-tag:hover {
+  background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%);
+  border-color: #93C5FD;
+  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
 }
 
 .filter-tag button {
@@ -426,10 +613,15 @@ const viewVesselDetail = (id) => {
   padding: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  transition: all 0.2s ease;
 }
 
 .filter-tag button:hover {
   opacity: 0.7;
+  transform: scale(1.1);
 }
 
 /* Vessel Cards Grid */
@@ -632,11 +824,86 @@ const viewVesselDetail = (id) => {
   color: #64748B;
 }
 
+@media (max-width: 1200px) {
+  .search-controls {
+    gap: 12px;
+  }
+
+  .filter-item {
+    min-width: 130px;
+  }
+}
+
 @media (max-width: 1024px) {
+  .search-filter-section {
+    padding: 24px;
+  }
+
+  .search-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .search-input-wrapper {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .filter-controls-inline {
+    gap: 10px;
+  }
+
+  .filter-item {
+    flex: 1;
+    min-width: 110px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-filter-section {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
   .search-controls {
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+    margin-bottom: 16px;
   }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .filter-controls-inline {
+    width: 100%;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filter-item {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .btn-search,
+  .btn-reset {
+    width: 100%;
+  }
+
+  .vessel-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
   .filter-controls-inline {
     width: 100%;
@@ -657,6 +924,7 @@ const viewVesselDetail = (id) => {
 
   .search-input-wrapper {
     width: 100%;
+    height: 100%;
   }
 
   .vessel-cards-grid {
