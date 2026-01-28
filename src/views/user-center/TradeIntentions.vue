@@ -204,43 +204,45 @@ const filterStatus = ref('')
 const dateStart = ref('')
 const dateEnd = ref('')
 const currentPage = ref(1)
+const itemsPerPage = 6
 const detailVisible = ref(false)
 const selectedIntention = ref(null)
-const pageSize = 12
 
+// Mock data
+const receivedIntentions = ref([
+  { id: 1, type: '求购', title: '8万吨散货船', intentionNo: 'G2025012600001', counterparty: '张某 (13900099882)', status: 'pending', submitTime: '2026-02-05', amount: '220万元', phone: '13900099882', dockingTime: '' },
+  { id: 2, type: '求购', title: '集装箱船', intentionNo: 'G2025012600002', counterparty: '李某 (13800077766)', status: 'accepted', submitTime: '2026-02-03', amount: '350万元', phone: '13800077766', dockingTime: '2026-02-05 15:52:18' },
+  { id: 3, type: '求购', title: '油船', intentionNo: 'G2025012600003', counterparty: '王某 (13700055544)', status: 'rejected', submitTime: '2026-01-30', amount: '150万元', phone: '13700055544', dockingTime: '' },
+  { id: 4, type: '出售', title: '散货船 "OCEAN STAR"', intentionNo: 'G2025012600004', counterparty: '陈某 (13600033322)', status: 'pending', submitTime: '2026-02-04', amount: '450万元', phone: '13600033322', dockingTime: '' },
+  { id: 5, type: '求购', title: '好望角型散货船', intentionNo: 'G2025012600005', counterparty: '周某 (13500011100)', status: 'pending', submitTime: '2026-02-02', amount: '600万元', phone: '13500011100', dockingTime: '' },
+  { id: 6, type: '求购', title: '化学品油轮', intentionNo: 'G2025012600006', counterparty: '何某 (13900099882)', status: 'accepted', submitTime: '2026-02-01', amount: '280万元', phone: '13900099882', dockingTime: '2026-02-04 10:30:00' }
+])
+
+const sentIntentions = ref([
+  { id: 101, type: '求购', title: '5.7万吨散货船', intentionNo: 'G2025012600007', counterparty: '江某 (13400099999)', status: 'pending', submitTime: '2026-02-05', amount: '320万元', phone: '13400099999', vesselId: 1, dockingTime: '' },
+  { id: 102, type: '出售', title: '集装箱船 "PACIFIC LINK"', intentionNo: 'G2025012600008', counterparty: '赵某 (13300088888)', status: 'accepted', submitTime: '2026-02-03', amount: '420万元', phone: '13300088888', vesselId: 2, dockingTime: '2026-02-04' },
+  { id: 103, type: '求购', title: '油船', intentionNo: 'G2025012600009', counterparty: '孙某 (13200077777)', status: 'pending', submitTime: '2026-02-02', amount: '200万元', phone: '13200077777', vesselId: 3, dockingTime: '' }
+])
+
+// Tab data
 const tabs = [
   { key: 'received', label: '收到的意向' },
   { key: 'sent', label: '发出的意向' }
 ]
 
-// Mock data for received intentions
-const receivedIntentions = ref([
-  { id: 1, type: '求购', title: '求购散货船', intentionNo: 'G20250126000001', counterparty: '张思布', phone: '13900099882', amount: '220万元', submitTime: '2026-02-05 15:52:18', status: 'pending', vesselId: 1 },
-  { id: 2, type: '求购', title: '求购油轮', intentionNo: 'G20250126000002', counterparty: '李明', phone: '13800138000', amount: '320万元', submitTime: '2026-02-06 10:30:22', status: 'accepted', vesselId: 2, dockingTime: '2026-02-06 14:20:00' },
-  { id: 3, type: '出售', title: '出售集装箱船', intentionNo: 'G20250126000003', counterparty: '王强', phone: '13700137000', amount: '850万元', submitTime: '2026-02-07 09:15:45', status: 'rejected', vesselId: 3, dockingTime: '2026-02-07 16:40:00' },
-  { id: 4, type: '求购', title: '求购LNG船', intentionNo: 'G20250126000004', counterparty: '刘洋', phone: '13600136000', amount: '1200万元', submitTime: '2026-02-08 14:25:30', status: 'pending', vesselId: 4 },
-  { id: 5, type: '求购', title: '求购化学品船', intentionNo: 'G20250126000005', counterparty: '陈浩', phone: '13500135000', amount: '180万元', submitTime: '2026-02-09 11:50:15', status: 'accepted', vesselId: 5, dockingTime: '2026-02-09 15:30:00' }
-])
-
-// Mock data for sent intentions
-const sentIntentions = ref([
-  { id: 101, type: '求购', title: '寻求散货船合作', intentionNo: 'F20250126000001', counterparty: '张董', phone: '13900099882', amount: '400万元', submitTime: '2026-02-05 13:20:00', status: 'pending', purchaseId: 1 },
-  { id: 102, type: '出售', title: '出售优质集装箱船', intentionNo: 'F20250126000002', counterparty: '李先生', phone: '13800138000', amount: '750万元', submitTime: '2026-02-06 08:45:30', status: 'accepted', purchaseId: 2, dockingTime: '2026-02-06 13:15:00' },
-  { id: 103, type: '求购', title: '急需油轮资源', intentionNo: 'F20250126000003', counterparty: '王总', phone: '13700137000', amount: '500万元', submitTime: '2026-02-07 16:30:20', status: 'pending', purchaseId: 3 }
-])
-
-// Computed properties
-const allIntentions = computed(() => activeTab.value === 'received' ? receivedIntentions.value : sentIntentions.value)
+// Computed
+const currentIntentions = computed(() => {
+  return activeTab.value === 'received' ? receivedIntentions.value : sentIntentions.value
+})
 
 const filteredIntentions = computed(() => {
-  let result = allIntentions.value
+  let result = currentIntentions.value
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(i =>
-      i.intentionNo.toLowerCase().includes(keyword) ||
-      i.counterparty.toLowerCase().includes(keyword) ||
-      i.title.toLowerCase().includes(keyword)
+    result = result.filter(i => 
+      i.intentionNo.includes(searchKeyword.value) ||
+      i.counterparty.includes(searchKeyword.value) ||
+      i.title.includes(searchKeyword.value)
     )
   }
 
@@ -251,51 +253,49 @@ const filteredIntentions = computed(() => {
   if (dateStart.value) {
     result = result.filter(i => i.submitTime >= dateStart.value)
   }
+
   if (dateEnd.value) {
-    result = result.filter(i => i.submitTime <= dateEnd.value + ' 23:59:59')
+    result = result.filter(i => i.submitTime <= dateEnd.value)
   }
 
   return result
 })
 
-const totalPages = computed(() => Math.ceil(filteredIntentions.value.length / pageSize))
+const totalPages = computed(() => Math.ceil(filteredIntentions.value.length / itemsPerPage))
 
 const paginatedIntentions = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  return filteredIntentions.value.slice(start, end)
+  const start = (currentPage.value - 1) * itemsPerPage
+  return filteredIntentions.value.slice(start, start + itemsPerPage)
 })
 
 const displayPages = computed(() => {
   const pages = []
-  const total = totalPages.value
-  const current = currentPage.value
+  const maxShow = 5
+  let start = Math.max(1, currentPage.value - Math.floor(maxShow / 2))
+  let end = Math.min(totalPages.value, start + maxShow - 1)
 
-  if (total <= 7) {
-    for (let i = 1; i <= total; i++) pages.push(i)
-  } else {
-    if (current <= 4) {
-      for (let i = 1; i <= 5; i++) pages.push(i)
-      pages.push('...')
-      pages.push(total)
-    } else if (current >= total - 3) {
-      pages.push(1)
-      pages.push('...')
-      for (let i = total - 4; i <= total; i++) pages.push(i)
-    } else {
-      pages.push(1)
-      pages.push('...')
-      for (let i = current - 1; i <= current + 1; i++) pages.push(i)
-      pages.push('...')
-      pages.push(total)
-    }
+  if (end - start < maxShow - 1) {
+    start = Math.max(1, end - maxShow + 1)
   }
+
+  if (start > 1) pages.push(1)
+  if (start > 2) pages.push('...')
+
+  for (let i = start; i <= end; i++) pages.push(i)
+
+  if (end < totalPages.value - 1) pages.push('...')
+  if (end < totalPages.value) pages.push(totalPages.value)
+
   return pages
 })
 
 // Methods
 const getStatusLabel = (status) => {
-  const labels = { pending: '待处理', accepted: '已接受', rejected: '已拒绝' }
+  const labels = {
+    pending: '待处理',
+    accepted: '已接受',
+    rejected: '已拒绝'
+  }
   return labels[status] || status
 }
 
@@ -312,58 +312,55 @@ const resetFilters = () => {
 }
 
 const viewDetail = (id) => {
-  const intention = allIntentions.value.find(i => i.id === id)
-  selectedIntention.value = intention
+  const allIntentions = [...receivedIntentions.value, ...sentIntentions.value]
+  selectedIntention.value = allIntentions.find(i => i.id === id)
   detailVisible.value = true
 }
 
-const navigateToDetail = (intention) => {
-  if (activeTab.value === 'received' && intention.vesselId) {
-    router.push(`/shipping-trade/vessel/${intention.vesselId}`)
-  } else if (activeTab.value === 'sent' && intention.purchaseId) {
-    router.push(`/shipping-trade/purchase/${intention.purchaseId}`)
-  }
-}
-
 const handleAccept = (id) => {
-  console.log('[v0] 接受意向:', id)
   const intention = receivedIntentions.value.find(i => i.id === id)
   if (intention) {
     intention.status = 'accepted'
-    intention.dockingTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '-')
+    intention.dockingTime = new Date().toLocaleString('zh-CN')
+    console.log('[v0] 已接受意向:', id)
   }
 }
 
 const handleReject = (id) => {
-  console.log('[v0] 拒绝意向:', id)
   const intention = receivedIntentions.value.find(i => i.id === id)
   if (intention) {
     intention.status = 'rejected'
-    intention.dockingTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '-')
+    console.log('[v0] 已拒绝意向:', id)
+  }
+}
+
+const navigateToDetail = (intention) => {
+  if (activeTab.value === 'sent' && intention.vesselId) {
+    router.push(`/shipping-trade/vessel/${intention.vesselId}`)
+  } else {
+    // For received intentions with related objects
+    console.log('[v0] 跳转到相关详情页面')
   }
 }
 </script>
 
 <style scoped>
-* {
-  box-sizing: border-box;
-}
-
 .intention-container {
   padding: 24px;
-  background: #F8FAFC;
+  background-color: #FFFFFF;
   min-height: 100vh;
 }
 
-/* Search & Filter Section */
 .search-filter-section {
-  margin-bottom: 28px;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  padding: 28px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 20px;
 }
 
@@ -375,33 +372,36 @@ const handleReject = (id) => {
   letter-spacing: -0.5px;
 }
 
+/* Search Card */
 .search-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  padding: 24px;
-  border-radius: 12px;
+  background: white;
   border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .search-main-row {
   display: flex;
   gap: 16px;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .search-input-group {
   flex: 1;
+  min-width: 200px;
 }
 
 .input-with-icon {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .search-icon {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
   width: 18px;
   height: 18px;
   color: #64748B;
@@ -431,16 +431,19 @@ const handleReject = (id) => {
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08);
 }
 
+/* Filter Group */
 .filter-group {
   display: flex;
   gap: 12px;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .select-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 140px;
 }
 
 .select-label {
@@ -449,6 +452,7 @@ const handleReject = (id) => {
   color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.8px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .modern-select,
@@ -460,13 +464,23 @@ const handleReject = (id) => {
   font-weight: 500;
   background-color: #FFFFFF;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.modern-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23475569' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 30px;
 }
 
 .modern-select:hover,
 .modern-date:hover {
   border-color: #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .modern-select:focus,
@@ -481,6 +495,7 @@ const handleReject = (id) => {
   color: #94A3B8;
 }
 
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 12px;
@@ -502,6 +517,7 @@ const handleReject = (id) => {
 .btn-reset-new:hover {
   background-color: #F8FAFC;
   border-color: #94A3B8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Tabs Section */
@@ -559,6 +575,7 @@ const handleReject = (id) => {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .intention-card:hover {
@@ -803,17 +820,17 @@ const handleReject = (id) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .modal-content {
   background: white;
   border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header {
@@ -822,16 +839,13 @@ const handleReject = (id) => {
   align-items: center;
   padding: 24px;
   border-bottom: 1px solid #E2E8F0;
-  position: sticky;
-  top: 0;
-  background: white;
 }
 
 .modal-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #0F172A;
   margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
 }
 
 .close-btn {
@@ -855,24 +869,24 @@ const handleReject = (id) => {
   margin-bottom: 24px;
 }
 
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
 .detail-section h3 {
+  margin: 0 0 16px 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #0F172A;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin: 0 0 16px 0;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #E2E8F0;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid #F1F5F9;
-  font-size: 14px;
 }
 
 .detail-row:last-child {
@@ -882,58 +896,34 @@ const handleReject = (id) => {
 .detail-label {
   color: #64748B;
   font-weight: 500;
+  font-size: 14px;
 }
 
 .detail-value {
   color: #0F172A;
   font-weight: 600;
+  font-size: 14px;
   text-align: right;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .search-main-row {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .search-input-group {
-    flex: 1 1 100%;
+    min-width: 100%;
   }
 
   .filter-group {
-    flex: 1 1 100%;
-  }
-
-  .intentions-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .intention-container {
-    padding: 16px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .search-card {
-    padding: 16px;
-  }
-
-  .search-main-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .filter-group {
-    flex-direction: column;
-    gap: 12px;
     width: 100%;
+    flex-direction: column;
   }
 
   .select-item {
     width: 100%;
+    min-width: auto;
   }
 
   .modern-select,
@@ -941,29 +931,8 @@ const handleReject = (id) => {
     width: 100%;
   }
 
-  .action-buttons {
-    width: 100%;
-  }
-
-  .btn-reset-new {
-    width: 100%;
-  }
-
   .intentions-grid {
     grid-template-columns: 1fr;
-  }
-
-  .action-buttons-group {
-    flex-wrap: wrap;
-  }
-
-  .modal-content {
-    width: 95%;
-    max-height: 90vh;
-  }
-
-  .pagination-section {
-    flex-wrap: wrap;
   }
 }
 </style>
