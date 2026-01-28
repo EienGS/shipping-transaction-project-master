@@ -122,11 +122,29 @@
                                 <button class="btn-accept" @click.stop="handleAccept(intention.id)">接受</button>
                                 <button class="btn-reject" @click.stop="handleReject(intention.id)">拒绝</button>
                             </template>
+                            <!-- Show verification button for accepted 出售 intentions -->
+                            <template v-else-if="intention.status === 'accepted' && intention.type === '出售'">
+                                <button v-if="!intention.verificationInitiated" class="btn-verify" @click.stop="handleInitiateVerification(intention.id, intention)">
+                                    发起鉴证申请
+                                </button>
+                                <button v-else class="btn-verify-center" @click.stop="goToVerificationCenter(intention.id)">
+                                    前往交易鉴证中心
+                                </button>
+                            </template>
                         </template>
 
                         <!-- Sent Intentions -->
                         <template v-else>
                             <button class="btn-detail" @click.stop="viewDetail(intention.id)">查看详情</button>
+                            <!-- Show verification button for accepted 求购 intentions -->
+                            <template v-if="intention.status === 'accepted' && intention.type === '求购'">
+                                <button v-if="!intention.verificationInitiated" class="btn-verify" @click.stop="handleInitiateVerification(intention.id, intention)">
+                                    发起鉴证申请
+                                </button>
+                                <button v-else class="btn-verify-center" @click.stop="goToVerificationCenter(intention.id)">
+                                    前往交易鉴证中心
+                                </button>
+                            </template>
                         </template>
                     </div>
                 </div>
@@ -200,6 +218,24 @@
                 </div>
             </div>
         </div>
+
+        <!-- Verification Confirmation Dialog -->
+        <div v-if="verificationConfirmVisible" class="modal-overlay" @click.self="verificationConfirmVisible = false">
+            <div class="modal-content confirmation-dialog">
+                <div class="modal-header">
+                    <h2>发起交易鉴证申请</h2>
+                    <button class="close-btn" @click="verificationConfirmVisible = false">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirm-message">是否确认发起交易鉴证申请？</p>
+                    <p class="confirm-subtitle">申请提交后，将进入交易鉴证流程</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" @click="verificationConfirmVisible = false">取消</button>
+                    <button class="btn-confirm" @click="confirmVerificationInitiation">确认</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -219,21 +255,23 @@ const currentPage = ref(1)
 const itemsPerPage = 6
 const detailVisible = ref(false)
 const selectedIntention = ref(null)
+const verificationConfirmVisible = ref(false)
+const pendingVerificationIntention = ref(null)
 
 // Mock data
 const receivedIntentions = ref([
-    { id: 1, type: '求购', title: '8万吨散货船', intentionNo: 'G2025012600001', counterparty: '张某 (13900099882)', status: 'pending', submitTime: '2026-02-05', amount: '220万元', phone: '13900099882', dockingTime: '' },
-    { id: 2, type: '求购', title: '集装箱船', intentionNo: 'G2025012600002', counterparty: '李某 (13800077766)', status: 'accepted', submitTime: '2026-02-03', amount: '350万元', phone: '13800077766', dockingTime: '2026-02-05 15:52:18' },
-    { id: 3, type: '求购', title: '油船', intentionNo: 'G2025012600003', counterparty: '王某 (13700055544)', status: 'rejected', submitTime: '2026-01-30', amount: '150万元', phone: '13700055544', dockingTime: '' },
-    { id: 4, type: '出售', title: '散货船 "OCEAN STAR"', intentionNo: 'G2025012600004', counterparty: '陈某 (13600033322)', status: 'pending', submitTime: '2026-02-04', amount: '450万元', phone: '13600033322', dockingTime: '' },
-    { id: 5, type: '求购', title: '好望角型散货船', intentionNo: 'G2025012600005', counterparty: '周某 (13500011100)', status: 'pending', submitTime: '2026-02-02', amount: '600万元', phone: '13500011100', dockingTime: '' },
-    { id: 6, type: '求购', title: '化学品油轮', intentionNo: 'G2025012600006', counterparty: '何某 (13900099882)', status: 'accepted', submitTime: '2026-02-01', amount: '280万元', phone: '13900099882', dockingTime: '2026-02-04 10:30:00' }
+    { id: 1, type: '求购', title: '8万吨散货船', intentionNo: 'G2025012600001', counterparty: '张某 (13900099882)', status: 'pending', submitTime: '2026-02-05', amount: '220万元', phone: '13900099882', dockingTime: '', verificationInitiated: false },
+    { id: 2, type: '求购', title: '集装箱船', intentionNo: 'G2025012600002', counterparty: '李某 (13800077766)', status: 'accepted', submitTime: '2026-02-03', amount: '350万元', phone: '13800077766', dockingTime: '2026-02-05 15:52:18', verificationInitiated: false },
+    { id: 3, type: '求购', title: '油船', intentionNo: 'G2025012600003', counterparty: '王某 (13700055544)', status: 'rejected', submitTime: '2026-01-30', amount: '150万元', phone: '13700055544', dockingTime: '', verificationInitiated: false },
+    { id: 4, type: '出售', title: '散货船 "OCEAN STAR"', intentionNo: 'G2025012600004', counterparty: '陈某 (13600033322)', status: 'pending', submitTime: '2026-02-04', amount: '450万元', phone: '13600033322', dockingTime: '', verificationInitiated: false },
+    { id: 5, type: '求购', title: '好望角型散货船', intentionNo: 'G2025012600005', counterparty: '周某 (13500011100)', status: 'pending', submitTime: '2026-02-02', amount: '600万元', phone: '13500011100', dockingTime: '', verificationInitiated: false },
+    { id: 6, type: '求购', title: '化学品油轮', intentionNo: 'G2025012600006', counterparty: '何某 (13900099882)', status: 'accepted', submitTime: '2026-02-01', amount: '280万元', phone: '13900099882', dockingTime: '2026-02-04 10:30:00', verificationInitiated: false }
 ])
 
 const sentIntentions = ref([
-    { id: 101, type: '求购', title: '5.7万吨散货船', intentionNo: 'G2025012600007', counterparty: '江某 (13400099999)', status: 'pending', submitTime: '2026-02-05', amount: '320万元', phone: '13400099999', vesselId: 1, dockingTime: '' },
-    { id: 102, type: '出售', title: '集装箱船 "PACIFIC LINK"', intentionNo: 'G2025012600008', counterparty: '赵某 (13300088888)', status: 'accepted', submitTime: '2026-02-03', amount: '420万元', phone: '13300088888', vesselId: 2, dockingTime: '2026-02-04' },
-    { id: 103, type: '求购', title: '油船', intentionNo: 'G2025012600009', counterparty: '孙某 (13200077777)', status: 'pending', submitTime: '2026-02-02', amount: '200万元', phone: '13200077777', vesselId: 3, dockingTime: '' }
+    { id: 101, type: '求购', title: '5.7万吨散货船', intentionNo: 'G2025012600007', counterparty: '江某 (13400099999)', status: 'pending', submitTime: '2026-02-05', amount: '320万元', phone: '13400099999', vesselId: 1, dockingTime: '', verificationInitiated: false },
+    { id: 102, type: '出售', title: '集装箱船 "PACIFIC LINK"', intentionNo: 'G2025012600008', counterparty: '赵某 (13300088888)', status: 'accepted', submitTime: '2026-02-03', amount: '420万元', phone: '13300088888', vesselId: 2, dockingTime: '2026-02-04', verificationInitiated: false },
+    { id: 103, type: '求购', title: '油船', intentionNo: 'G2025012600009', counterparty: '孙某 (13200077777)', status: 'pending', submitTime: '2026-02-02', amount: '200万元', phone: '13200077777', vesselId: 3, dockingTime: '', verificationInitiated: false }
 ])
 
 // Tab data
@@ -366,6 +404,33 @@ const navigateToDetail = (intention) => {
         // For received intentions with related objects
         console.log('[v0] 跳转到相关详情页面')
     }
+}
+
+const handleInitiateVerification = (id, intention) => {
+    console.log('[v0] 准备发起鉴证申请:', id)
+    pendingVerificationIntention.value = intention
+    verificationConfirmVisible.value = true
+}
+
+const confirmVerificationInitiation = () => {
+    if (pendingVerificationIntention.value) {
+        const id = pendingVerificationIntention.value.id
+        const isReceived = activeTab.value === 'received'
+        const allIntentions = isReceived ? receivedIntentions.value : sentIntentions.value
+        const intention = allIntentions.find(i => i.id === id)
+        
+        if (intention) {
+            intention.verificationInitiated = true
+            console.log('[v0] 已发起鉴证申请:', id)
+            verificationConfirmVisible.value = false
+            pendingVerificationIntention.value = null
+        }
+    }
+}
+
+const goToVerificationCenter = (id) => {
+    console.log('[v0] 跳转到交易鉴证中心:', id)
+    router.push(`/user-center/trade-verification?intentionId=${id}`)
 }
 </script>
 
@@ -770,7 +835,87 @@ const navigateToDetail = (intention) => {
 }
 
 .btn-reject:hover {
-    background: #DC2626;
+  background: #DC2626;
+}
+
+.btn-verify {
+  background: #8B5CF6;
+  color: white;
+  flex: 1;
+}
+
+.btn-verify:hover {
+  background: #7C3AED;
+}
+
+.btn-verify-center {
+  background: #06B6D4;
+  color: white;
+  flex: 1;
+}
+
+.btn-verify-center:hover {
+  background: #0891B2;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: white;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #0EA5E9;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-confirm:hover {
+  background: #0284C7;
+}
+
+.confirmation-dialog {
+  max-width: 400px;
+}
+
+.confirm-message {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+}
+
+.confirm-subtitle {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
 }
 
 /* Empty State */

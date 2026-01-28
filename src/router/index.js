@@ -111,6 +111,11 @@ const routes = [
         path: 'favorites/lease',
         name: 'LeaseFavorites',
         component: () => import('../views/user-center/LeaseFavorites.vue')
+      },
+      {
+        path: 'trade-verification',
+        name: 'TradeVerificationCenter',
+        component: () => import('../views/user-center/TradeVerificationCenter.vue')
       }
     ]
   },
