@@ -143,16 +143,27 @@
                     <button class="contact-btn" @click="handleContact">意向对接</button>
                 </div>
             </aside>
-        </div>
     </div>
+
+    <!-- Intention Dialog -->
+    <IntentionDialog 
+      v-model="isIntentionDialogOpen"
+      :purchase-id="route.params.id"
+      @submit="handleIntentionSubmit"
+    />
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import IntentionDialog from '../../components/IntentionDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
+
+// Intention Dialog state
+const isIntentionDialogOpen = ref(false)
 
 const isFavorited = ref(false)
 const showContact = ref(false)
@@ -275,12 +286,15 @@ const searchByParam = (key, value) => {
 }
 
 const handleContact = () => {
-    if (!showContact.value) {
-        console.log('显示联系方式，需要用户登录')
-        showContact.value = true
-    } else {
-        console.log('联系发布者')
-    }
+    console.log('[v0] 打开对接意向弹窗')
+    isIntentionDialogOpen.value = true
+}
+
+const handleIntentionSubmit = (intentionData) => {
+    console.log('[v0] 提交意向信息:', {
+        purchaseId: route.params.id,
+        ...intentionData
+    })
 }
 
 // 计算当前可见的推荐列表
@@ -722,7 +736,7 @@ onMounted(() => {
 .contact-btn {
     width: 100%;
     padding: 12px;
-    background: #1890FF;
+    background: linear-gradient(135deg, #0EA5E9, #06B6D4);
     color: white;
     border: none;
     border-radius: 6px;
@@ -730,10 +744,17 @@ onMounted(() => {
     font-size: 15px;
     font-weight: 600;
     transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
 }
 
 .contact-btn:hover {
-    background: #0D7DE0;
+    background: linear-gradient(135deg, #0284C7, #0891B2);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    transform: translateY(-2px);
+}
+
+.contact-btn:active {
+    transform: translateY(0);
 }
 
 @media (max-width: 1200px) {

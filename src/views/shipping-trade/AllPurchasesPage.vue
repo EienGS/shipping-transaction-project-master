@@ -63,11 +63,7 @@
           </button>
 
           <button class="compact-search" @click="handleSearch">
-            <svg viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-              <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            搜索需求
+            筛选
           </button>
         </div>
 
@@ -551,6 +547,8 @@ const contactBuyer = (id) => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  width: 100px;
+  justify-content: center;
 }
 
 .compact-reset {
@@ -564,7 +562,7 @@ const contactBuyer = (id) => {
 }
 
 .compact-search {
-  background: linear-gradient(135deg, #0EA5E9, #06B6D4);
+  background: linear-gradient(135deg, #F59E0B, #EF4444);
   color: white;
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
 }
