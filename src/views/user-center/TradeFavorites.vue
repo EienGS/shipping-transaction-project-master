@@ -1,83 +1,95 @@
 <template>
   <div class="trade-favorites-container">
-    <!-- Search & Filter Section -->
     <div class="search-filter-section">
-      <h1 class="page-title">购售需求收藏</h1>
-      
-      <div class="search-controls">
-        <!-- Search by Title -->
-        <div class="search-input-wrapper">
-          <input 
-            v-model="searchTitle" 
-            type="text" 
-            placeholder="按船舶标题搜索..."
-            class="search-input"
-            @input="applyFilters"
-          >
-          <svg class="search-icon" viewBox="0 0 24 24">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" fill="none" stroke-width="2"/>
-          </svg>
-        </div>
-
-        <!-- Filter Controls -->
-        <div class="filter-controls-inline">
-          <div class="filter-item">
-            <label>收藏时间</label>
-            <select v-model="filterDateRange" @change="applyFilters" class="filter-select">
-              <option value="">全部时间</option>
-              <option value="7days">最近7天</option>
-              <option value="30days">最近30天</option>
-              <option value="90days">最近90天</option>
-            </select>
-          </div>
-
-          <div class="filter-item">
-            <label>船舶状态</label>
-            <select v-model="filterStatus" @change="applyFilters" class="filter-select">
-              <option value="">全部状态</option>
-              <option value="在售">在售</option>
-              <option value="已成交">已成交</option>
-              <option value="已下架">已下架</option>
-            </select>
-          </div>
-
-          <div class="filter-item">
-            <label>船舶类型</label>
-            <select v-model="filterType" @change="applyFilters" class="filter-select">
-              <option value="">全部类型</option>
-              <option value="散货船">散货船</option>
-              <option value="油船">油船</option>
-              <option value="集装箱船">集装箱船</option>
-            </select>
-          </div>
-
-          <button class="btn-search" @click="applyFilters">搜索</button>
-          <button class="btn-reset" @click="resetFilters">重置</button>
-        </div>
+      <div class="header-content">
+        <h1 class="page-title">购售需求收藏</h1>
+        <div class="stats-badge">共 {{ favoritedVessels.length }} 项收藏</div>
       </div>
+      
+      <div class="search-card">
+        <div class="search-main-row">
+          <div class="search-input-group">
+            <div class="input-with-icon">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input 
+                v-model="searchTitle" 
+                type="text" 
+                placeholder="搜索船舶名称或关键词..."
+                class="modern-input"
+                @input="applyFilters"
+              >
+            </div>
+          </div>
 
-      <!-- Active Filters Display -->
-      <div v-if="hasActiveFilters" class="active-filters">
-        <span v-if="searchTitle" class="filter-tag">
-          标题: {{ searchTitle }}
-          <button @click="searchTitle = ''; applyFilters()">✕</button>
-        </span>
-        <span v-if="filterStatus" class="filter-tag">
-          状态: {{ filterStatus }}
-          <button @click="filterStatus = ''; applyFilters()">✕</button>
-        </span>
-        <span v-if="filterDateRange" class="filter-tag">
-          时间: {{ filterDateRangeText }}
-          <button @click="filterDateRange = ''; applyFilters()">✕</button>
-        </span>
-        <span v-if="filterType" class="filter-tag">
-          类型: {{ filterType }}
-          <button @click="filterType = ''; applyFilters()">✕</button>
-        </span>
+          <div class="filter-group">
+            <div class="select-item">
+              <span class="select-label">收藏时间</span>
+              <select v-model="filterDateRange" @change="applyFilters" class="modern-select">
+                <option value="">全部时间</option>
+                <option value="7days">最近7天</option>
+                <option value="30days">最近30天</option>
+                <option value="90days">最近90天</option>
+              </select>
+            </div>
+
+            <div class="select-item">
+              <span class="select-label">船舶状态</span>
+              <select v-model="filterStatus" @change="applyFilters" class="modern-select">
+                <option value="">全部状态</option>
+                <option value="在售">在售</option>
+                <option value="已成交">已成交</option>
+                <option value="已下架">已下架</option>
+              </select>
+            </div>
+
+            <div class="select-item">
+              <span class="select-label">类型</span>
+              <select v-model="filterType" @change="applyFilters" class="modern-select">
+                <option value="">全部类型</option>
+                <option value="散货船">散货船</option>
+                <option value="油船">油船</option>
+                <option value="集装箱船">集装箱船</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn-reset-new" @click="resetFilters">
+              重置
+            </button>
+            <button class="btn-search-new" @click="applyFilters">
+              <span>查询</span>
+            </button>
+          </div>
+        </div>
+
+        <div v-if="hasActiveFilters" class="tags-container">
+          <span class="tags-label">当前筛选：</span>
+          <div class="tags-list">
+            <span v-if="searchTitle" class="modern-tag">
+              关键词: {{ searchTitle }}
+              <i @click="searchTitle = ''; applyFilters()">✕</i>
+            </span>
+            <span v-if="filterStatus" class="modern-tag">
+              状态: {{ filterStatus }}
+              <i @click="filterStatus = ''; applyFilters()">✕</i>
+            </span>
+            <span v-if="filterDateRange" class="modern-tag">
+              时间: {{ filterDateRangeText }}
+              <i @click="filterDateRange = ''; applyFilters()">✕</i>
+            </span>
+            <span v-if="filterType" class="modern-tag">
+              类型: {{ filterType }}
+              <i @click="filterType = ''; applyFilters()">✕</i>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Favorites List -->
     <div v-if="filteredFavorites.length > 0" class="vessel-cards-grid">
       <div 
         v-for="v in filteredFavorites" 
@@ -114,7 +126,6 @@
       </div>
     </div>
 
-    <!-- Empty State -->
     <div v-else class="empty-state">
       <div class="empty-icon">📭</div>
       <h2>还没有收藏</h2>
@@ -124,826 +135,383 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Search and filter states
 const searchTitle = ref('')
 const filterStatus = ref('')
 const filterDateRange = ref('')
 const filterType = ref('')
 
-// Mock favorited vessels data
 const favoritedVessels = ref([
-  { 
-    id: 2, 
-    name: '集装箱船 "PACIFIC LINK"', 
-    type: '集装箱船', 
-    age: 5, 
-    dwt: '32,000', 
-    price: 6800, 
-    status: '在售',
-    collectedAt: '2024-01-20'
-  },
-  { 
-    id: 5, 
-    name: '8.2万吨散货船 "KAMSARMAX II"', 
-    type: '散货船', 
-    age: 3, 
-    dwt: '82,000', 
-    price: 11500, 
-    status: '在售',
-    collectedAt: '2024-01-18'
-  },
-  { 
-    id: 8, 
-    name: '化学品油轮 "CHEM STAR"', 
-    type: '油船', 
-    age: 9, 
-    dwt: '38,000', 
-    price: 3800, 
-    status: '已成交',
-    collectedAt: '2024-01-15'
-  },
-  { 
-    id: 1, 
-    name: '5.7万吨散货船 "OCEAN STAR"', 
-    type: '散货船', 
-    age: 8, 
-    dwt: '57,000', 
-    price: 3500, 
-    status: '在售',
-    collectedAt: '2024-01-10'
-  },
-  { 
-    id: 12, 
-    name: '好望角型散货船 "CAPE STAR"', 
-    type: '散货船', 
-    age: 8, 
-    dwt: '180,000', 
-    price: 22000, 
-    status: '已下架',
-    collectedAt: '2024-01-05'
-  }
+  { id: 2, name: '集装箱船 "PACIFIC LINK"', type: '集装箱船', age: 5, dwt: '32,000', price: 6800, status: '在售', collectedAt: '2024-01-20' },
+  { id: 5, name: '8.2万吨散货船 "KAMSARMAX II"', type: '散货船', age: 3, dwt: '82,000', price: 11500, status: '在售', collectedAt: '2024-01-18' },
+  { id: 8, name: '化学品油轮 "CHEM STAR"', type: '油船', age: 9, dwt: '38,000', price: 3800, status: '已成交', collectedAt: '2024-01-15' },
+  { id: 1, name: '5.7万吨散货船 "OCEAN STAR"', type: '散货船', age: 8, dwt: '57,000', price: 3500, status: '在售', collectedAt: '2024-01-10' },
+  { id: 12, name: '好望角型散货船 "CAPE STAR"', type: '散货船', age: 8, dwt: '180,000', price: 22000, status: '已下架', collectedAt: '2024-01-05' }
 ])
 
-// Compute filter date range text
 const filterDateRangeText = computed(() => {
-  const rangeMap = {
-    '7days': '最近7天',
-    '30days': '最近30天',
-    '90days': '最近90天'
-  }
+  const rangeMap = { '7days': '最近7天', '30days': '最近30天', '90days': '最近90天' }
   return rangeMap[filterDateRange.value] || ''
 })
 
-// Check if any filters are active
 const hasActiveFilters = computed(() => {
   return searchTitle.value || filterStatus.value || filterDateRange.value || filterType.value
 })
 
-// Calculate date comparison for filtering
 const getDateDaysAgo = (daysAgo) => {
   const date = new Date()
   date.setDate(date.getDate() - daysAgo)
   return date.toISOString().split('T')[0]
 }
 
-// Filter vessels based on search and filter criteria
 const filteredFavorites = computed(() => {
   let vessels = favoritedVessels.value
-
-  // Filter by title
   if (searchTitle.value) {
-    vessels = vessels.filter(v => 
-      v.name.toLowerCase().includes(searchTitle.value.toLowerCase())
-    )
+    vessels = vessels.filter(v => v.name.toLowerCase().includes(searchTitle.value.toLowerCase()))
   }
-
-  // Filter by status
   if (filterStatus.value) {
     vessels = vessels.filter(v => v.status === filterStatus.value)
   }
-
-  // Filter by collection date
   if (filterDateRange.value) {
-    let daysLimit = 0
-    if (filterDateRange.value === '7days') daysLimit = 7
-    else if (filterDateRange.value === '30days') daysLimit = 30
-    else if (filterDateRange.value === '90days') daysLimit = 90
-
+    let daysLimit = filterDateRange.value === '7days' ? 7 : filterDateRange.value === '30days' ? 30 : 90
     const cutoffDate = getDateDaysAgo(daysLimit)
     vessels = vessels.filter(v => v.collectedAt >= cutoffDate)
   }
-
-  // Filter by vessel type
   if (filterType.value) {
     vessels = vessels.filter(v => v.type === filterType.value)
   }
-
   return vessels
 })
 
-// Methods
-const applyFilters = () => {
-  console.log('[v0] 应用筛选条件:', {
-    searchTitle: searchTitle.value,
-    filterStatus: filterStatus.value,
-    filterDateRange: filterDateRange.value,
-    filterType: filterType.value
-  })
-}
-
+const applyFilters = () => { /* Logic */ }
 const resetFilters = () => {
-  searchTitle.value = ''
-  filterStatus.value = ''
-  filterDateRange.value = ''
-  filterType.value = ''
-  applyFilters()
+  searchTitle.value = ''; filterStatus.value = ''; filterDateRange.value = ''; filterType.value = ''
 }
-
 const removeFavorite = (id) => {
   const index = favoritedVessels.value.findIndex(v => v.id === id)
-  if (index !== -1) {
-    favoritedVessels.value.splice(index, 1)
-    console.log('[v0] 取消收藏 ID:', id)
-  }
+  if (index !== -1) favoritedVessels.value.splice(index, 1)
 }
-
-const viewVesselDetail = (id) => {
-  console.log('[v0] 查看船舶详情 ID:', id)
-  router.push(`/shipping-trade/vessel/${id}`)
-}
+const viewVesselDetail = (id) => { router.push(`/shipping-trade/vessel/${id}`) }
 </script>
 
 <style scoped>
+/* Base Container */
 .trade-favorites-container {
-  padding: 24px;
-  background-color: #FFFFFF;
+  background-color: #fff;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* --- Optimized Search Section Styles --- */
 .search-filter-section {
-  margin-bottom: 32px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  padding: 28px;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .page-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 20px;
-  letter-spacing: -0.5px;
+  color: #0f172a;
+  margin: 0;
+  position: relative;
 }
 
-.search-controls {
+.stats-badge {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.search-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.search-main-row {
   display: flex;
   gap: 16px;
   align-items: flex-end;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.search-input-wrapper {
+/* Keyword Input */
+.search-input-group {
   flex: 1;
+  min-width: 260px;
+}
+
+.input-with-icon {
   position: relative;
-  min-width: 0;
-}
-
-.search-input {
-  width: 100%;
-  padding: 11px 14px 11px 38px;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: #FFFFFF;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-}
-
-.search-input:hover {
-  border-color: #94A3B8;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.search-input::placeholder {
-  color: #94A3B8;
+  display: flex;
+  align-items: center;
 }
 
 .search-icon {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  color: #64748B;
-  pointer-events: none;
+  color: #94a3b8;
+  transition: color 0.3s;
 }
 
-/* Inline Filter Controls */
-.filter-controls-inline {
+.modern-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px 0 40px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-input:focus {
+  background: #fff;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  outline: none;
+}
+
+.modern-input:focus + .search-icon {
+  color: #0ea5e9;
+}
+
+/* Dropdown Filters */
+.filter-group {
   display: flex;
   gap: 12px;
-  align-items: flex-end;
   flex-wrap: wrap;
 }
 
-.filter-item {
+.select-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 140px;
 }
 
-.filter-item label {
+.select-label {
   font-size: 12px;
   font-weight: 600;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: #64748b;
+  margin-left: 2px;
 }
 
-.filter-select {
-  padding: 11px 12px;
-  border: 1px solid #CBD5E1;
+.modern-select {
+  height: 42px;
+  min-width: 130px;
+  padding: 0 32px 0 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
-  background-color: #FFFFFF;
+  color: #334155;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23475569' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 8px center;
   background-size: 16px;
-  padding-right: 30px;
+  transition: all 0.2s;
 }
 
-.filter-select:hover {
-  border-color: #94A3B8;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.modern-select:hover {
+  border-color: #cbd5e1;
 }
 
-.filter-select:focus {
+.modern-select:focus {
+  border-color: #0ea5e9;
+  background-color: #fff;
   outline: none;
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.btn-search {
-  padding: 11px 24px;
-  border: 1px solid #0EA5E9;
+/* Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-search-new {
+  height: 42px;
+  padding: 0 24px;
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
-  color: white;
-  font-size: 14px;
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s;
   box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
-  white-space: nowrap;
 }
 
-.btn-search:hover {
-  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
-  box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
+.btn-search-new:hover {
+  background: #0284c7;
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
 }
 
-.btn-search:active {
+.btn-search-new:active {
   transform: translateY(0);
 }
 
-.btn-reset {
-  padding: 11px 24px;
-  border: 1px solid #E2E8F0;
+.btn-reset-new {
+  height: 42px;
+  padding: 0 18px;
+  background: #fff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background-color: #FFFFFF;
-  color: #64748B;
+  font-weight: 500;
   font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  white-space: nowrap;
+  transition: all 0.2s;
 }
 
-.btn-reset:hover {
-  background-color: #F8FAFC;
-  border-color: #94A3B8;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.btn-reset-new:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
 }
 
-.btn-reset:active {
-  background-color: #F1F5F9;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1E293B;
-  margin-bottom: 24px;
-}
-
-.search-controls {
+/* Filter Tags */
+.tags-container {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.search-input-wrapper {
-  width: 300px;
-  position: relative;
-  min-width: 0;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 12px 10px 36px;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.search-icon {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  color: #94A3B8;
-  pointer-events: none;
-}
-
-/* Inline Filter Controls */
-.filter-controls-inline {
-  display: flex;
+  align-items: center;
   gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
 }
 
-.filter-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-.filter-item label {
+.tags-label {
   font-size: 13px;
-  font-weight: 600;
-  color: #64748B;
+  color: #94a3b8;
   white-space: nowrap;
 }
 
-.filter-select {
-  padding: 9px 12px;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  font-size: 14px;
-  background-color: #FFFFFF;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.filter-select:hover {
-  border-color: #CBD5E1;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.btn-reset,
-.btn-search {
-  padding: 9px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.btn-search {
-  background-color: #0EA5E9;
-  border: 1px solid #0EA5E9;
-  color: #FFFFFF;
-}
-
-.btn-search:hover {
-  background-color: #0284C7;
-  border-color: #0284C7;
-}
-
-.btn-reset {
-  border: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
-  color: #475569;
-}
-
-.btn-reset:hover {
-  background-color: #F8FAFC;
-  border-color: #CBD5E1;
-}
-
-/* Active Filters Display */
-.active-filters {
+.tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-}
-
-.filter-tag {
-  display: inline-flex;
-  align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
-  border: 1px solid #BFDBFE;
-  border-radius: 20px;
-  font-size: 13px;
-  color: #1E40AF;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.filter-tag:hover {
-  background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%);
-  border-color: #93C5FD;
-  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
-}
-
-.filter-tag button {
-  background: none;
-  border: none;
-  color: #1E40AF;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
+.modern-tag {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  transition: all 0.2s ease;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #0369a1;
+  font-weight: 500;
 }
 
-.filter-tag button:hover {
-  opacity: 0.7;
-  transform: scale(1.1);
+.modern-tag i {
+  font-style: normal;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
 }
 
-/* Vessel Cards Grid */
+.modern-tag i:hover {
+  opacity: 1;
+}
+
+/* --- Rest of the styles (Grid, Cards, etc.) - Keep original but ensure compatibility --- */
 .vessel-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  gap: 24px;
 }
 
 .vessel-ui-card {
   background: white;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .vessel-ui-card:hover {
-  border-color: #0EA5E9;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
-  transform: translateY(-2px);
+  border-color: #0ea5e9;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  transform: translateY(-4px);
 }
 
 .image-box {
   position: relative;
   height: 200px;
-  overflow: hidden;
-  background-color: #F1F5F9;
+  background-color: #f1f5f9;
 }
 
 .image-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100%; height: 100%; object-fit: cover;
 }
 
 .type-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px);
+  color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
 }
 
 .fav-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #94A3B8;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute; top: 12px; right: 12px;
+  width: 32px; height: 32px; border: none; border-radius: 50%;
+  background: white; color: #ef4444; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.fav-btn:hover {
-  background-color: white;
-  color: #EF4444;
-}
+.info-box { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.name { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px; }
+.status-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+.status-在售 { background: #dcfce7; color: #15803d; }
+.status-已成交 { background: #fee2e2; color: #dc2626; }
+.status-已下架 { background: #f1f5f9; color: #64748b; }
 
-.fav-btn.active {
-  color: #EF4444;
-}
-
-.info-box {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.name {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1E293B;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-}
-
-.status-badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-
-.status-在售 {
-  background-color: #DCFCE7;
-  color: #15803D;
-}
-
-.status-已成交 {
-  background-color: #FEE2E2;
-  color: #DC2626;
-}
-
-.status-已下架 {
-  background-color: #F3F4F6;
-  color: #6B7280;
-}
-
-.meta {
-  font-size: 13px;
-  color: #64748B;
-}
-
-.divider {
-  margin: 0 4px;
-  color: #CBD5E1;
-}
-
-.collection-time {
-  font-size: 12px;
-  color: #94A3B8;
-}
-
+.meta { font-size: 13px; color: #64748b; }
+.collection-time { font-size: 12px; color: #94a3b8; }
 .footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #E2E8F0;
+  margin-top: 8px; padding-top: 12px; border-top: 1px solid #f1f5f9;
+  display: flex; justify-content: space-between; align-items: center;
 }
-
-.price {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.price .label {
-  font-size: 12px;
-  color: #64748B;
-}
-
-.price .amount {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0EA5E9;
-}
-
-.price small {
-  font-size: 12px;
-  font-weight: 600;
-  color: #0EA5E9;
-}
-
+.price .amount { font-size: 18px; font-weight: 800; color: #0ea5e9; }
 .detail-btn {
-  padding: 6px 12px;
-  border: 1px solid #0EA5E9;
-  border-radius: 4px;
-  background-color: white;
-  color: #0EA5E9;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 6px 14px; border: 1px solid #0ea5e9; border-radius: 6px;
+  background: transparent; color: #0ea5e9; font-weight: 600; font-size: 12px; cursor: pointer;
 }
+.detail-btn:hover { background: #0ea5e9; color: white; }
 
-.detail-btn:hover {
-  background-color: #0EA5E9;
-  color: white;
-}
+.empty-state { text-align: center; padding: 80px 0; color: #64748b; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
 
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1E293B;
-  margin-bottom: 8px;
-}
-
-.empty-state p {
-  font-size: 14px;
-  color: #64748B;
-}
-
-@media (max-width: 1200px) {
-  .search-controls {
-    gap: 12px;
-  }
-
-  .filter-item {
-    min-width: 130px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .search-filter-section {
-    padding: 24px;
-  }
-
-  .search-controls {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .search-input-wrapper {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
-
-  .filter-controls-inline {
-    gap: 10px;
-  }
-
-  .filter-item {
-    flex: 1;
-    min-width: 110px;
-  }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-  .search-filter-section {
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-
-  .page-title {
-    font-size: 24px;
-    margin-bottom: 16px;
-  }
-
-  .search-controls {
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-
-  .search-input-wrapper {
-    width: 100%;
-  }
-
-  .filter-controls-inline {
-    width: 100%;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .filter-item {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .filter-select {
-    width: 100%;
-  }
-
-  .btn-search,
-  .btn-reset {
-    width: 100%;
-  }
-
-  .vessel-cards-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-  .filter-controls-inline {
-    width: 100%;
-    gap: 10px;
-  }
-
-  .filter-item {
-    flex: 1;
-    min-width: 120px;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-controls {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .search-input-wrapper {
-    width: 100%;
-    height: 100%;
-  }
-
-  .vessel-cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filter-controls-inline {
-    width: 100%;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .filter-item {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .btn-reset {
-    width: 100%;
-  }
+  .search-main-row { flex-direction: column; align-items: stretch; }
+  .filter-group { display: grid; grid-template-columns: 1fr 1fr; }
+  .select-item { min-width: 0; }
+  .action-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+  .trade-favorites-container { padding: 16px; }
 }
 </style>

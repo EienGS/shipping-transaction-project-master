@@ -11,6 +11,12 @@
     <!-- Compact Search Section -->
     <section class="search-section">
       <div class="search-container">
+        <!-- Keyword Search Bar -->
+        <div class="keyword-search-bar">
+          <input v-model="searchKeyword" type="text" placeholder="搜索预算、航区、船型等..." class="keyword-input" @keyup.enter="handleSearch">
+          <button class="keyword-search-btn" @click="handleSearch">搜索</button>
+        </div>
+
         <!-- Main Ship Type Categories -->
         <div class="main-categories">
           <button v-for="type in mainCategories" :key="type.value" 
@@ -153,6 +159,7 @@ const mainCategories = [
 
 const selectedMainType = ref('')
 const selectedSubType = ref('')
+const searchKeyword = ref('')
 
 const currentSubCategories = computed(() => {
   const selected = mainCategories.find(c => c.value === selectedMainType.value)
@@ -210,6 +217,17 @@ const selectSubCategory = (sub) => {
 const filteredPurchases = computed(() => {
   let result = purchases.value
 
+  // Filter by search keyword
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase()
+    result = result.filter(p => 
+      p.type.toLowerCase().includes(keyword) ||
+      p.area.toLowerCase().includes(keyword) ||
+      p.budget.toLowerCase().includes(keyword) ||
+      p.buildYear.toLowerCase().includes(keyword)
+    )
+  }
+
   if (selectedSubType.value) {
     result = result.filter(p => p.type === selectedSubType.value)
   }
@@ -258,6 +276,7 @@ const handleSearch = () => {
 }
 
 const resetFilters = () => {
+  searchKeyword.value = ''
   selectedMainType.value = ''
   selectedSubType.value = ''
   filters.value = {
@@ -336,6 +355,46 @@ const contactBuyer = (id) => {
   border-radius: 16px;
   padding: 28px 32px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+/* Keyword Search Bar */
+.keyword-search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.keyword-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.keyword-input:focus {
+  border-color: #0EA5E9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.keyword-search-btn {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #0EA5E9, #06B6D4);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.keyword-search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
 /* Main Categories */
