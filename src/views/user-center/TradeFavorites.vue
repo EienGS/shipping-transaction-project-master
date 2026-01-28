@@ -18,41 +18,41 @@
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" fill="none" stroke-width="2"/>
           </svg>
         </div>
-      </div>
 
-      <!-- Filter Controls (Inline) -->
-      <div class="filter-controls-inline">
-        <div class="filter-item">
-          <label>收藏时间</label>
-          <select v-model="filterDateRange" @change="applyFilters" class="filter-select">
-            <option value="">全部时间</option>
-            <option value="7days">最近7天</option>
-            <option value="30days">最近30天</option>
-            <option value="90days">最近90天</option>
-          </select>
+        <!-- Filter Controls -->
+        <div class="filter-controls-inline">
+          <div class="filter-item">
+            <label>收藏时间</label>
+            <select v-model="filterDateRange" @change="applyFilters" class="filter-select">
+              <option value="">全部时间</option>
+              <option value="7days">最近7天</option>
+              <option value="30days">最近30天</option>
+              <option value="90days">最近90天</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label>船舶状态</label>
+            <select v-model="filterStatus" @change="applyFilters" class="filter-select">
+              <option value="">全部状态</option>
+              <option value="在售">在售</option>
+              <option value="已成交">已成交</option>
+              <option value="已下架">已下架</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label>船舶类型</label>
+            <select v-model="filterType" @change="applyFilters" class="filter-select">
+              <option value="">全部类型</option>
+              <option value="散货船">散货船</option>
+              <option value="油船">油船</option>
+              <option value="集装箱船">集装箱船</option>
+            </select>
+          </div>
+
+          <button class="btn-reset" @click="resetFilters">重置</button>
         </div>
-
-        <div class="filter-item">
-          <label>船舶状态</label>
-          <select v-model="filterStatus" @change="applyFilters" class="filter-select">
-            <option value="">全部状态</option>
-            <option value="在售">在售</option>
-            <option value="已成交">已成交</option>
-            <option value="已下架">已下架</option>
-          </select>
-        </div>
-
-        <div class="filter-item">
-          <label>船舶类型</label>
-          <select v-model="filterType" @change="applyFilters" class="filter-select">
-            <option value="">全部类型</option>
-            <option value="散货船">散货船</option>
-            <option value="油船">油船</option>
-            <option value="集装箱船">集装箱船</option>
-          </select>
-        </div>
-
-        <button class="btn-reset" @click="resetFilters">重置</button>
       </div>
 
       <!-- Active Filters Display -->
@@ -297,14 +297,15 @@ const viewVesselDetail = (id) => {
 
 .search-controls {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }
 
 .search-input-wrapper {
   flex: 1;
   position: relative;
-  max-width: 400px;
+  min-width: 0;
 }
 
 .search-input {
@@ -336,50 +337,51 @@ const viewVesselDetail = (id) => {
 /* Inline Filter Controls */
 .filter-controls-inline {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-end;
-  margin-bottom: 24px;
-  padding: 16px;
-  background-color: #F8FAFC;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
+  flex-wrap: wrap;
 }
 
 .filter-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 1;
-  min-width: 150px;
+  min-width: 140px;
 }
 
 .filter-item label {
   font-size: 12px;
   font-weight: 600;
-  color: #475569;
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .filter-select {
-  padding: 8px 12px;
+  padding: 9px 12px;
   border: 1px solid #E2E8F0;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
   background-color: #FFFFFF;
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.filter-select:hover {
+  border-color: #CBD5E1;
 }
 
 .filter-select:focus {
   outline: none;
   border-color: #0EA5E9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .btn-reset {
-  padding: 8px 16px;
+  padding: 9px 16px;
   border: 1px solid #E2E8F0;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: #FFFFFF;
   color: #475569;
   font-size: 14px;
@@ -387,10 +389,11 @@ const viewVesselDetail = (id) => {
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-reset:hover {
-  background-color: #F1F5F9;
+  background-color: #F8FAFC;
   border-color: #CBD5E1;
 }
 
@@ -629,13 +632,31 @@ const viewVesselDetail = (id) => {
   color: #64748B;
 }
 
+@media (max-width: 1024px) {
+  .search-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .filter-controls-inline {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .filter-item {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
 @media (max-width: 768px) {
   .search-controls {
     flex-direction: column;
+    gap: 16px;
   }
 
   .search-input-wrapper {
-    max-width: 100%;
+    width: 100%;
   }
 
   .vessel-cards-grid {
@@ -643,12 +664,14 @@ const viewVesselDetail = (id) => {
   }
 
   .filter-controls-inline {
+    width: 100%;
     flex-direction: column;
     gap: 12px;
   }
 
   .filter-item {
     min-width: auto;
+    width: 100%;
   }
 
   .btn-reset {
