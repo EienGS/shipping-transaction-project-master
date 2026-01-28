@@ -18,62 +18,42 @@
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" fill="none" stroke-width="2"/>
           </svg>
         </div>
-
-        <!-- Filter Button -->
-        <button class="filter-btn" @click="showFilterPopup = !showFilterPopup">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18M6 12h12M9 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          筛选
-        </button>
       </div>
 
-      <!-- Filter Popup -->
-      <div v-if="showFilterPopup" class="filter-popup-overlay" @click="showFilterPopup = false"></div>
-      <transition name="filter-popup">
-        <div v-if="showFilterPopup" class="filter-popup-card" @click.stop>
-          <div class="filter-compact-body">
-            <!-- Status Filter -->
-            <div class="filter-item">
-              <label>船舶状态</label>
-              <select v-model="filterStatus" @change="applyFilters">
-                <option value="">全部状态</option>
-                <option value="在售">在售</option>
-                <option value="已成交">已成交</option>
-                <option value="已下架">已下架</option>
-              </select>
-            </div>
-
-            <!-- Collection Date Filter -->
-            <div class="filter-item">
-              <label>收藏时间</label>
-              <select v-model="filterDateRange" @change="applyFilters">
-                <option value="">全部时间</option>
-                <option value="7days">最近7天</option>
-                <option value="30days">最近30天</option>
-                <option value="90days">最近90天</option>
-              </select>
-            </div>
-
-            <!-- Vessel Type Filter -->
-            <div class="filter-item">
-              <label>船舶类型</label>
-              <select v-model="filterType" @change="applyFilters">
-                <option value="">全部类型</option>
-                <option value="散货船">散货船</option>
-                <option value="油船">油船</option>
-                <option value="集装箱船">集装箱船</option>
-              </select>
-            </div>
-
-            <!-- Filter Actions -->
-            <div class="filter-actions">
-              <button class="btn-reset" @click="resetFilters">重置</button>
-              <button class="btn-apply" @click="showFilterPopup = false">应用</button>
-            </div>
-          </div>
+      <!-- Filter Controls (Inline) -->
+      <div class="filter-controls-inline">
+        <div class="filter-item">
+          <label>收藏时间</label>
+          <select v-model="filterDateRange" @change="applyFilters" class="filter-select">
+            <option value="">全部时间</option>
+            <option value="7days">最近7天</option>
+            <option value="30days">最近30天</option>
+            <option value="90days">最近90天</option>
+          </select>
         </div>
-      </transition>
+
+        <div class="filter-item">
+          <label>船舶状态</label>
+          <select v-model="filterStatus" @change="applyFilters" class="filter-select">
+            <option value="">全部状态</option>
+            <option value="在售">在售</option>
+            <option value="已成交">已成交</option>
+            <option value="已下架">已下架</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label>船舶类型</label>
+          <select v-model="filterType" @change="applyFilters" class="filter-select">
+            <option value="">全部类型</option>
+            <option value="散货船">散货船</option>
+            <option value="油船">油船</option>
+            <option value="集装箱船">集装箱船</option>
+          </select>
+        </div>
+
+        <button class="btn-reset" @click="resetFilters">重置</button>
+      </div>
 
       <!-- Active Filters Display -->
       <div v-if="hasActiveFilters" class="active-filters">
@@ -153,7 +133,6 @@ const searchTitle = ref('')
 const filterStatus = ref('')
 const filterDateRange = ref('')
 const filterType = ref('')
-const showFilterPopup = ref(false)
 
 // Mock favorited vessels data
 const favoritedVessels = ref([
@@ -319,7 +298,7 @@ const viewVesselDetail = (id) => {
 .search-controls {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .search-input-wrapper {
@@ -354,77 +333,35 @@ const viewVesselDetail = (id) => {
   pointer-events: none;
 }
 
-.filter-btn {
+/* Inline Filter Controls */
+.filter-controls-inline {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  background-color: #FFFFFF;
-  color: #334155;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.filter-btn:hover {
-  border-color: #0EA5E9;
-  color: #0EA5E9;
-}
-
-.filter-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* Filter Popup */
-.filter-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 10;
-}
-
-.filter-popup-card {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 8px;
-  min-width: 280px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 20;
-}
-
-.filter-compact-body {
-  display: flex;
-  flex-direction: column;
   gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
 }
 
 .filter-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  flex: 1;
+  min-width: 150px;
 }
 
 .filter-item label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.filter-item select {
+.filter-select {
   padding: 8px 12px;
   border: 1px solid #E2E8F0;
   border-radius: 4px;
@@ -434,20 +371,13 @@ const viewVesselDetail = (id) => {
   transition: border-color 0.3s ease;
 }
 
-.filter-item select:focus {
+.filter-select:focus {
   outline: none;
   border-color: #0EA5E9;
 }
 
-.filter-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
 .btn-reset {
-  flex: 1;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border: 1px solid #E2E8F0;
   border-radius: 4px;
   background-color: #FFFFFF;
@@ -456,39 +386,12 @@ const viewVesselDetail = (id) => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-reset:hover {
   background-color: #F1F5F9;
   border-color: #CBD5E1;
-}
-
-.btn-apply {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  background-color: #0EA5E9;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-apply:hover {
-  background-color: #0284C7;
-}
-
-.filter-popup-enter-active,
-.filter-popup-leave-active {
-  transition: all 0.3s ease;
-}
-
-.filter-popup-enter-from,
-.filter-popup-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
 }
 
 /* Active Filters Display */
@@ -739,11 +642,17 @@ const viewVesselDetail = (id) => {
     grid-template-columns: 1fr;
   }
 
-  .filter-popup-card {
-    left: auto;
-    right: 0;
+  .filter-controls-inline {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filter-item {
     min-width: auto;
-    width: 280px;
+  }
+
+  .btn-reset {
+    width: 100%;
   }
 }
 </style>
