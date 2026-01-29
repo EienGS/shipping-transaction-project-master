@@ -197,7 +197,7 @@
               <span class="value">{{ contactInfo.phone }}</span>
             </div>
           </div>
-          <button class="contact-btn" @click="handleContact">立即咨询</button>
+          <button class="contact-btn" @click="handleContact">意向对接</button>
         </div>
 
         <div class="publisher-card">

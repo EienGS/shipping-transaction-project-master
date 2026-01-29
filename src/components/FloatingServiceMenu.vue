@@ -91,7 +91,7 @@ const handleMenuClick = (menuName) => {
 
   const routes = {
     intentions: '/user-center/intentions/trade',
-    verification: '/user-center/verification',
+    verification: '/user-center/trade-verification',
     demands: '/user-center/demands/sale',
     favorites: '/user-center/favorites/trade'
   }

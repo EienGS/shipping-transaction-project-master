@@ -380,6 +380,7 @@ const viewIdleDetail = (id) => {
 
 const viewDemandDetail = (id) => {
   console.log('[v0] 查看求租详情:', id)
+  router.push(`/vessel-leasing/demand/${id}`)
 }
 
 const sendIntention = (id, type) => {

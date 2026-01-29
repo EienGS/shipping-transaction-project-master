@@ -48,6 +48,11 @@ const routes = [
     component: () => import('../views/vessel-leasing/IdleVesselDetail.vue')
   },
   {
+    path: '/vessel-leasing/demand/:id',
+    name: 'LeaseDemandDetail',
+    component: () => import('../views/vessel-leasing/LeaseDemandDetail.vue')
+  },
+  {
     path: '/shipping-trade/buy-vessel',
     name: 'BuyVesselForm',
     component: () => import('../views/shipping-trade/BuyVesselForm.vue')
