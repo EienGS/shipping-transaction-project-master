@@ -45,16 +45,30 @@ const menuGroups = [
     ]
   },
   {
-    name: '交易鉴证',
-    items: [
-      { label: '交易鉴证', path: '/user-center/verification', icon: '' },
-    ]
-  },
-  {
     name: '需求管理',
     items: [
       { label: '出售船舶列表', path: '/user-center/demands/sale', icon: '' },
       { label: '求购需求列表', path: '/user-center/demands/purchase', icon: '' },
+    ]
+  },
+  {
+    name: '服务管理',
+    items: [
+      { label: '设计院维护', path: '/user-center/service/design', icon: '' },
+      { label: '造船厂维护', path: '/user-center/service/shipyard', icon: '' },
+      { label: '修船厂维护', path: '/user-center/service/repair', icon: '' },
+    ]
+  },
+  {
+    name: '交易鉴证',
+    items: [
+      { label: '交易鉴证', path: '/user-center/trade-verification', icon: '' },
+    ]
+  },
+  {
+    name: '租后监测',
+    items: [
+      { label: '租后监测', path: '/user-center/rental-monitoring', icon: '' },
     ]
   },
   {

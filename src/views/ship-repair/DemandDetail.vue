@@ -81,20 +81,6 @@
           </div>
         </section>
 
-        <!-- Similar Demands -->
-        <section class="similar-section">
-          <h2>相似需求</h2>
-          <div class="similar-list">
-            <div v-for="item in similarDemands" :key="item.id" class="similar-card" @click="viewDemand(item.id)">
-              <span class="similar-type">{{ item.type }}</span>
-              <h3>{{ item.title }}</h3>
-              <div class="similar-meta">
-                <span>{{ item.budget }}</span>
-                <span>{{ item.date }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
 
       <!-- Sidebar -->
@@ -115,30 +101,8 @@
             </div>
           </div>
           <button class="contact-publisher-btn" @click="contactPublisher">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            联系发布者
+            意向对接
           </button>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="sidebar-card">
-          <h3>快速操作</h3>
-          <div class="actions-list">
-            <button class="action-btn" @click="submitProposal">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              提交方案
-            </button>
-            <button class="action-btn" @click="reportDemand">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              举报
-            </button>
-          </div>
         </div>
 
         <!-- Demand Stats -->

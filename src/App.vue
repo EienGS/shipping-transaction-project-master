@@ -4,11 +4,13 @@
     <main class="main-content">
       <router-view />
     </main>
+    <FloatingServiceMenu />
   </div>
 </template>
 
 <script setup>
 import Header from './components/Header.vue'
+import FloatingServiceMenu from './components/FloatingServiceMenu.vue'
 </script>
 
 <style scoped>

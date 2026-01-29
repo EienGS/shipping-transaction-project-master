@@ -120,35 +120,38 @@
           </div>
 
           <div class="demand-list-modern">
-            <div v-for="demand in filteredDemands" :key="demand.id" class="demand-strip"
+            <div v-for="demand in filteredDemands" :key="demand.id" class="demand-card"
               @click="viewDemandDetail(demand.id)">
-              <div class="demand-strip-content">
-                <div class="demand-main-info">
-                  <h3 class="demand-strip-title">
-                    <span class="demand-code-prefix">[No.{{ demand.code.substring(1, 5) }}...]</span>
-                    {{ demand.titlePrefix }}
-                    <span class="highlight-tag blue" v-if="demand.capacity">{{ demand.capacity }}</span>
-                    {{ demand.titleSuffix }}
-                  </h3>
-                  <div class="demand-sub-details">
-                    <span>预算：{{ demand.budget }}</span>
-                    <span class="separator">|</span>
-                    <span>交付：{{ demand.deliverTime }}</span>
-                    <span class="separator" v-if="demand.location">|</span>
-                    <span v-if="demand.location">地区：{{ demand.location }}</span>
-                  </div>
+              <!-- 卡片头部 -->
+              <div class="card-header">
+                <span class="card-badge">{{ demand.titlePrefix }}</span>
+                <span class="card-time">{{ demand.timeAgo }}</span>
+              </div>
+
+              <!-- 卡片主体 -->
+              <div class="card-body">
+                <div class="info-item" v-if="demand.capacity">
+                  <span class="info-label">船舶类型：</span>
+                  <span class="info-value">{{ demand.capacity }}</span>
                 </div>
-                <div class="demand-strip-actions">
-                  <span class="time-ago">{{ demand.timeAgo }}</span>
-                  <button class="btn-contact-cyan" @click.stop="contactDemand(demand.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                      <path
-                        d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
-                    </svg>
-                    对接意向
-                  </button>
+                <div class="info-item" v-if="demand.deliverTime">
+                  <span class="info-label">交付时间：</span>
+                  <span class="info-value">{{ demand.deliverTime }}</span>
+                </div>
+                <div class="info-item" v-if="demand.location">
+                  <span class="info-label">地区：</span>
+                  <span class="info-value">{{ demand.location }}</span>
+                </div>
+                <div class="info-item" v-if="demand.budget">
+                  <span class="info-label">预算：</span>
+                  <span class="info-value highlight-red">{{ demand.budget }}</span>
                 </div>
               </div>
+
+              <!-- 卡片底部按钮 -->
+              <button class="card-action-btn" @click.stop="contactDemand(demand.id)">
+                立即对接意向
+              </button>
             </div>
           </div>
         </div>
@@ -473,8 +476,18 @@ const viewProviderDetail = (id) => {
   }
 }
 const viewDemandDetail = (id) => {
-  console.log('查看需求详情:', id)
-  router.push(`/ship-repair/demand/${id}`)
+  console.log('[v0] 查看需求详情:', id)
+  const demand = demands.value.find(d => d.id === id)
+  if (demand) {
+    if (demand.type === 'build') {
+      router.push(`/ship-repair/build-demand/${id}`)
+    } else if (demand.type === 'repair') {
+      router.push(`/ship-repair/repair-demand/${id}`)
+    } else {
+      // 设计需求使用通用详情页
+      router.push(`/ship-repair/demand/${id}`)
+    }
+  }
 }
 const contactDemand = (id) => { console.log('对接意向:', id) }
 const toggleFavorite = (id) => { console.log('收藏:', id) }
@@ -900,108 +913,100 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 }
 
 
-/* --- 右侧：现代化需求列表 (条状) --- */
+/* --- 右侧：现代化需求卡片 --- */
 .demand-list-modern {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.demand-strip {
+.demand-card {
   background: white;
-  border-radius: 10px;
-  padding: 16px 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
   cursor: pointer;
+  overflow: hidden;
 }
 
-.demand-strip:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transform: translateX(4px);
+.demand-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
-.demand-strip-content {
+/* 卡片头部 */
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e8ecf0;
 }
 
-.demand-main-info {
-  flex: 1;
-}
-
-.demand-strip-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.demand-code-prefix {
-  color: var(--text-light);
-  font-weight: 400;
-  margin-right: 4px;
-}
-
-/* 高亮标签 (模拟设计图中的蓝色块) */
-.highlight-tag.blue {
-  background: #e6f7ff;
-  color: var(--primary-blue);
+.card-badge {
+  display: inline-block;
+  background: #0ea5e9;
+  color: white;
   font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 4px;
   font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
-.demand-sub-details {
-  font-size: 13px;
-  color: var(--text-secondary);
-  display: flex;
-  gap: 8px;
+.card-time {
+  font-size: 12px;
+  color: #64748b;
 }
 
-.separator {
-  color: var(--border-color);
-}
-
-.demand-strip-actions {
+/* 卡片主体 */
+.card-body {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  min-width: 100px;
-  /* 确保按钮区域宽度一致 */
+  gap: 10px;
 }
 
-.time-ago {
-  font-size: 12px;
-  color: var(--text-light);
-}
-
-/* 青色对接按钮 */
-.btn-contact-cyan {
+.info-item {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: linear-gradient(90deg, var(--cyan-gradient-start), var(--cyan-gradient-end));
-  border: none;
-  border-radius: 20px;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 6px rgba(0, 194, 203, 0.3);
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
 }
 
-.btn-contact-cyan:hover {
-  box-shadow: 0 4px 10px rgba(0, 194, 203, 0.5);
+.info-label {
+  color: #64748b;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.info-value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.info-value.highlight-red {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* 卡片底部按钮 */
+.card-action-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-action-btn:hover {
+  background: #1e293b;
 }
 
 /* 响应式适配 */

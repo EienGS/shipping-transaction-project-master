@@ -43,6 +43,16 @@ const routes = [
     component: () => import('../views/vessel-leasing/PublishIdle.vue')
   },
   {
+    path: '/vessel-leasing/idle/:id',
+    name: 'IdleVesselDetail',
+    component: () => import('../views/vessel-leasing/IdleVesselDetail.vue')
+  },
+  {
+    path: '/vessel-leasing/demand/:id',
+    name: 'LeaseDemandDetail',
+    component: () => import('../views/vessel-leasing/LeaseDemandDetail.vue')
+  },
+  {
     path: '/shipping-trade/buy-vessel',
     name: 'BuyVesselForm',
     component: () => import('../views/shipping-trade/BuyVesselForm.vue')
@@ -83,11 +93,6 @@ const routes = [
         component: () => import('../views/user-center/LeaseIntentions.vue')
       },
       {
-        path: 'verification',
-        name: 'Verification',
-        component: () => import('../views/user-center/Verification.vue')
-      },
-      {
         path: 'demands/sale',
         name: 'SaleDemands',
         component: () => import('../views/user-center/SaleDemands.vue')
@@ -103,6 +108,11 @@ const routes = [
         component: () => import('../views/user-center/TradeFavorites.vue')
       },
       {
+        path: 'rental-monitoring',
+        name: 'LeaseMonitoringCenter',
+        component: () => import('../views/user-center/LeaseMonitoringCenter.vue')
+      },
+      {
         path: 'favorites/repair',
         name: 'RepairFavorites',
         component: () => import('../views/user-center/RepairFavorites.vue')
@@ -111,7 +121,17 @@ const routes = [
         path: 'favorites/lease',
         name: 'LeaseFavorites',
         component: () => import('../views/user-center/LeaseFavorites.vue')
-      }
+      },
+      {
+        path: 'trade-verification',
+        name: 'TradeVerificationCenter',
+        component: () => import('../views/user-center/TradeVerificationCenter.vue')
+      },
+      {
+        path: 'service/design',
+        name: 'DesignProviderMaintenance',
+        component: () => import('../views/user-center/DesignProviderMaintenance.vue')
+      },
     ]
   },
   {
@@ -153,6 +173,21 @@ const routes = [
     path: '/ship-repair/demand/:id',
     name: 'DemandDetail',
     component: () => import('../views/ship-repair/DemandDetail.vue')
+  },
+  {
+    path: '/monitoring-dashboard',
+    name: 'MonitoringDashboard',
+    component: () => import('../views/monitoring/MonitoringDashboard.vue')
+  },
+  {
+    path: '/ship-repair/build-demand/:id',
+    name: 'ShipbuildingDemandDetail',
+    component: () => import('../views/ship-repair/ShipbuildingDemandDetail.vue')
+  },
+  {
+    path: '/ship-repair/repair-demand/:id',
+    name: 'RepairDemandDetail',
+    component: () => import('../views/ship-repair/RepairDemandDetail.vue')
   }
 ]
 

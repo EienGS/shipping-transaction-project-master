@@ -169,24 +169,49 @@
             <div class="contact-info">
               <div class="contact-item">
                 <span class="contact-label">联系人:</span>
-                <span class="contact-value">{{showContact ? publisherData.contact : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.contact : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">电话:</span>
-                <span class="contact-value">{{showContact ? publisherData.phone : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.phone : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">微信:</span>
-                <span class="contact-value">{{showContact ? publisherData.wechat : '***'}}</span>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.wechat : '***'}}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">邮箱:</span>
-                <span class="contact-value">{{showContact ? publisherData.email : '***'}}</span>
-              </div>
-            </div>
-            <button class="contact-publisher-btn" @click="handleContactPublisher">意向对接</button>
+                <span class="contact-value">{{(intentionStatus === 'accepted' || showContact) ? publisherData.email : '***'}}</span>
           </div>
-        </section>
+        </div>
+        <div v-if="!isOwnVessel">
+          <button
+          v-if="intentionStatus === null"
+          class="contact-publisher-btn"
+          @click="handleContactPublisher">
+            意向对接
+          </button>
+          <button
+          v-else-if="intentionStatus === 'pending'"
+          class="contact-publisher-btn waiting"
+          disabled>
+            等待回应中
+          </button>
+          <button
+          v-else-if="intentionStatus === 'rejected'"
+          class="contact-publisher-btn"
+          @click="handleContactPublisher">
+            意向对接
+          </button>
+        </div>
+        <div v-else class="own-vessel-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>这是您发布的船舶</span>
+        </div>
+        </div>
+      </section>
 
         <!-- 7. 该发布人其他出售船舶 -->
         <section class="other-vessels-section">
@@ -227,7 +252,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import IntentionDialog from '../../components/IntentionDialog.vue'
 
@@ -236,6 +261,10 @@ const router = useRouter()
 
 // Intention Dialog state
 const isIntentionDialogOpen = ref(false)
+const intentionStatus = ref(null) // null | 'pending' | 'accepted' | 'rejected'
+
+// 判断是否是当前用户发布的船舶
+const isOwnVessel = ref(route.query.owner === 'true')
 
 // 船舶基础数据
 const vesselData = ref({
@@ -407,7 +436,28 @@ const handleIntentionSubmit = (intentionData) => {
     vesselId: route.params.id,
     ...intentionData
   })
+  intentionStatus.value = 'pending'
+  isIntentionDialogOpen.value = false
 }
+
+const handleIntentionStatusChange = (event) => {
+  const { intentionId, status } = event.detail
+  if (intentionId === route.params.id) {
+    intentionStatus.value = status
+    console.log('[v0] 意向状态已更新:', status)
+  }
+}
+
+// 组件挂载时添加监听器
+onMounted(() => {
+  window.addEventListener('intentionStatusChanged', handleIntentionStatusChange)
+  console.log('船舶详情页加载完成，ID:', route.params.id)
+})
+
+// 组件卸载时移除监听器
+onUnmounted(() => {
+  window.removeEventListener('intentionStatusChanged', handleIntentionStatusChange)
+})
 
 const viewMoreFromPublisher = () => {
   console.log('查看发布者更多船舶')
@@ -431,10 +481,6 @@ const prevRecommendation = () => {
 const nextRecommendation = () => {
   console.log('下一组推荐')
 }
-
-onMounted(() => {
-  console.log('船舶详情页加载完成，ID:', route.params.id)
-})
 </script>
 
 <style scoped>
@@ -952,6 +998,35 @@ onMounted(() => {
 
 .contact-publisher-btn:hover {
   background: #0D7DE0;
+}
+
+.contact-publisher-btn.waiting {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.contact-publisher-btn.waiting:hover {
+  background: #94a3b8;
+  transform: none;
+}
+
+.own-vessel-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  color: #0369a1;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.own-vessel-notice svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 /* 其他船舶 */
