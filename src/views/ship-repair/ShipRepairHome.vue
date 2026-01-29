@@ -940,7 +940,7 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f8fafb;
+  background: white;
   border-bottom: 1px solid #e8ecf0;
 }
 
