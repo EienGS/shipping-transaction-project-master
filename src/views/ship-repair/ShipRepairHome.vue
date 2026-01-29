@@ -67,10 +67,6 @@
           <div class="provider-grid">
             <div v-for="provider in filteredProviders" :key="provider.id" class="provider-card-modern"
               @click="viewProviderDetail(provider.id)">
-              <div class="card-image-wrapper">
-                <img :src="provider.cover" :alt="provider.name" class="provider-cover">
-                <div class="verified-badge" v-if="provider.verified">Verified</div>
-              </div>
               <div class="provider-info-body">
                 <div class="provider-main">
                   <h3 class="provider-name">{{ provider.name }}</h3>
@@ -788,10 +784,18 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   border-color: rgba(0, 194, 203, 0.3);
 }
 
-.card-image-wrapper {
-  position: relative;
-  height: 160px;
-}
+  .verified-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
 
 .provider-cover {
   width: 100%;
