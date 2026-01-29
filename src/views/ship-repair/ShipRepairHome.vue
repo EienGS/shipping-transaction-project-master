@@ -363,7 +363,7 @@ const demands = ref([
     type: 'build',
     code: 'B2023102404',
     titlePrefix: '需建造',
-    titleSuffix: '超大型油轮',
+    titleSuffix: '超大型���轮',
     capacity: '400000DWT',
     budget: '约5亿',
     deliverTime: '2025年Q2',
@@ -924,77 +924,88 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 .demand-strip {
   background: white;
   border-radius: 10px;
-  padding: 16px 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
   cursor: pointer;
+  border: 1px solid #F1F5F9;
 }
 
 .demand-strip:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #E2E8F0;
+  transform: translateY(-2px);
 }
 
 .demand-strip-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .demand-main-info {
   flex: 1;
+  min-width: 0;
 }
 
 .demand-strip-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .demand-code-prefix {
   color: var(--text-light);
   font-weight: 400;
-  margin-right: 4px;
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
-/* 高亮标签 (模拟设计图中的蓝色块) */
 .highlight-tag.blue {
   background: #e6f7ff;
   color: var(--primary-blue);
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .demand-sub-details {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  line-height: 1.3;
 }
 
 .separator {
   color: var(--border-color);
+  font-size: 11px;
 }
 
 .demand-strip-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
-  min-width: 100px;
-  /* 确保按钮区域宽度一致 */
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .time-ago {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-light);
+  white-space: nowrap;
 }
 
 /* 青色对接按钮 */
@@ -1005,17 +1016,24 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   padding: 6px 12px;
   background: linear-gradient(90deg, var(--cyan-gradient-start), var(--cyan-gradient-end));
   border: none;
-  border-radius: 20px;
+  border-radius: 18px;
   color: white;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 6px rgba(0, 194, 203, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 194, 203, 0.25);
+  white-space: nowrap;
 }
 
 .btn-contact-cyan:hover {
-  box-shadow: 0 4px 10px rgba(0, 194, 203, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 194, 203, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-contact-cyan svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* 响应式适配 */
