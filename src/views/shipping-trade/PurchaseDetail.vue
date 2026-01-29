@@ -158,6 +158,7 @@
                       @click="handleContact">
                       意向对接
                     </button>
+                    <!-- When accepted, button is hidden and contact info is shown above -->
                 </div>
             </aside>
     </div>
@@ -172,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import IntentionDialog from '../../components/IntentionDialog.vue'
 
@@ -316,6 +317,24 @@ const handleIntentionSubmit = (intentionData) => {
     intentionStatus.value = 'pending'
     isIntentionDialogOpen.value = false
 }
+
+const handleIntentionStatusChange = (event) => {
+    const { intentionId, status } = event.detail
+    if (intentionId === route.params.id) {
+        intentionStatus.value = status
+        console.log('[v0] 意向状态已更新:', status)
+    }
+}
+
+// 组件挂载时添加监听器
+onMounted(() => {
+    window.addEventListener('intentionStatusChanged', handleIntentionStatusChange)
+})
+
+// 组件卸载时移除监听器
+onUnmounted(() => {
+    window.removeEventListener('intentionStatusChanged', handleIntentionStatusChange)
+})
 
 // 计算当前可见的推荐列表
 const visibleRecommendations = computed(() => {

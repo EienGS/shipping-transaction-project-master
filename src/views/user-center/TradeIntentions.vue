@@ -4,7 +4,6 @@
         <div class="search-filter-section">
             <div class="header-content">
                 <h1 class="page-title">交易意向</h1>
-                <div class="stats-badge">共 {{ allIntentions.length }} 项意向</div>
             </div>
 
             <div class="search-card">
@@ -124,10 +123,12 @@
                             </template>
                             <!-- Show verification button for accepted 出售 intentions -->
                             <template v-else-if="intention.status === 'accepted' && intention.type === '出售'">
-                                <button v-if="!intention.verificationInitiated" class="btn-verify" @click.stop="handleInitiateVerification(intention.id, intention)">
+                                <button v-if="!intention.verificationInitiated" class="btn-verify"
+                                    @click.stop="handleInitiateVerification(intention.id, intention)">
                                     发起鉴证申请
                                 </button>
-                                <button v-else class="btn-verify-center" @click.stop="goToVerificationCenter(intention.id)">
+                                <button v-else class="btn-verify-center"
+                                    @click.stop="goToVerificationCenter(intention.id)">
                                     前往交易鉴证中心
                                 </button>
                             </template>
@@ -138,10 +139,12 @@
                             <button class="btn-detail" @click.stop="viewDetail(intention.id)">查看详情</button>
                             <!-- Show verification button for accepted 求购 intentions -->
                             <template v-if="intention.status === 'accepted' && intention.type === '求购'">
-                                <button v-if="!intention.verificationInitiated" class="btn-verify" @click.stop="handleInitiateVerification(intention.id, intention)">
+                                <button v-if="!intention.verificationInitiated" class="btn-verify"
+                                    @click.stop="handleInitiateVerification(intention.id, intention)">
                                     发起鉴证申请
                                 </button>
-                                <button v-else class="btn-verify-center" @click.stop="goToVerificationCenter(intention.id)">
+                                <button v-else class="btn-verify-center"
+                                    @click.stop="goToVerificationCenter(intention.id)">
                                     前往交易鉴证中心
                                 </button>
                             </template>
@@ -191,7 +194,7 @@
                             <span class="detail-label">对方信息</span>
                             <span class="detail-value">{{ selectedIntention?.counterparty }} ({{
                                 selectedIntention?.phone
-                                }})</span>
+                            }})</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">意向金额</span>
@@ -386,6 +389,10 @@ const handleAccept = (id) => {
         intention.status = 'accepted'
         intention.dockingTime = new Date().toLocaleString('zh-CN')
         console.log('[v0] 已接受意向:', id)
+        // 派发事件通知详情页面状态变化
+        window.dispatchEvent(new CustomEvent('intentionStatusChanged', {
+            detail: { intentionId: id, status: 'accepted' }
+        }))
     }
 }
 
@@ -394,6 +401,10 @@ const handleReject = (id) => {
     if (intention) {
         intention.status = 'rejected'
         console.log('[v0] 已拒绝意向:', id)
+        // 派发事件通知详情页面状态变化，拒绝后状态置为 null（回到可再次发起意向的状态）
+        window.dispatchEvent(new CustomEvent('intentionStatusChanged', {
+            detail: { intentionId: id, status: null }
+        }))
     }
 }
 
@@ -418,7 +429,7 @@ const confirmVerificationInitiation = () => {
         const isReceived = activeTab.value === 'received'
         const allIntentions = isReceived ? receivedIntentions.value : sentIntentions.value
         const intention = allIntentions.find(i => i.id === id)
-        
+
         if (intention) {
             intention.verificationInitiated = true
             console.log('[v0] 已发起鉴证申请:', id)
@@ -456,24 +467,12 @@ const goToVerificationCenter = (id) => {
 }
 
 .page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.stats-badge {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748B;
-  background: linear-gradient(135deg, #F0F9FF 0%, #EFF6FF 100%);
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid #BFDBFE;
-  display: inline-block;
-  margin-top: 12px;
-  letter-spacing: 0.3px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
 }
 
 /* Search Card */
@@ -660,7 +659,6 @@ const goToVerificationCenter = (id) => {
     display: flex;
     gap: 0;
     max-width: 1400px;
-    margin: 0 auto;
 }
 
 .tab-button {
@@ -835,87 +833,91 @@ const goToVerificationCenter = (id) => {
 }
 
 .btn-reject:hover {
-  background: #DC2626;
+    background: #DC2626;
 }
 
 .btn-verify {
-  background: #8B5CF6;
-  color: white;
-  flex: 1;
+    background: linear-gradient(135deg, #8B5CF6, #9D66FD);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    flex: 1;
 }
 
 .btn-verify:hover {
-  background: #7C3AED;
+    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
 }
 
 .btn-verify-center {
-  background: #06B6D4;
-  color: white;
-  flex: 1;
+    background: linear-gradient(135deg, #06B6D4, #08B0D0);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    flex: 1;
 }
 
 .btn-verify-center:hover {
-  background: #0891B2;
+    background: linear-gradient(135deg, #08B0D0, #06B6D4);
 }
 
 /* Modal Footer */
 .modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #E2E8F0;
-  background: #F8FAFC;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+    padding: 16px 24px;
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
 }
 
 .btn-cancel {
-  padding: 10px 20px;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  background: white;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+    padding: 10px 20px;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    background: white;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
 .btn-cancel:hover {
-  background: #F1F5F9;
-  border-color: #CBD5E1;
+    background: #F1F5F9;
+    border-color: #CBD5E1;
 }
 
 .btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #0EA5E9;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #0EA5E9;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
 .btn-confirm:hover {
-  background: #0284C7;
+    background: #0284C7;
 }
 
 .confirmation-dialog {
-  max-width: 400px;
+    max-width: 400px;
 }
 
 .confirm-message {
-  font-size: 15px;
-  font-weight: 600;
-  color: #0F172A;
-  margin: 0 0 8px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0F172A;
+    margin: 0 0 8px 0;
 }
 
 .confirm-subtitle {
-  font-size: 13px;
-  color: #64748B;
-  margin: 0;
+    font-size: 13px;
+    color: #64748B;
+    margin: 0;
 }
 
 /* Empty State */

@@ -244,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import IntentionDialog from '../../components/IntentionDialog.vue'
 
@@ -429,6 +429,25 @@ const handleIntentionSubmit = (intentionData) => {
   isIntentionDialogOpen.value = false
 }
 
+const handleIntentionStatusChange = (event) => {
+  const { intentionId, status } = event.detail
+  if (intentionId === route.params.id) {
+    intentionStatus.value = status
+    console.log('[v0] 意向状态已更新:', status)
+  }
+}
+
+// 组件挂载时添加监听器
+onMounted(() => {
+  window.addEventListener('intentionStatusChanged', handleIntentionStatusChange)
+  console.log('船舶详情页加载完成，ID:', route.params.id)
+})
+
+// 组件卸载时移除监听器
+onUnmounted(() => {
+  window.removeEventListener('intentionStatusChanged', handleIntentionStatusChange)
+})
+
 const viewMoreFromPublisher = () => {
   console.log('查看发布者更多船舶')
   // TODO: 跳转到发布者船舶列表
@@ -451,10 +470,6 @@ const prevRecommendation = () => {
 const nextRecommendation = () => {
   console.log('下一组推荐')
 }
-
-onMounted(() => {
-  console.log('船舶详情页加载完成，ID:', route.params.id)
-})
 </script>
 
 <style scoped>
