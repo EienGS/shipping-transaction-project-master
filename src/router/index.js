@@ -43,6 +43,11 @@ const routes = [
     component: () => import('../views/vessel-leasing/PublishIdle.vue')
   },
   {
+    path: '/vessel-leasing/idle/:id',
+    name: 'IdleVesselDetail',
+    component: () => import('../views/vessel-leasing/IdleVesselDetail.vue')
+  },
+  {
     path: '/shipping-trade/buy-vessel',
     name: 'BuyVesselForm',
     component: () => import('../views/shipping-trade/BuyVesselForm.vue')

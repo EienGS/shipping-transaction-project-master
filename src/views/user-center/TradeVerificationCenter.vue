@@ -280,22 +280,19 @@ onMounted(() => {
 
 <style scoped>
 .verification-center-container {
-  padding: 24px;
   background-color: #FFFFFF;
   min-height: 100vh;
 }
 
 .search-filter-section {
   margin-bottom: 32px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  padding: 28px;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .header-content {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  
 }
 
 .page-title {
@@ -304,6 +301,8 @@ onMounted(() => {
   color: #0F172A;
   margin: 0;
   letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
 }
 
 .stats-badge {
