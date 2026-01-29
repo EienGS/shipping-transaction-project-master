@@ -168,6 +168,16 @@ const routes = [
     path: '/ship-repair/demand/:id',
     name: 'DemandDetail',
     component: () => import('../views/ship-repair/DemandDetail.vue')
+  },
+  {
+    path: '/ship-repair/build-demand/:id',
+    name: 'ShipbuildingDemandDetail',
+    component: () => import('../views/ship-repair/ShipbuildingDemandDetail.vue')
+  },
+  {
+    path: '/ship-repair/repair-demand/:id',
+    name: 'RepairDemandDetail',
+    component: () => import('../views/ship-repair/RepairDemandDetail.vue')
   }
 ]
 

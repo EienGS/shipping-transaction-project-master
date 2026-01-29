@@ -473,8 +473,18 @@ const viewProviderDetail = (id) => {
   }
 }
 const viewDemandDetail = (id) => {
-  console.log('查看需求详情:', id)
-  router.push(`/ship-repair/demand/${id}`)
+  console.log('[v0] 查看需求详情:', id)
+  const demand = demands.value.find(d => d.id === id)
+  if (demand) {
+    if (demand.type === 'build') {
+      router.push(`/ship-repair/build-demand/${id}`)
+    } else if (demand.type === 'repair') {
+      router.push(`/ship-repair/repair-demand/${id}`)
+    } else {
+      // 设计需求使用通用详情页
+      router.push(`/ship-repair/demand/${id}`)
+    }
+  }
 }
 const contactDemand = (id) => { console.log('对接意向:', id) }
 const toggleFavorite = (id) => { console.log('收藏:', id) }
