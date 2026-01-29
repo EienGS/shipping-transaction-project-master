@@ -263,12 +263,12 @@ const pendingVerificationIntention = ref(null)
 
 // Mock data
 const receivedIntentions = ref([
-    { id: 1, type: '求购', title: '8万吨散货船', intentionNo: 'G2025012600001', counterparty: '张某 (13900099882)', status: 'pending', submitTime: '2026-02-05', amount: '220万元', phone: '13900099882', dockingTime: '', verificationInitiated: false },
-    { id: 2, type: '求购', title: '集装箱船', intentionNo: 'G2025012600002', counterparty: '李某 (13800077766)', status: 'accepted', submitTime: '2026-02-03', amount: '350万元', phone: '13800077766', dockingTime: '2026-02-05 15:52:18', verificationInitiated: false },
-    { id: 3, type: '求购', title: '油船', intentionNo: 'G2025012600003', counterparty: '王某 (13700055544)', status: 'rejected', submitTime: '2026-01-30', amount: '150万元', phone: '13700055544', dockingTime: '', verificationInitiated: false },
-    { id: 4, type: '出售', title: '散货船 "OCEAN STAR"', intentionNo: 'G2025012600004', counterparty: '陈某 (13600033322)', status: 'pending', submitTime: '2026-02-04', amount: '450万元', phone: '13600033322', dockingTime: '', verificationInitiated: false },
-    { id: 5, type: '求购', title: '好望角型散货船', intentionNo: 'G2025012600005', counterparty: '周某 (13500011100)', status: 'pending', submitTime: '2026-02-02', amount: '600万元', phone: '13500011100', dockingTime: '', verificationInitiated: false },
-    { id: 6, type: '求购', title: '化学品油轮', intentionNo: 'G2025012600006', counterparty: '何某 (13900099882)', status: 'accepted', submitTime: '2026-02-01', amount: '280万元', phone: '13900099882', dockingTime: '2026-02-04 10:30:00', verificationInitiated: false }
+    { id: 1, type: '求购', title: '8万吨散货船', intentionNo: 'G2025012600001', counterparty: '张某 (13900099882)', status: 'pending', submitTime: '2026-02-05', amount: '220万元', phone: '13900099882', purchaseId: 101, dockingTime: '', verificationInitiated: false },
+    { id: 2, type: '求购', title: '集装箱船', intentionNo: 'G2025012600002', counterparty: '李某 (13800077766)', status: 'accepted', submitTime: '2026-02-03', amount: '350万元', phone: '13800077766', purchaseId: 102, dockingTime: '2026-02-05 15:52:18', verificationInitiated: false },
+    { id: 3, type: '求购', title: '油船', intentionNo: 'G2025012600003', counterparty: '王某 (13700055544)', status: 'rejected', submitTime: '2026-01-30', amount: '150万元', phone: '13700055544', purchaseId: 103, dockingTime: '', verificationInitiated: false },
+    { id: 4, type: '出售', title: '散货船 "OCEAN STAR"', intentionNo: 'G2025012600004', counterparty: '陈某 (13600033322)', status: 'pending', submitTime: '2026-02-04', amount: '450万元', phone: '13600033322', vesselId: 1, dockingTime: '', verificationInitiated: false },
+    { id: 5, type: '求购', title: '好望角型散货船', intentionNo: 'G2025012600005', counterparty: '周某 (13500011100)', status: 'pending', submitTime: '2026-02-02', amount: '600万元', phone: '13500011100', purchaseId: 104, dockingTime: '', verificationInitiated: false },
+    { id: 6, type: '求购', title: '化学品油轮', intentionNo: 'G2025012600006', counterparty: '何某 (13900099882)', status: 'accepted', submitTime: '2026-02-01', amount: '280万元', phone: '13900099882', purchaseId: 105, dockingTime: '2026-02-04 10:30:00', verificationInitiated: false }
 ])
 
 const sentIntentions = ref([
@@ -409,11 +409,24 @@ const handleReject = (id) => {
 }
 
 const navigateToDetail = (intention) => {
-    if (activeTab.value === 'sent' && intention.vesselId) {
-        router.push(`/shipping-trade/vessel/${intention.vesselId}`)
+    if (activeTab.value === 'sent') {
+        // 发出的意向 - 根据意向类型跳转
+        if (intention.type === '求购' && intention.vesselId) {
+            // 求购意向 - 跳转到船舶详情页
+            router.push(`/shipping-trade/vessel/${intention.vesselId}`)
+        } else if (intention.type === '出售' && intention.purchaseId) {
+            // 出售意向 - 跳转到购买需求详情页
+            router.push(`/shipping-trade/purchase/${intention.purchaseId}`)
+        }
     } else {
-        // For received intentions with related objects
-        console.log('[v0] 跳转到相关详情页面')
+        // 收到的意向 - 根据意向类型跳转
+        if (intention.type === '求购' && intention.purchaseId) {
+            // 收到求购意向 - 跳转到购买需求详情页
+            router.push(`/shipping-trade/purchase/${intention.purchaseId}`)
+        } else if (intention.type === '出售' && intention.vesselId) {
+            // 收到出售意向 - 跳转到船舶详情页
+            router.push(`/shipping-trade/vessel/${intention.vesselId}`)
+        }
     }
 }
 
