@@ -929,6 +929,10 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   transition: all 0.3s ease;
   cursor: pointer;
   border: 1px solid #F1F5F9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
 }
 
 .demand-strip:hover {
@@ -942,11 +946,14 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .demand-main-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .demand-strip-title {
@@ -998,7 +1005,7 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -1013,8 +1020,9 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 .btn-contact-cyan {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   background: linear-gradient(90deg, #00C2CB, #00B8D4);
   border: none;
   border-radius: 18px;
@@ -1024,8 +1032,15 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0, 194, 203, 0.25);
-  white-space: nowrap;
   flex-shrink: 0;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.btn-contact-cyan:hover {
+  box-shadow: 0 4px 12px rgba(0, 194, 203, 0.35);
+  transform: translateY(-1px);
+}
 }
 
 .btn-contact-cyan:hover {
