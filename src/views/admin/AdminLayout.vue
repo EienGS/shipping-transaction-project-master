@@ -1,8 +1,15 @@
 <template>
-  <div class="user-center-layout">
+  <div class="admin-layout">
     <div class="layout-container">
       <!-- Left Sidebar Menu -->
       <aside class="sidebar-menu">
+        <div class="admin-header">
+          <svg class="admin-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7V11C2 16.55 6.84 21.74 12 23C17.16 21.74 22 16.55 22 11V7L12 2ZM12 11.99H18C17.47 15.11 15.2 17.78 12 18.92V12H6V8.3L12 5.19V11.99Z" fill="currentColor"/>
+          </svg>
+          <h2 class="admin-title">运营管理端</h2>
+        </div>
+
         <div v-for="group in menuGroups" :key="group.name" class="menu-group">
           <div class="group-title">{{ group.name }}</div>
           <div class="menu-items">
@@ -34,45 +41,16 @@
                   class="menu-submenu"
                   v-show="expandedGroups[item.label]"
                 >
-                  <template v-for="subitem in item.children" :key="subitem.path">
-                    <!-- 二级菜单项 -->
-                    <router-link
-                      v-if="!subitem.children"
-                      :to="subitem.path"
-                      class="menu-item menu-item-sub"
-                      :class="{ active: isActive(subitem.path) }"
-                    >
-                      <span class="item-label">{{ subitem.label }}</span>
-                      <span v-if="subitem.badge" class="item-badge">{{ subitem.badge }}</span>
-                    </router-link>
-
-                    <!-- 三级菜单 -->
-                    <div v-else class="menu-item-group">
-                      <div
-                        class="menu-item menu-item-sub menu-item-parent"
-                        :class="{ active: isItemGroupActive(subitem) }"
-                        @click="toggleItemGroup(subitem.label)"
-                      >
-                        <span class="item-label">{{ subitem.label }}</span>
-                        <span class="expand-icon" :class="{ expanded: expandedGroups[subitem.label] }">›</span>
-                      </div>
-                      <div
-                        class="menu-submenu menu-submenu-level3"
-                        v-show="expandedGroups[subitem.label]"
-                      >
-                        <router-link
-                          v-for="thirditem in subitem.children"
-                          :key="thirditem.path"
-                          :to="thirditem.path"
-                          class="menu-item menu-item-third"
-                          :class="{ active: isActive(thirditem.path) }"
-                        >
-                          <span class="item-label">{{ thirditem.label }}</span>
-                          <span v-if="thirditem.badge" class="item-badge">{{ thirditem.badge }}</span>
-                        </router-link>
-                      </div>
-                    </div>
-                  </template>
+                  <router-link
+                    v-for="subitem in item.children"
+                    :key="subitem.path"
+                    :to="subitem.path"
+                    class="menu-item menu-item-sub"
+                    :class="{ active: isActive(subitem.path) }"
+                  >
+                    <span class="item-label">{{ subitem.label }}</span>
+                    <span v-if="subitem.badge" class="item-badge">{{ subitem.badge }}</span>
+                  </router-link>
                 </div>
               </div>
             </template>
@@ -89,7 +67,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -97,69 +75,74 @@ const expandedGroups = ref({})
 
 const menuGroups = [
   {
-    name: '意向记录',
+    name: '船舶交易管理',
     items: [
-      { label: '交易意向记录', path: '/user-center/intentions/trade', icon: '' },
-      { label: '修造意向记录', path: '/user-center/intentions/repair', icon: '' },
-      { label: '租赁意向记录', path: '/user-center/intentions/lease', icon: '' },
+      {
+        label: '交易信息审核',
+        icon: '📋',
+        children: [
+          { label: '求购信息审核', path: '/admin/trade/purchase-audit' },
+          { label: '出售信息审核', path: '/admin/trade/sale-audit' },
+        ]
+      },
+      { label: '成交信息管理', path: '/admin/trade/transaction', icon: '💼' },
+      {
+        label: '交易鉴证管理',
+        icon: '🔒',
+        children: [
+          { label: '鉴证申请审核', path: '/admin/trade/verification-audit' },
+          { label: '鉴证书管理', path: '/admin/trade/certificate' },
+        ]
+      },
     ]
   },
   {
-    name: '需求管理',
+    name: '船舶修造管理',
     items: [
       {
-        label: '船舶交易需求',
-        icon: '',
+        label: '修造信息审核',
+        icon: '⚙️',
         children: [
-          { label: '出售船舶列表', path: '/user-center/demands/sale' },
-          { label: '求购需求列表', path: '/user-center/demands/purchase' },
+          { label: '设计需求审核', path: '/admin/repair/design-audit' },
+          { label: '建造需求审核', path: '/admin/repair/building-audit' },
+          { label: '维修需求审核', path: '/admin/repair/repair-audit' },
+          { label: '设计院信息审核', path: '/admin/repair/design-provider-audit' },
+          { label: '造船厂信息审核', path: '/admin/repair/shipyard-audit' },
+          { label: '修船厂信息审核', path: '/admin/repair/repair-yard-audit' },
+        ]
+      },
+      { label: '服务进度管控', path: '/admin/repair/progress', icon: '📊' },
+      { label: '口碑评价管理', path: '/admin/repair/review', icon: '⭐' },
+    ]
+  },
+  {
+    name: '船舶租赁管理',
+    items: [
+      {
+        label: '租赁信息审核',
+        icon: '🚢',
+        children: [
+          { label: '租赁信息审核', path: '/admin/lease/lease-audit' },
+          { label: '空船信息审核', path: '/admin/lease/idle-audit' },
+          { label: '求租信息审核', path: '/admin/lease/demand-audit' },
         ]
       },
       {
-        label: '船舶修造需求',
-        icon: '',
+        label: '租后监测管理',
+        icon: '📡',
         children: [
-          { label: '我的设计需求', path: '/user-center/demands/design' },
-          { label: '我的造船需求', path: '/user-center/demands/shipbuilding' },
-          { label: '我的维修需求', path: '/user-center/demands/repair' },
+          { label: '监测申请审核', path: '/admin/lease/monitor-audit' },
+          { label: '监测服务管控', path: '/admin/lease/monitor-manage' },
         ]
       },
-      {
-        label: '船舶租赁需求',
-        icon: '',
-        children: [
-          { label: '出租需求列表', path: '/user-center/demands/lease-publish' },
-          { label: '求租需求列表', path: '/user-center/demands/lease-request' },
-        ]
-      }
     ]
   },
   {
-    name: '服务管理',
+    name: '数据统计',
     items: [
-      { label: '设计院维护', path: '/user-center/service/design', icon: '' },
-      { label: '造船厂维护', path: '/user-center/service/shipyard', icon: '' },
-      { label: '修船厂维护', path: '/user-center/service/repair', icon: '' },
-    ]
-  },
-  {
-    name: '交易鉴证',
-    items: [
-      { label: '交易鉴证', path: '/user-center/trade-verification', icon: '' },
-    ]
-  },
-  {
-    name: '租后监测',
-    items: [
-      { label: '租后监测', path: '/user-center/rental-monitoring', icon: '' },
-    ]
-  },
-  {
-    name: '我的收藏',
-    items: [
-      { label: '购售需求收藏', path: '/user-center/favorites/trade', icon: '' },
-      { label: '修造需求收藏', path: '/user-center/favorites/repair', icon: '' },
-      { label: '租赁需求收藏', path: '/user-center/favorites/lease', icon: '' },
+      { label: '交易数据统计', path: '/admin/statistics/trade', icon: '📈' },
+      { label: '修造数据统计', path: '/admin/statistics/repair', icon: '📊' },
+      { label: '租赁数据统计', path: '/admin/statistics/lease', icon: '📉' },
     ]
   }
 ]
@@ -170,9 +153,7 @@ const isActive = (path) => {
 
 const isItemGroupActive = (item) => {
   if (item.children) {
-    return item.children.some(child => 
-      child.path ? isActive(child.path) : isItemGroupActive(child)
-    )
+    return item.children.some(child => isActive(child.path))
   }
   return false
 }
@@ -183,22 +164,22 @@ const toggleItemGroup = (label) => {
 </script>
 
 <style scoped>
-.user-center-layout {
+.admin-layout {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
 }
 
 .layout-container {
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 280px 1fr;
 }
 
 /* Sidebar Menu */
 .sidebar-menu {
   background: white;
-  padding: 20px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 0;
+  box-shadow: 2px 0 8px rgba(102, 126, 234, 0.08);
   height: calc(100vh - 64px);
   position: sticky;
   top: 64px;
@@ -212,12 +193,37 @@ const toggleItemGroup = (label) => {
   display: none;
 }
 
+.admin-header {
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.admin-logo {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.admin-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
 .menu-group {
-  margin-bottom: 24px;
+  margin: 20px 0;
+  padding: 0 0 20px;
+  border-bottom: 1px solid #F1F5F9;
 }
 
 .menu-group:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
 }
 
 .group-title {
@@ -255,19 +261,19 @@ const toggleItemGroup = (label) => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #1890FF;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
 .menu-item:hover {
-  background: #F8FAFC;
-  color: #1890FF;
+  background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+  color: #667eea;
 }
 
 .menu-item.active {
-  background: #EFF6FF;
-  color: #1890FF;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
   font-weight: 600;
 }
 
@@ -305,8 +311,8 @@ const toggleItemGroup = (label) => {
 }
 
 .menu-item-parent.active {
-  background: #EFF6FF;
-  color: #1890FF;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
   font-weight: 600;
 }
 
@@ -323,7 +329,7 @@ const toggleItemGroup = (label) => {
 
 .expand-icon.expanded {
   transform: rotate(90deg);
-  color: #1890FF;
+  color: #667eea;
 }
 
 /* 子菜单 */
@@ -334,21 +340,7 @@ const toggleItemGroup = (label) => {
 }
 
 .menu-item-sub {
-  padding-left: 40px;
-  font-size: 13px;
-}
-
-.menu-item-sub.menu-item-parent {
-  cursor: pointer;
-}
-
-/* 三级菜单 */
-.menu-submenu-level3 {
-  background: white;
-}
-
-.menu-item-third {
-  padding-left: 60px;
+  padding-left: 52px;
   font-size: 13px;
 }
 
@@ -358,7 +350,7 @@ const toggleItemGroup = (label) => {
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  min-height: 600px;
+  min-height: calc(100vh - 112px);
   margin: 24px;
   overflow-y: auto;
   overflow-x: hidden;

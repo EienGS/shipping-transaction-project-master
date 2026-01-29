@@ -42,6 +42,13 @@
       </nav>
       
       <div class="user-section">
+        <router-link to="/admin" class="admin-btn">
+          <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7V11C2 16.55 6.84 21.74 12 23C17.16 21.74 22 16.55 22 11V7L12 2ZM12 11.99H18C17.47 15.11 15.2 17.78 12 18.92V12H6V8.3L12 5.19V11.99Z" fill="currentColor"/>
+          </svg>
+          <span>运营端</span>
+        </router-link>
+        <div class="divider"></div>
         <div class="more-menu">
           <span class="more-icon">⋯</span>
         </div>
@@ -194,6 +201,31 @@ const handleMouseLeave = () => {
   align-items: center;
   gap: 20px;
   margin-left: auto;
+}
+
+.admin-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.admin-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.admin-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .more-menu {

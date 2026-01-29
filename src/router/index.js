@@ -188,6 +188,128 @@ const routes = [
     path: '/ship-repair/repair-demand/:id',
     name: 'RepairDemandDetail',
     component: () => import('../views/ship-repair/RepairDemandDetail.vue')
+  },
+  // 运营端路由
+  {
+    path: '/admin',
+    component: () => import('../views/admin/AdminLayout.vue'),
+    redirect: '/admin/home',
+    children: [
+      {
+        path: 'home',
+        name: 'AdminHome',
+        component: () => import('../views/admin/AdminHome.vue')
+      },
+      // 船舶交易管理
+      {
+        path: 'trade/purchase-audit',
+        name: 'PurchaseAudit',
+        component: () => import('../views/admin/trade/PurchaseAudit.vue')
+      },
+      {
+        path: 'trade/sale-audit',
+        name: 'SaleAudit',
+        component: () => import('../views/admin/trade/SaleAudit.vue')
+      },
+      {
+        path: 'trade/transaction',
+        name: 'TransactionManage',
+        component: () => import('../views/admin/trade/TransactionManage.vue')
+      },
+      {
+        path: 'trade/verification-audit',
+        name: 'VerificationAudit',
+        component: () => import('../views/admin/trade/VerificationAudit.vue')
+      },
+      {
+        path: 'trade/certificate',
+        name: 'CertificateManage',
+        component: () => import('../views/admin/trade/CertificateManage.vue')
+      },
+      // 船舶修造管理
+      {
+        path: 'repair/design-audit',
+        name: 'DesignDemandAudit',
+        component: () => import('../views/admin/repair/DesignDemandAudit.vue')
+      },
+      {
+        path: 'repair/building-audit',
+        name: 'BuildingDemandAudit',
+        component: () => import('../views/admin/repair/BuildingDemandAudit.vue')
+      },
+      {
+        path: 'repair/repair-audit',
+        name: 'RepairDemandAudit',
+        component: () => import('../views/admin/repair/RepairDemandAudit.vue')
+      },
+      {
+        path: 'repair/design-provider-audit',
+        name: 'DesignProviderAudit',
+        component: () => import('../views/admin/repair/DesignProviderAudit.vue')
+      },
+      {
+        path: 'repair/shipyard-audit',
+        name: 'ShipyardAudit',
+        component: () => import('../views/admin/repair/ShipyardAudit.vue')
+      },
+      {
+        path: 'repair/repair-yard-audit',
+        name: 'RepairYardAudit',
+        component: () => import('../views/admin/repair/RepairYardAudit.vue')
+      },
+      {
+        path: 'repair/progress',
+        name: 'ServiceProgress',
+        component: () => import('../views/admin/repair/ServiceProgress.vue')
+      },
+      {
+        path: 'repair/review',
+        name: 'ReviewManage',
+        component: () => import('../views/admin/repair/ReviewManage.vue')
+      },
+      // 船舶租赁管理
+      {
+        path: 'lease/lease-audit',
+        name: 'LeaseInfoAudit',
+        component: () => import('../views/admin/lease/LeaseInfoAudit.vue')
+      },
+      {
+        path: 'lease/idle-audit',
+        name: 'IdleVesselAudit',
+        component: () => import('../views/admin/lease/IdleVesselAudit.vue')
+      },
+      {
+        path: 'lease/demand-audit',
+        name: 'LeaseDemandAudit',
+        component: () => import('../views/admin/lease/LeaseDemandAudit.vue')
+      },
+      {
+        path: 'lease/monitor-audit',
+        name: 'MonitorAudit',
+        component: () => import('../views/admin/lease/MonitorAudit.vue')
+      },
+      {
+        path: 'lease/monitor-manage',
+        name: 'MonitorManage',
+        component: () => import('../views/admin/lease/MonitorManage.vue')
+      },
+      // 数据统计
+      {
+        path: 'statistics/trade',
+        name: 'TradeStatistics',
+        component: () => import('../views/admin/statistics/TradeStatistics.vue')
+      },
+      {
+        path: 'statistics/repair',
+        name: 'RepairStatistics',
+        component: () => import('../views/admin/statistics/RepairStatistics.vue')
+      },
+      {
+        path: 'statistics/lease',
+        name: 'LeaseStatistics',
+        component: () => import('../views/admin/statistics/LeaseStatistics.vue')
+      }
+    ]
   }
 ]
 
