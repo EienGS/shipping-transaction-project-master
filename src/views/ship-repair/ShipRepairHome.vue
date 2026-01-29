@@ -67,6 +67,10 @@
           <div class="provider-grid">
             <div v-for="provider in filteredProviders" :key="provider.id" class="provider-card-modern"
               @click="viewProviderDetail(provider.id)">
+              <div class="card-image-wrapper">
+                <img :src="provider.cover" :alt="provider.name" class="provider-cover">
+                <div class="verified-badge" v-if="provider.verified">Verified</div>
+              </div>
               <div class="provider-info-body">
                 <div class="provider-main">
                   <h3 class="provider-name">{{ provider.name }}</h3>
@@ -363,7 +367,7 @@ const demands = ref([
     type: 'build',
     code: 'B2023102404',
     titlePrefix: '需建造',
-    titleSuffix: '超大型����轮',
+    titleSuffix: '超大型油轮',
     capacity: '400000DWT',
     budget: '约5亿',
     deliverTime: '2025年Q2',
@@ -784,18 +788,10 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   border-color: rgba(0, 194, 203, 0.3);
 }
 
-  .verified-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  }
+.card-image-wrapper {
+  position: relative;
+  height: 160px;
+}
 
 .provider-cover {
   width: 100%;
@@ -924,133 +920,107 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 .demand-strip {
   background: white;
   border-radius: 10px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  padding: 16px 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s;
   cursor: pointer;
-  border: 1px solid #F1F5F9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
 }
 
 .demand-strip:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #E2E8F0;
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateX(4px);
 }
 
 .demand-strip-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .demand-main-info {
   flex: 1;
-  min-width: 0;
-  overflow: hidden;
 }
 
 .demand-strip-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 5px;
-  line-height: 1.4;
-  word-break: break-word;
+  gap: 6px;
 }
 
 .demand-code-prefix {
   color: var(--text-light);
   font-weight: 400;
-  font-size: 12px;
-  flex-shrink: 0;
+  margin-right: 4px;
 }
 
+/* 高亮标签 (模拟设计图中的蓝色块) */
 .highlight-tag.blue {
   background: #e6f7ff;
   color: var(--primary-blue);
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 3px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-weight: 700;
-  flex-shrink: 0;
 }
 
 .demand-sub-details {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-  line-height: 1.3;
+  gap: 8px;
 }
 
 .separator {
   color: var(--border-color);
-  font-size: 11px;
 }
 
 .demand-strip-actions {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 12px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .time-ago {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-light);
-  white-space: nowrap;
+  margin-right: 4px;
 }
 
 /* 青色对接按钮 */
 .btn-contact-cyan {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: linear-gradient(90deg, #00C2CB, #00B8D4);
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--cyan-gradient-start), var(--cyan-gradient-end));
   border: none;
-  border-radius: 18px;
+  border-radius: 6px;
   color: white;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 194, 203, 0.25);
-  flex-shrink: 0;
-  min-width: max-content;
+  transition: all 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 194, 203, 0.3);
   white-space: nowrap;
 }
 
 .btn-contact-cyan:hover {
-  box-shadow: 0 4px 12px rgba(0, 194, 203, 0.35);
-  transform: translateY(-1px);
-}
-}
-
-.btn-contact-cyan:hover {
-  box-shadow: 0 4px 10px rgba(0, 194, 203, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 194, 203, 0.5);
   transform: translateY(-1px);
 }
 
 .btn-contact-cyan svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 /* 响应式适配 */
