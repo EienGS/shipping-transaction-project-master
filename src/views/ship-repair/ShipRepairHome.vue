@@ -363,7 +363,7 @@ const demands = ref([
     type: 'build',
     code: 'B2023102404',
     titlePrefix: '需建造',
-    titleSuffix: '超大型���轮',
+    titleSuffix: '超大型����轮',
     capacity: '400000DWT',
     budget: '约5亿',
     deliverTime: '2025年Q2',
@@ -940,8 +940,8 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 .demand-strip-content {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
 }
 
 .demand-main-info {
@@ -996,10 +996,11 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 
 .demand-strip-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .time-ago {
@@ -1010,11 +1011,11 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
 
 /* 青色对接按钮 */
 .btn-contact-cyan {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  background: linear-gradient(90deg, var(--cyan-gradient-start), var(--cyan-gradient-end));
+  padding: 6px 14px;
+  background: linear-gradient(90deg, #00C2CB, #00B8D4);
   border: none;
   border-radius: 18px;
   color: white;
@@ -1024,6 +1025,7 @@ const toggleFavorite = (id) => { console.log('收藏:', id) }
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0, 194, 203, 0.25);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-contact-cyan:hover {
