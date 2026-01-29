@@ -6,17 +6,76 @@
         <div v-for="group in menuGroups" :key="group.name" class="menu-group">
           <div class="group-title">{{ group.name }}</div>
           <div class="menu-items">
-            <router-link
-              v-for="item in group.items"
-              :key="item.path"
-              :to="item.path"
-              class="menu-item"
-              :class="{ active: isActive(item.path) }"
-            >
-              <span class="item-icon">{{ item.icon }}</span>
-              <span class="item-label">{{ item.label }}</span>
-              <span v-if="item.badge" class="item-badge">{{ item.badge }}</span>
-            </router-link>
+            <template v-for="item in group.items" :key="item.path || item.label">
+              <!-- 一级菜单项 -->
+              <router-link
+                v-if="!item.children"
+                :to="item.path"
+                class="menu-item"
+                :class="{ active: isActive(item.path) }"
+              >
+                <span class="item-icon">{{ item.icon }}</span>
+                <span class="item-label">{{ item.label }}</span>
+                <span v-if="item.badge" class="item-badge">{{ item.badge }}</span>
+              </router-link>
+
+              <!-- 有子菜单的项 -->
+              <div v-else class="menu-item-group">
+                <div
+                  class="menu-item menu-item-parent"
+                  :class="{ active: isItemGroupActive(item) }"
+                  @click="toggleItemGroup(item.label)"
+                >
+                  <span class="item-icon">{{ item.icon }}</span>
+                  <span class="item-label">{{ item.label }}</span>
+                  <span class="expand-icon" :class="{ expanded: expandedGroups[item.label] }">›</span>
+                </div>
+                <div
+                  class="menu-submenu"
+                  v-show="expandedGroups[item.label]"
+                >
+                  <template v-for="subitem in item.children" :key="subitem.path">
+                    <!-- 二级菜单项 -->
+                    <router-link
+                      v-if="!subitem.children"
+                      :to="subitem.path"
+                      class="menu-item menu-item-sub"
+                      :class="{ active: isActive(subitem.path) }"
+                    >
+                      <span class="item-label">{{ subitem.label }}</span>
+                      <span v-if="subitem.badge" class="item-badge">{{ subitem.badge }}</span>
+                    </router-link>
+
+                    <!-- 三级菜单 -->
+                    <div v-else class="menu-item-group">
+                      <div
+                        class="menu-item menu-item-sub menu-item-parent"
+                        :class="{ active: isItemGroupActive(subitem) }"
+                        @click="toggleItemGroup(subitem.label)"
+                      >
+                        <span class="item-label">{{ subitem.label }}</span>
+                        <span class="expand-icon" :class="{ expanded: expandedGroups[subitem.label] }">›</span>
+                      </div>
+                      <div
+                        class="menu-submenu menu-submenu-level3"
+                        v-show="expandedGroups[subitem.label]"
+                      >
+                        <router-link
+                          v-for="thirditem in subitem.children"
+                          :key="thirditem.path"
+                          :to="thirditem.path"
+                          class="menu-item menu-item-third"
+                          :class="{ active: isActive(thirditem.path) }"
+                        >
+                          <span class="item-label">{{ thirditem.label }}</span>
+                          <span v-if="thirditem.badge" class="item-badge">{{ thirditem.badge }}</span>
+                        </router-link>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </aside>
@@ -30,10 +89,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const expandedGroups = ref({})
 
 const menuGroups = [
   {
@@ -47,8 +107,31 @@ const menuGroups = [
   {
     name: '需求管理',
     items: [
-      { label: '出售船舶列表', path: '/user-center/demands/sale', icon: '' },
-      { label: '求购需求列表', path: '/user-center/demands/purchase', icon: '' },
+      {
+        label: '船舶交易需求',
+        icon: '',
+        children: [
+          { label: '出售船舶列表', path: '/user-center/demands/sale' },
+          { label: '求购需求列表', path: '/user-center/demands/purchase' },
+        ]
+      },
+      {
+        label: '船舶修造需求',
+        icon: '',
+        children: [
+          { label: '我的设计需求', path: '/user-center/demands/design' },
+          { label: '我的造船需求', path: '/user-center/demands/shipbuilding' },
+          { label: '我的维修需求', path: '/user-center/demands/repair' },
+        ]
+      },
+      {
+        label: '船舶租赁需求',
+        icon: '',
+        children: [
+          { label: '发布的出租需求列表', path: '/user-center/demands/lease-publish' },
+          { label: '求租需求列表', path: '/user-center/demands/lease-request' },
+        ]
+      }
     ]
   },
   {
@@ -84,6 +167,19 @@ const menuGroups = [
 const isActive = (path) => {
   return route.path === path
 }
+
+const isItemGroupActive = (item) => {
+  if (item.children) {
+    return item.children.some(child => 
+      child.path ? isActive(child.path) : isItemGroupActive(child)
+    )
+  }
+  return false
+}
+
+const toggleItemGroup = (label) => {
+  expandedGroups.value[label] = !expandedGroups.value[label]
+}
 </script>
 
 <style scoped>
@@ -106,6 +202,14 @@ const isActive = (path) => {
   height: calc(100vh - 64px);
   position: sticky;
   top: 64px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  display: none;
 }
 
 .menu-group {
@@ -141,6 +245,7 @@ const isActive = (path) => {
   font-weight: 500;
   transition: all 0.3s;
   position: relative;
+  user-select: none;
 }
 
 .menu-item::before {
@@ -186,6 +291,65 @@ const isActive = (path) => {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
+  margin-left: auto;
+}
+
+/* 菜单项分组 */
+.menu-item-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item-parent {
+  cursor: pointer;
+}
+
+.menu-item-parent.active {
+  background: #EFF6FF;
+  color: #1890FF;
+  font-weight: 600;
+}
+
+.expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #94A3B8;
+  transition: transform 0.3s;
+  margin-left: auto;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+  color: #1890FF;
+}
+
+/* 子菜单 */
+.menu-submenu {
+  display: flex;
+  flex-direction: column;
+  background: #FAFBFC;
+}
+
+.menu-item-sub {
+  padding-left: 40px;
+  font-size: 13px;
+}
+
+.menu-item-sub.menu-item-parent {
+  cursor: pointer;
+}
+
+/* 三级菜单 */
+.menu-submenu-level3 {
+  background: white;
+}
+
+.menu-item-third {
+  padding-left: 60px;
+  font-size: 13px;
 }
 
 /* Content Area */
@@ -196,5 +360,27 @@ const isActive = (path) => {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   min-height: 600px;
   margin: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 #F1F5F9;
+}
+
+.content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 3px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 </style>

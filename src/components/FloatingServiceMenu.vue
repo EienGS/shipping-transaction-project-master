@@ -93,8 +93,8 @@ const handleMenuClick = (menuName) => {
     intentions: '/user-center/intentions/trade',
     verification: '/user-center/trade-verification',
     demands: '/user-center/demands/sale',
-    services: '/user-center/services',
-    monitoring: '/user-center/monitoring',
+    services: '/user-center/service/design',
+    monitoring: '/user-center/rental-monitoring',
     favorites: '/user-center/favorites/trade'
   }
 
