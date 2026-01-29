@@ -1,6 +1,5 @@
 <template>
   <div class="vessel-trading-platform">
-    <FloatingServiceMenu />
     <section class="hero-wrapper">
       <div class="hero-section">
         <img src="../../assets/vessel-trading-banner.png" alt="Shipping"
@@ -298,7 +297,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import FloatingServiceMenu from '../../components/FloatingServiceMenu.vue'
 import IntentionDialog from '../../components/IntentionDialog.vue'
 
 const router = useRouter()
