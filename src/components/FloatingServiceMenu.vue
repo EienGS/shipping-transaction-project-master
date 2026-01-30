@@ -4,7 +4,11 @@
       @mouseleave="handleMouseLeave">
       <!-- 子菜单项 -->
       <div v-for="(item, index) in menuItems" :key="item.name" class="menu-item"
-        :style="{ transitionDelay: isMenuExpanded ? `${index * 80}ms` : '0ms' }" @click="handleMenuClick(item.name)">
+        :style="{ 
+          '--item-index': index,
+          '--stagger-delay': isMenuExpanded ? `${80 + index * 60}ms` : '0ms'
+        }" 
+        @click="handleMenuClick(item.name)">
         <div class="menu-icon">
           <svg v-html="item.icon" viewBox="0 0 24 24" fill="none"></svg>
         </div>
@@ -109,8 +113,7 @@ const handleMenuClick = (menuName) => {
 .floating-service-menu {
   position: fixed;
   right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 20%;
   z-index: 9999;
 }
 
@@ -190,22 +193,30 @@ const handleMenuClick = (menuName) => {
   border-radius: 24px;
   cursor: pointer;
   opacity: 0;
-  visibility: hidden;
-  transform: translateX(40px);
-  transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0.4s;
+  transform: translateX(20px) scale(0.85);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 130px;
   pointer-events: none;
+  transition: none;
 }
 
-/* 菜单展开状态 */
+/* 菜单展开状态 - 级联渐入动画 */
 .menu-wrapper.menu-expanded .menu-item {
   display: flex;
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(0);
-  transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0s;
+  animation: menuItemFadeIn 0.5s ease-out forwards;
+  animation-delay: var(--stagger-delay);
   pointer-events: auto;
+}
+
+@keyframes menuItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .menu-item:hover {
