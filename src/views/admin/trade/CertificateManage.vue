@@ -17,7 +17,7 @@
             <el-col :xs="24" :sm="12" :md="6">
               <el-input 
                 v-model="searchParams.keyword" 
-                placeholder="鉴证编号/企业名称"
+                placeholder="申请编号/企业名称"
                 clearable
                 @keyup.enter="handleSearch"
               />
@@ -61,7 +61,7 @@
         :border="true"
         stripe
       >
-        <el-table-column prop="certificateNo" label="鉴证编号" width="160" />
+        <el-table-column prop="applicationNo" label="申请编号" width="160" />
         <el-table-column prop="vesselName" label="船舶名称" width="160" />
         <el-table-column prop="sellerName" label="卖方" min-width="180" />
         <el-table-column prop="buyerName" label="买方" min-width="180" />
@@ -90,28 +90,19 @@
             {{ row.issueTime ? formatDate(row.issueTime) : '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" align="center" fixed="right">
+        <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="viewDetail(row)">
               查看详情
             </el-button>
             <el-button 
-              v-if="row.status === 'waiting' && row.certificateUrl"
+              v-if="row.certificateUrl"
               type="success" 
               link 
               size="small" 
               @click="downloadCertificate(row)"
             >
               下载证书
-            </el-button>
-            <el-button 
-              v-if="row.status === 'issued'"
-              type="info" 
-              link 
-              size="small" 
-              @click="viewVerificationLog(row)"
-            >
-              核验记录
             </el-button>
           </template>
         </el-table-column>
@@ -181,47 +172,19 @@
           <el-descriptions-item label="第三方鉴证机构">
             {{ selectedCertificate.thirdParty || '中国船级社鉴证中心' }}
           </el-descriptions-item>
-          <el-descriptions-item label="证书获取链接" :span="2" v-if="selectedCertificate.certificateUrl">
-            <el-link :href="selectedCertificate.certificateUrl" type="primary" target="_blank">
-              {{ selectedCertificate.certificateUrl }}
-            </el-link>
-          </el-descriptions-item>
           <el-descriptions-item label="备注说明" :span="2" v-if="selectedCertificate.remarks">
             {{ selectedCertificate.remarks }}
           </el-descriptions-item>
         </el-descriptions>
 
-        <div class="dialog-actions" v-if="selectedCertificate.status === 'waiting' && selectedCertificate.certificateUrl">
-          <el-button type="primary" @click="markAsIssued">标记为已下发</el-button>
+        <div class="dialog-actions" v-if="selectedCertificate.certificateUrl">
+          <el-button type="primary" @click="downloadCertificate(selectedCertificate)">
+            下载证书
+          </el-button>
         </div>
       </div>
     </el-dialog>
 
-    <!-- 核验记录对话框 -->
-    <el-dialog 
-      v-model="verificationLogDialogVisible" 
-      title="证书核验记录" 
-      width="900px"
-    >
-      <el-table :data="verificationLogs" stripe border>
-        <el-table-column prop="verifyTime" label="核验时间" width="180">
-          <template #default="{ row }">
-            {{ formatDate(row.verifyTime) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="verifierName" label="核验方" width="200" />
-        <el-table-column prop="verifierContact" label="联系方式" width="150" />
-        <el-table-column prop="verifyMethod" label="核验方式" width="120" />
-        <el-table-column label="核验结果" width="120" align="center">
-          <template #default="{ row }">
-            <el-tag :type="row.result === 'valid' ? 'success' : 'danger'" size="small">
-              {{ row.result === 'valid' ? '真实有效' : '异常' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="remarks" label="备注" min-width="150" />
-      </el-table>
-    </el-dialog>
   </div>
 </template>
 
@@ -233,7 +196,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 const currentPage = ref(1)
 const pageSize = ref(10)
 const detailDialogVisible = ref(false)
-const verificationLogDialogVisible = ref(false)
 const selectedCertificate = ref(null)
 const searchParams = ref({
   keyword: '',
@@ -293,26 +255,6 @@ const allCertificates = ref([
     thirdParty: '中国船级社鉴证中心',
     certificateUrl: null,
     remarks: '第三方正在审核中'
-  }
-])
-
-// Mock 核验记录数据
-const verificationLogs = ref([
-  {
-    verifyTime: '2026-01-16 10:30:15',
-    verifierName: '青岛海事局',
-    verifierContact: '0532-12345678',
-    verifyMethod: '扫码核验',
-    result: 'valid',
-    remarks: '证书信息真实有效'
-  },
-  {
-    verifyTime: '2026-01-16 14:20:30',
-    verifierName: '某银行船舶金融部',
-    verifierContact: '021-87654321',
-    verifyMethod: '网页查询',
-    result: 'valid',
-    remarks: '用于船舶抵押贷款核验'
   }
 ])
 
@@ -379,30 +321,10 @@ const viewDetail = (cert) => {
 }
 
 const downloadCertificate = (cert) => {
-  console.log('[v0] 下载鉴证书:', cert.certificateNo)
+  console.log('[v0] 下载鉴证书:', cert.applicationNo)
   ElMessage.success('正在下载鉴证书...')
   // 实际应该触发下载
   window.open(cert.certificateUrl, '_blank')
-}
-
-const viewVerificationLog = (cert) => {
-  selectedCertificate.value = cert
-  verificationLogDialogVisible.value = true
-}
-
-const markAsIssued = () => {
-  ElMessageBox.confirm(
-    '确认已将证书下发给买卖双方？',
-    '标记为已下发',
-    { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
-  ).then(() => {
-    selectedCertificate.value.status = 'issued'
-    selectedCertificate.value.issueTime = new Date().toISOString()
-    ElMessage.success('已标记为已下发')
-    detailDialogVisible.value = false
-  }).catch(() => {
-    ElMessage.info('已取消')
-  })
 }
 
 const getStatusLabel = (status) => {
