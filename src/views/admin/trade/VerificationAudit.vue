@@ -55,68 +55,62 @@
         </el-card>
       </div>
 
-      <!-- 工单列表 -->
-      <div class="tickets-list">
-        <el-empty v-if="filteredTickets.length === 0" description="暂无审核工单" />
-        <div v-else class="tickets-container">
-          <div 
-            v-for="ticket in filteredTickets" 
-            :key="ticket.id" 
-            class="ticket-card"
-            @click="handleSelectTicket(ticket)"
-          >
-            <div class="ticket-header">
-              <div class="ticket-title">
-                <h3>{{ ticket.vesselName }}</h3>
-                <span :class="['status-badge', `status-${ticket.status}`]">
-                  {{ getStatusLabel(ticket.status) }}
-                </span>
-              </div>
-              <span class="verification-no">{{ ticket.verificationNo }}</span>
-            </div>
+      <!-- 工单表格 -->
+      <el-card class="table-card">
+        <el-table 
+          :data="paginatedTickets" 
+          style="width: 100%"
+          :border="true"
+          stripe
+          @row-click="handleSelectTicket"
+        >
+          <el-table-column prop="verificationNo" label="鉴证编号" width="160" />
+          <el-table-column prop="vesselName" label="船舶名称" width="160" />
+          <el-table-column prop="sellerName" label="卖方" min-width="180" />
+          <el-table-column prop="buyerName" label="买方" min-width="180" />
+          <el-table-column label="交易金额" width="140" align="right">
+            <template #default="{ row }">
+              <span style="font-weight: 600;">¥ {{ formatNumber(row.transactionAmount) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="审核状态" width="120" align="center">
+            <template #default="{ row }">
+              <el-tag 
+                :type="row.status === 'pending' ? 'warning' : row.status === 'approved' ? 'success' : 'danger'"
+                size="small"
+              >
+                {{ getStatusLabel(row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="submittedTime" label="提交时间" width="180">
+            <template #default="{ row }">
+              {{ formatDate(row.submittedTime) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="operatorName" label="经办人" width="120" />
+          <el-table-column label="操作" width="120" align="center" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link size="small" @click.stop="handleSelectTicket(row)">
+                查看详情
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
 
-            <div class="ticket-content">
-              <div class="info-item">
-                <span class="label">卖方:</span>
-                <span class="value">{{ ticket.sellerName }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">买方:</span>
-                <span class="value">{{ ticket.buyerName }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">交易金额:</span>
-                <span class="value">¥ {{ formatNumber(ticket.transactionAmount) }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">提交时间:</span>
-                <span class="value">{{ formatDate(ticket.submittedTime) }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">经办人:</span>
-                <span class="value">{{ ticket.operatorName }}</span>
-              </div>
-            </div>
-
-            <div class="ticket-footer">
-              <el-button type="primary" link size="small">查看详情 →</el-button>
-            </div>
-          </div>
+        <!-- 分页 -->
+        <div class="pagination-wrapper">
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 50, 100]"
+            :total="filteredTickets.length"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handlePageSizeChange"
+            @current-change="handlePageChange"
+          />
         </div>
-      </div>
-
-      <!-- 分页 -->
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50]"
-          :total="filteredTickets.length"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handlePageSizeChange"
-          @current-change="handlePageChange"
-        />
-      </div>
+      </el-card>
     </div>
 
     <!-- 审核详情视图 -->
@@ -293,7 +287,45 @@ const allTickets = ref([
     transactionAmount: 35000000,
     submittedTime: '2026-01-14 10:15',
     operatorName: '王女士',
-    status: 'pending'
+    status: 'pending',
+    basicInfo: {
+      imo: '2345678',
+      flag: '利比里亚',
+      vesselType: '集装箱船',
+      grt: 45000,
+      nrt: 25000,
+      loa: 210,
+      beam: 30,
+      depth: 18,
+      yearBuilt: 2012,
+      classification: 'DNV',
+      lastSurveyDate: '2025-11-20'
+    },
+    sellerInfo: {
+      type: 'company',
+      name: '环球海运有限公司',
+      uscc: '9137030012345679',
+      businessLicense: 'BL003.pdf',
+      legalRepresentative: '赵六',
+      contact: '0755-12345678'
+    },
+    buyerInfo: {
+      type: 'company',
+      name: '亚太船运集团',
+      uscc: '9137040087654322',
+      businessLicense: 'BL004.pdf',
+      legalRepresentative: '孙七',
+      contact: '0592-87654321'
+    },
+    transactionInfo: {
+      amount: 35000000,
+      currency: 'CNY',
+      paymentTerms: '一次性付款'
+    },
+    documents: [
+      { name: '营业执照（卖方）', file: 'doc005.pdf', type: 'license' },
+      { name: '营业执照（买方）', file: 'doc006.pdf', type: 'license' }
+    ]
   },
   {
     id: 3,
@@ -304,7 +336,45 @@ const allTickets = ref([
     transactionAmount: 28000000,
     submittedTime: '2026-01-13 09:45',
     operatorName: '陈先生',
-    status: 'approved'
+    status: 'approved',
+    basicInfo: {
+      imo: '3456789',
+      flag: '中国',
+      vesselType: '油轮',
+      grt: 38000,
+      nrt: 21000,
+      loa: 195,
+      beam: 28,
+      depth: 16,
+      yearBuilt: 2015,
+      classification: 'CCS',
+      lastSurveyDate: '2026-01-05'
+    },
+    sellerInfo: {
+      type: 'company',
+      name: '远洋航运有限公司',
+      uscc: '9137050012345680',
+      businessLicense: 'BL007.pdf',
+      legalRepresentative: '周八',
+      contact: '021-23456789'
+    },
+    buyerInfo: {
+      type: 'company',
+      name: '港澳海运公司',
+      uscc: '9137060087654323',
+      businessLicense: 'BL008.pdf',
+      legalRepresentative: '吴九',
+      contact: '0756-98765432'
+    },
+    transactionInfo: {
+      amount: 28000000,
+      currency: 'CNY',
+      paymentTerms: '分期付款'
+    },
+    documents: [
+      { name: '营业执照（卖方）', file: 'doc009.pdf', type: 'license' },
+      { name: '营业执照（买方）', file: 'doc010.pdf', type: 'license' }
+    ]
   },
   {
     id: 4,
@@ -315,7 +385,45 @@ const allTickets = ref([
     transactionAmount: 42000000,
     submittedTime: '2026-01-12 16:20',
     operatorName: '李女士',
-    status: 'rejected'
+    status: 'rejected',
+    basicInfo: {
+      imo: '4567890',
+      flag: '新加坡',
+      vesselType: '散货船',
+      grt: 48000,
+      nrt: 26000,
+      loa: 220,
+      beam: 31,
+      depth: 17,
+      yearBuilt: 2011,
+      classification: 'BV',
+      lastSurveyDate: '2025-10-15'
+    },
+    sellerInfo: {
+      type: 'company',
+      name: '中远海运有限公司',
+      uscc: '9137070012345681',
+      businessLicense: 'BL011.pdf',
+      legalRepresentative: '郑十',
+      contact: '010-34567890'
+    },
+    buyerInfo: {
+      type: 'company',
+      name: '招商轮船集团',
+      uscc: '9137080087654324',
+      businessLicense: 'BL012.pdf',
+      legalRepresentative: '钱十一',
+      contact: '0755-87654321'
+    },
+    transactionInfo: {
+      amount: 42000000,
+      currency: 'CNY',
+      paymentTerms: '分期付款'
+    },
+    documents: [
+      { name: '营业执照（卖方）', file: 'doc013.pdf', type: 'license' },
+      { name: '营业执照（买方）', file: 'doc014.pdf', type: 'license' }
+    ]
   }
 ])
 
@@ -376,7 +484,18 @@ const handlePageSizeChange = (size) => {
 }
 
 const handleSelectTicket = (ticket) => {
-  selectedVerification.value = ticket
+  console.log('[v0] 选择工单:', ticket.id)
+  // 如果是简单数据，需要获取完整数据
+  if (!ticket.basicInfo) {
+    // 这里模拟从后端获取完整数据
+    const fullTicket = allTickets.value.find(t => t.id === ticket.id)
+    if (fullTicket) {
+      selectedVerification.value = fullTicket
+    }
+  } else {
+    selectedVerification.value = ticket
+  }
+  console.log('[v0] 已设置选中工单:', selectedVerification.value)
 }
 
 const handleApprove = () => {
@@ -514,115 +633,29 @@ onMounted(() => {
   padding: 16px 0;
 }
 
-.tickets-list {
-  min-height: 400px;
+.table-card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.tickets-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.ticket-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.ticket-card:hover {
-  border-color: #0ea5e9;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
-  transform: translateY(-2px);
-}
-
-.ticket-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-
-.ticket-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ticket-title h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-approved {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.verification-no {
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.ticket-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-item .label {
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.info-item .value {
+.table-card :deep(.el-table) {
   font-size: 14px;
-  color: #0f172a;
-  font-weight: 500;
 }
 
-.ticket-footer {
-  text-align: right;
+.table-card :deep(.el-table__row) {
+  cursor: pointer;
+}
+
+.table-card :deep(.el-table__row:hover) {
+  background-color: #f0f9ff;
 }
 
 .pagination-wrapper {
   display: flex;
-  justify-content: center;
-  padding: 24px 0;
+  justify-content: flex-end;
+  padding: 20px 0 0;
+  margin-top: 16px;
+  border-top: 1px solid #e2e8f0;
 }
 
 /* 详情视图 */
