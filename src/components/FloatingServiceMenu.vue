@@ -119,6 +119,8 @@ const handleMenuClick = (menuName) => {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 12px;
+  width: fit-content;
 }
 
 /* 主按钮 - 初始为圆形 */
@@ -177,11 +179,9 @@ const handleMenuClick = (menuName) => {
   max-width: 100px;
 }
 
-/* 菜单项 - 初始隐藏，绝对定位不占用空间 */
+/* 菜单项 - 初始隐藏，完全不占据空间 */
 .menu-item {
-  position: absolute;
-  right: 0;
-  display: flex;
+  display: none;
   align-items: center;
   gap: 10px;
   padding: 12px 18px;
@@ -198,33 +198,9 @@ const handleMenuClick = (menuName) => {
   pointer-events: none;
 }
 
-/* 每个菜单项的位置 */
-.menu-item:nth-child(1) {
-  top: -380px;
-}
-
-.menu-item:nth-child(2) {
-  top: -312px;
-}
-
-.menu-item:nth-child(3) {
-  top: -244px;
-}
-
-.menu-item:nth-child(4) {
-  top: -176px;
-}
-
-.menu-item:nth-child(5) {
-  top: -108px;
-}
-
-.menu-item:nth-child(6) {
-  top: -40px;
-}
-
 /* 菜单展开状态 */
 .menu-wrapper.menu-expanded .menu-item {
+  display: flex;
   opacity: 1;
   visibility: visible;
   transform: translateX(0);
