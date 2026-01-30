@@ -71,11 +71,6 @@
               <span class="info-text">{{ ticket?.transactionInfo?.currency || '-' }}</span>
             </el-form-item>
           </el-col>
-          <el-col :xs="24" :sm="12" :md="8">
-            <el-form-item label="支付条款">
-              <span class="info-text">{{ ticket?.transactionInfo?.paymentTerms || '-' }}</span>
-            </el-form-item>
-          </el-col>
         </el-row>
       </el-form>
     </div>

@@ -54,13 +54,6 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="120" align="center">
-            <template #default="{ row }">
-              <el-button link type="primary" size="small" @click="viewCertificate(row)">
-                查看证书
-              </el-button>
-            </template>
-          </el-table-column>
         </el-table>
       </div>
     </div>
