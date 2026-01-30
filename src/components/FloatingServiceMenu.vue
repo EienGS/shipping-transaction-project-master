@@ -1,6 +1,7 @@
 <template>
-  <div class="floating-service-menu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
-    <div class="menu-wrapper" :class="{ 'button-expanded': isButtonExpanded, 'menu-expanded': isMenuExpanded }">
+  <div class="floating-service-menu">
+    <div class="menu-wrapper" :class="{ 'button-expanded': isButtonExpanded, 'menu-expanded': isMenuExpanded }"
+      @mouseleave="handleMouseLeave">
       <!-- 子菜单项 -->
       <div v-for="(item, index) in menuItems" :key="item.name" class="menu-item"
         :style="{ transitionDelay: isMenuExpanded ? `${index * 80}ms` : '0ms' }" @click="handleMenuClick(item.name)">
@@ -11,7 +12,7 @@
       </div>
 
       <!-- 主按钮 -->
-      <button class="main-button">
+      <button class="main-button" @mouseenter="handleMouseEnter">
         <svg class="main-icon" viewBox="0 0 24 24" fill="none">
           <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" />
@@ -193,6 +194,7 @@ const handleMenuClick = (menuName) => {
   transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0.4s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 130px;
+  pointer-events: none;
 }
 
 /* 菜单展开状态 */
@@ -201,6 +203,7 @@ const handleMenuClick = (menuName) => {
   visibility: visible;
   transform: translateX(0);
   transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0s;
+  pointer-events: auto;
 }
 
 .menu-item:hover {

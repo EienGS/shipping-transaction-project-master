@@ -3,13 +3,6 @@
     <div class="layout-container">
       <!-- Left Sidebar Menu -->
       <aside class="sidebar-menu">
-        <div class="admin-header">
-          <svg class="admin-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7V11C2 16.55 6.84 21.74 12 23C17.16 21.74 22 16.55 22 11V7L12 2ZM12 11.99H18C17.47 15.11 15.2 17.78 12 18.92V12H6V8.3L12 5.19V11.99Z" fill="currentColor"/>
-          </svg>
-          <h2 class="admin-title">运营管理端</h2>
-        </div>
-
         <div v-for="group in menuGroups" :key="group.name" class="menu-group">
           <div class="group-title">{{ group.name }}</div>
           <div class="menu-items">
@@ -21,7 +14,6 @@
                 class="menu-item"
                 :class="{ active: isActive(item.path) }"
               >
-                <span class="item-icon">{{ item.icon }}</span>
                 <span class="item-label">{{ item.label }}</span>
                 <span v-if="item.badge" class="item-badge">{{ item.badge }}</span>
               </router-link>
@@ -33,7 +25,6 @@
                   :class="{ active: isItemGroupActive(item) }"
                   @click="toggleItemGroup(item.label)"
                 >
-                  <span class="item-icon">{{ item.icon }}</span>
                   <span class="item-label">{{ item.label }}</span>
                   <span class="expand-icon" :class="{ expanded: expandedGroups[item.label] }">›</span>
                 </div>
@@ -79,16 +70,14 @@ const menuGroups = [
     items: [
       {
         label: '交易信息审核',
-        icon: '📋',
         children: [
           { label: '求购信息审核', path: '/admin/trade/purchase-audit' },
           { label: '出售信息审核', path: '/admin/trade/sale-audit' },
         ]
       },
-      { label: '成交信息管理', path: '/admin/trade/transaction', icon: '💼' },
+      { label: '成交信息管理', path: '/admin/trade/transaction'},
       {
         label: '交易鉴证管理',
-        icon: '🔒',
         children: [
           { label: '鉴证申请审核', path: '/admin/trade/verification-audit' },
           { label: '鉴证书管理', path: '/admin/trade/certificate' },
@@ -101,7 +90,6 @@ const menuGroups = [
     items: [
       {
         label: '修造信息审核',
-        icon: '⚙️',
         children: [
           { label: '设计需求审核', path: '/admin/repair/design-audit' },
           { label: '建造需求审核', path: '/admin/repair/building-audit' },
@@ -111,8 +99,8 @@ const menuGroups = [
           { label: '修船厂信息审核', path: '/admin/repair/repair-yard-audit' },
         ]
       },
-      { label: '服务进度管控', path: '/admin/repair/progress', icon: '📊' },
-      { label: '口碑评价管理', path: '/admin/repair/review', icon: '⭐' },
+      { label: '服务进度管控', path: '/admin/repair/progress' },
+      { label: '口碑评价管理', path: '/admin/repair/review' },
     ]
   },
   {
@@ -120,7 +108,6 @@ const menuGroups = [
     items: [
       {
         label: '租赁信息审核',
-        icon: '🚢',
         children: [
           { label: '租赁信息审核', path: '/admin/lease/lease-audit' },
           { label: '空船信息审核', path: '/admin/lease/idle-audit' },
@@ -129,7 +116,6 @@ const menuGroups = [
       },
       {
         label: '租后监测管理',
-        icon: '📡',
         children: [
           { label: '监测申请审核', path: '/admin/lease/monitor-audit' },
           { label: '监测服务管控', path: '/admin/lease/monitor-manage' },
@@ -140,9 +126,9 @@ const menuGroups = [
   {
     name: '数据统计',
     items: [
-      { label: '交易数据统计', path: '/admin/statistics/trade', icon: '📈' },
-      { label: '修造数据统计', path: '/admin/statistics/repair', icon: '📊' },
-      { label: '租赁数据统计', path: '/admin/statistics/lease', icon: '📉' },
+      { label: '交易数据统计', path: '/admin/statistics/trade'},
+      { label: '修造数据统计', path: '/admin/statistics/repair'},
+      { label: '租赁数据统计', path: '/admin/statistics/lease'},
     ]
   }
 ]
@@ -191,29 +177,6 @@ const toggleItemGroup = (label) => {
 
 .sidebar-menu::-webkit-scrollbar {
   display: none;
-}
-
-.admin-header {
-  padding: 24px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.admin-logo {
-  width: 28px;
-  height: 28px;
-  color: white;
-}
-
-.admin-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-  letter-spacing: 0.5px;
 }
 
 .menu-group {
@@ -279,11 +242,6 @@ const toggleItemGroup = (label) => {
 
 .menu-item.active::before {
   opacity: 1;
-}
-
-.item-icon {
-  font-size: 18px;
-  flex-shrink: 0;
 }
 
 .item-label {

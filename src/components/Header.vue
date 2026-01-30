@@ -42,7 +42,7 @@
       </nav>
       
       <div class="user-section">
-        <router-link to="/admin" class="admin-btn">
+        <router-link to="/admin/trade/sale-audit" class="admin-btn">
           <svg class="admin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L2 7V11C2 16.55 6.84 21.74 12 23C17.16 21.74 22 16.55 22 11V7L12 2ZM12 11.99H18C17.47 15.11 15.2 17.78 12 18.92V12H6V8.3L12 5.19V11.99Z" fill="currentColor"/>
           </svg>

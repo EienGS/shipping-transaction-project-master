@@ -150,7 +150,7 @@
             <textarea
               v-model="rejectForm.remark"
               class="form-textarea"
-              placeholder="请明确说明需要修改的方向，如"请重新上传清晰的船舶所有权证书，确保关键信息可辨""
+              placeholder="请明确说明需要修改的方向，如[请重新上传清晰的船舶所有权证书，确保关键信息可辨]"
               maxlength="100"
             ></textarea>
             <div class="char-count">{{ rejectForm.remark.length }}/100</div>
@@ -288,7 +288,9 @@ const confirmReject = () => {
 
 <style scoped>
 .sale-audit-page {
-  max-width: 1400px;
+  /* max-width: 1400px; */
+  width: 100%;
+  margin: 0 auto;
 }
 
 .page-header {
