@@ -15,11 +15,11 @@
 
         <el-card class="search-card">
           <div class="search-form">
-            <el-row :gutter="16">
+            <el-row :gutter="16" align="middle">
               <el-col :xs="24" :sm="12" :md="6">
                 <el-input 
                   v-model="searchParams.keyword" 
-                  placeholder="鉴证编号/企业名称"
+                  placeholder="申请编号/企业名称"
                   clearable
                   @keyup.enter="handleSearch"
                 />
@@ -34,6 +34,8 @@
                   <el-option label="待审核" value="pending" />
                   <el-option label="已通过" value="approved" />
                   <el-option label="已驳回" value="rejected" />
+                  <el-option label="已提交第三方" value="submitted" />
+                  <el-option label="鉴证完成" value="completed" />
                 </el-select>
               </el-col>
               <el-col :xs="24" :sm="12" :md="6">
@@ -46,7 +48,7 @@
                   @change="handleSearch"
                 />
               </el-col>
-              <el-col :xs="24" :sm="12" :md="6">
+              <el-col :xs="24" :sm="12" :md="6" class="search-actions">
                 <el-button type="primary" @click="handleSearch">搜索</el-button>
                 <el-button @click="resetSearch">重置</el-button>
               </el-col>
@@ -64,7 +66,7 @@
           stripe
           @row-click="handleSelectTicket"
         >
-          <el-table-column prop="verificationNo" label="鉴证编号" width="160" />
+          <el-table-column prop="verificationNo" label="申请编号" width="160" />
           <el-table-column prop="vesselName" label="船舶名称" width="160" />
           <el-table-column prop="sellerName" label="卖方" min-width="180" />
           <el-table-column prop="buyerName" label="买方" min-width="180" />
@@ -166,7 +168,7 @@
           @click="handleApprove"
           v-if="selectedVerification.status === 'pending'"
         >
-          审核通过
+          审核通过并提交第三方
         </el-button>
       </div>
 
@@ -500,13 +502,13 @@ const handleSelectTicket = (ticket) => {
 
 const handleApprove = () => {
   ElMessageBox.confirm(
-    '审核通过后，系统将自动生成鉴证书，是否继续？',
-    '审核通过',
-    { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
+    '审核通过后，系统将提交给第三方进行鉴证，是否继续？',
+    '审核通过并提交第三方',
+    { confirmButtonText: '确认提交', cancelButtonText: '取消', type: 'warning' }
   ).then(() => {
-    selectedVerification.value.status = 'approved'
-    ElMessage.success('审核通过，正在生成鉴证书...')
-    // 这里应该跳转到鉴证书生成页面
+    selectedVerification.value.status = 'submitted'
+    ElMessage.success('审核通过，已提交第三方鉴证机构...')
+    // 在鉴证书管理页面会出现记录
     setTimeout(() => {
       selectedVerification.value = null
     }, 1500)
@@ -569,8 +571,6 @@ onMounted(() => {
 
 <style scoped>
 .verification-audit-container {
-  padding: 24px;
-  background: #f5f7fa;
   min-height: 100vh;
 }
 
@@ -631,6 +631,12 @@ onMounted(() => {
 
 .search-form {
   padding: 16px 0;
+}
+
+.search-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .table-card {

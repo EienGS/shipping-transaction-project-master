@@ -12,26 +12,13 @@
         <h3 class="group-title">船舶基础数据</h3>
         <el-table :data="basicDataComparison" stripe>
           <el-table-column prop="field" label="数据项" width="150" />
-          <el-table-column prop="submitted" label="用户提交" width="200" />
-          <el-table-column prop="official" label="官方数据" width="200" />
-          <el-table-column prop="status" label="对比结果" width="120">
+          <el-table-column prop="submitted" label="用户提交" width="250" />
+          <el-table-column prop="official" label="官方数据" width="250" />
+          <el-table-column prop="status" label="对比结果" width="120" align="center">
             <template #default="{ row }">
               <el-tag :type="row.status === 'match' ? 'success' : 'danger'">
                 {{ row.status === 'match' ? '一致' : '不一致' }}
               </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="100">
-            <template #default="{ row }">
-              <el-button 
-                v-if="row.status === 'mismatch'"
-                link 
-                type="danger" 
-                size="small"
-                @click="markAnomaly(row.field, { status: 'marked', reason: '用户提交与官方数据不一致' })"
-              >
-                标记异常
-              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -41,54 +28,36 @@
         <h3 class="group-title">所有权信息</h3>
         <el-table :data="ownershipComparison" stripe>
           <el-table-column prop="field" label="数据项" width="150" />
-          <el-table-column prop="submitted" label="用户提交" width="200" />
-          <el-table-column prop="official" label="官方数据" width="200" />
-          <el-table-column prop="status" label="对比结果" width="120">
+          <el-table-column prop="submitted" label="用户提交" width="250" />
+          <el-table-column prop="official" label="官方数据" width="250" />
+          <el-table-column prop="status" label="对比结果" width="120" align="center">
             <template #default="{ row }">
               <el-tag :type="row.status === 'match' ? 'success' : 'danger'">
                 {{ row.status === 'match' ? '一致' : '不一致' }}
               </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="100">
-            <template #default="{ row }">
-              <el-button 
-                v-if="row.status === 'mismatch'"
-                link 
-                type="danger" 
-                size="small"
-                @click="markAnomaly(row.field, { status: 'marked', reason: '用户提交与官方数据不一致' })"
-              >
-                标记异常
-              </el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
 
       <div class="comparison-group" style="margin-top: 20px">
-        <h3 class="group-title">证书信息</h3>
+        <h3 class="group-title">证书信息（官方数据）</h3>
         <el-table :data="certificateComparison" stripe>
-          <el-table-column prop="field" label="数据项" width="150" />
-          <el-table-column prop="submitted" label="用户提交" width="200" />
-          <el-table-column prop="official" label="官方数据" width="200" />
-          <el-table-column prop="status" label="对比结果" width="120">
+          <el-table-column prop="field" label="证书名称" width="200" />
+          <el-table-column prop="certificateNo" label="证书编号" width="200" />
+          <el-table-column prop="issueDate" label="签发日期" width="150" />
+          <el-table-column prop="expiryDate" label="到期日期" width="150" />
+          <el-table-column label="状态" width="120" align="center">
             <template #default="{ row }">
-              <el-tag :type="row.status === 'match' ? 'success' : 'danger'">
-                {{ row.status === 'match' ? '一致' : '不一致' }}
+              <el-tag :type="row.isValid ? 'success' : 'danger'">
+                {{ row.isValid ? '有效' : '已过期' }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="100">
+          <el-table-column label="操作" width="120" align="center">
             <template #default="{ row }">
-              <el-button 
-                v-if="row.status === 'mismatch'"
-                link 
-                type="danger" 
-                size="small"
-                @click="markAnomaly(row.field, { status: 'marked', reason: '用户提交与官方数据不一致' })"
-              >
-                标记异常
+              <el-button link type="primary" size="small" @click="viewCertificate(row)">
+                查看证书
               </el-button>
             </template>
           </el-table-column>
@@ -122,13 +91,43 @@ const ownershipComparison = [
 ]
 
 const certificateComparison = [
-  { field: '船检证书', submitted: '有效', official: '有效', status: 'match' },
-  { field: '国籍证书', submitted: '有效', official: '有效', status: 'match' },
-  { field: '吨位证书', submitted: '有效', official: '有效', status: 'match' }
+  { 
+    field: '船舶所有权证书', 
+    certificateNo: 'OWN-2020-123456', 
+    issueDate: '2020-05-10', 
+    expiryDate: '永久有效',
+    isValid: true 
+  },
+  { 
+    field: '船舶国籍证书', 
+    certificateNo: 'NAT-2020-789012', 
+    issueDate: '2020-05-12', 
+    expiryDate: '永久有效',
+    isValid: true 
+  },
+  { 
+    field: '船舶检验证书', 
+    certificateNo: 'INS-2025-345678', 
+    issueDate: '2025-01-15', 
+    expiryDate: '2030-01-15',
+    isValid: true 
+  },
+  { 
+    field: '吨位证书', 
+    certificateNo: 'TON-2020-901234', 
+    issueDate: '2020-05-15', 
+    expiryDate: '永久有效',
+    isValid: true 
+  }
 ]
 
 const markAnomaly = (field, anomaly) => {
   emit('mark-anomaly', field, anomaly)
+}
+
+const viewCertificate = (row) => {
+  console.log('[v0] 查看证书:', row.field)
+  // 这里可以打开证书预览对话框
 }
 </script>
 
