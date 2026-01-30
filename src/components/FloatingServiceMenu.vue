@@ -119,7 +119,6 @@ const handleMenuClick = (menuName) => {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
 }
 
 /* 主按钮 - 初始为圆形 */
@@ -178,8 +177,10 @@ const handleMenuClick = (menuName) => {
   max-width: 100px;
 }
 
-/* 菜单项 - 初始隐藏 */
+/* 菜单项 - 初始隐藏，绝对定位不占用空间 */
 .menu-item {
+  position: absolute;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -195,6 +196,31 @@ const handleMenuClick = (menuName) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 130px;
   pointer-events: none;
+}
+
+/* 每个菜单项的位置 */
+.menu-item:nth-child(1) {
+  top: -380px;
+}
+
+.menu-item:nth-child(2) {
+  top: -312px;
+}
+
+.menu-item:nth-child(3) {
+  top: -244px;
+}
+
+.menu-item:nth-child(4) {
+  top: -176px;
+}
+
+.menu-item:nth-child(5) {
+  top: -108px;
+}
+
+.menu-item:nth-child(6) {
+  top: -40px;
 }
 
 /* 菜单展开状态 */
