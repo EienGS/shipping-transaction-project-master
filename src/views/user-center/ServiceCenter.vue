@@ -6,50 +6,57 @@
       <p class="page-description">管理您的服务需求与服务提供状态</p>
     </div>
 
-    <!-- 角色切换和统计 -->
-    <div class="stats-section">
+    <!-- 角色切换 -->
+    <div class="role-section">
       <el-segmented v-model="currentRole" :options="roleOptions" size="large" />
-      
-      <div class="stats-container">
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-number">{{ currentRoleStats.total }}</div>
-            <div class="stat-label">{{ currentRole === 'demander' ? '我的需求' : '待服务需求' }}</div>
-          </div>
-        </el-card>
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-number">{{ currentRoleStats.inProgress }}</div>
-            <div class="stat-label">服务中</div>
-          </div>
-        </el-card>
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-number">{{ currentRoleStats.completed }}</div>
-            <div class="stat-label">已完成</div>
-          </div>
-        </el-card>
-        <el-card class="stat-card">
-          <div class="stat-content">
-            <div class="stat-number">{{ currentRoleStats.avgRating }}</div>
-            <div class="stat-label">平均评分</div>
-          </div>
-        </el-card>
-      </div>
     </div>
 
-    <!-- 服务列表 -->
-    <el-card class="service-list-card">
-      <template #header>
-        <div class="card-header">
-          <span>{{ currentRole === 'demander' ? '我的服务需求' : '待服务列表' }}</span>
-          <el-select v-model="filterStatus" placeholder="筛选状态" clearable style="width: 150px">
+    <!-- 搜索筛选区域 -->
+    <el-card class="search-card">
+      <el-row :gutter="16" align="middle">
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-input 
+            v-model="searchKeyword" 
+            placeholder="搜索服务标题"
+            clearable
+            @input="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-select 
+            v-model="filterStatus" 
+            placeholder="筛选状态"
+            clearable
+            @change="handleSearch"
+          >
             <el-option label="服务中" value="inProgress" />
             <el-option label="已完成" value="completed" />
             <el-option label="待运营介入" value="needIntervention" />
           </el-select>
-        </div>
-      </template>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            @change="handleSearch"
+          />
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="4" class="search-actions">
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </el-col>
+      </el-row>
+    </el-card>
+
+    <!-- 服务列表 -->
+    <el-card class="service-list-card">
 
       <!-- 服务卡片列表 -->
       <div v-if="filteredServices.length === 0" class="empty-state">
@@ -315,8 +322,10 @@ const roleOptions = [
 ]
 const currentRole = ref('demander')
 
-// 状态筛选
+// 搜索和筛选
+const searchKeyword = ref('')
 const filterStatus = ref('')
+const dateRange = ref(null)
 
 // 对话框控制
 const reportDialogVisible = ref(false)
@@ -406,28 +415,45 @@ const services = ref([
   }
 ])
 
-// 计算属性 - 当前角色的统计数据
-const currentRoleStats = computed(() => {
-  const roleServices = services.value
-  return {
-    total: roleServices.length,
-    inProgress: roleServices.filter(s => s.status === 'inProgress').length,
-    completed: roleServices.filter(s => s.status === 'completed').length,
-    avgRating: (roleServices.filter(s => s.rating > 0).reduce((sum, s) => sum + s.rating, 0) / 
-                roleServices.filter(s => s.rating > 0).length || 0).toFixed(1)
-  }
-})
-
-// 过滤后的服务列表
+// 计算属性 - 过滤后的服务列表
 const filteredServices = computed(() => {
   let filtered = services.value
+  
+  // 关键词搜索
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase()
+    filtered = filtered.filter(s => s.title.toLowerCase().includes(keyword))
+  }
+  
+  // 状态筛选
   if (filterStatus.value) {
     filtered = filtered.filter(s => s.status === filterStatus.value)
   }
+  
+  // 日期范围筛选
+  if (dateRange.value && dateRange.value.length === 2) {
+    const [start, end] = dateRange.value
+    filtered = filtered.filter(s => {
+      const serviceDate = new Date(s.createTime)
+      return serviceDate >= start && serviceDate <= end
+    })
+  }
+  
   return filtered
 })
 
 // 方法
+const handleSearch = () => {
+  console.log('[v0] 执行搜索', { searchKeyword: searchKeyword.value, filterStatus: filterStatus.value, dateRange: dateRange.value })
+}
+
+const resetSearch = () => {
+  searchKeyword.value = ''
+  filterStatus.value = ''
+  dateRange.value = null
+  console.log('[v0] 重置搜索条件')
+}
+
 const getTypeLabel = (type) => {
   const labels = {
     design: '设计',
@@ -573,66 +599,39 @@ const submitReject = () => {
   margin: 0;
 }
 
-/* 角色切换和统计 */
-.stats-section {
+/* 角色切换 */
+.role-section {
   margin-bottom: 24px;
 }
 
-.stats-section :deep(.el-segmented) {
-  margin-bottom: 20px;
+.role-section :deep(.el-segmented) {
   width: 100%;
   max-width: 400px;
 }
 
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
+/* 搜索筛选区域 */
+.search-card {
+  margin-bottom: 24px;
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  cursor: pointer;
-  transition: all 0.3s;
 }
 
-.stat-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+.search-card :deep(.el-input),
+.search-card :deep(.el-select),
+.search-card :deep(.el-date-picker) {
+  width: 100%;
 }
 
-.stat-content {
-  text-align: center;
-  padding: 16px 0;
-}
-
-.stat-number {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1890ff;
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
+.search-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 /* 服务列表 */
 .service-list-card {
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 600;
-  color: #0f172a;
 }
 
 .empty-state {
