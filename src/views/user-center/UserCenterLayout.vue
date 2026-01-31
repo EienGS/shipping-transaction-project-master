@@ -137,9 +137,15 @@ const menuGroups = [
   {
     name: '服务管理',
     items: [
-      { label: '设计院维护', path: '/user-center/service/design', icon: '' },
-      { label: '造船厂维护', path: '/user-center/service/shipyard', icon: '' },
-      { label: '修船厂维护', path: '/user-center/service/repair', icon: '' },
+      {
+        label: '我的服务',
+        icon: '',
+        children: [
+          { label: '设计院维护', path: '/user-center/service/design' },
+          { label: '造船厂维护', path: '/user-center/service/shipyard' },
+          { label: '修船厂维护', path: '/user-center/service/repair' },
+        ]
+      }
     ]
   },
   {

@@ -122,9 +122,14 @@
                 <div class="card-footer">
                     <div class="action-buttons-group">
                         <button class="btn-detail" @click.stop="viewDetail(intention.id)">查看详情</button>
-                        <template v-if="intention.status === 'pending'">
+                        <!-- 对方发来的意向，且待处理时显示接受拒绝按钮 -->
+                        <template v-if="intention.status === 'pending' && !intention.initiator">
                             <button class="btn-accept" @click.stop="handleAccept(intention.id)">接受</button>
                             <button class="btn-reject" @click.stop="handleReject(intention.id)">拒绝</button>
+                        </template>
+                        <!-- 我发起的意向，等待对方接受 -->
+                        <template v-if="intention.initiator && intention.status === 'pending'">
+                            <span class="waiting-status">等待对方接受中...</span>
                         </template>
                     </div>
                 </div>
@@ -225,7 +230,8 @@ const intentions = ref([
         title: '5万吨散货船设计方案', 
         intentionNo: 'R2026010001', 
         provider: 'XX船舶设计研究所', 
-        status: 'pending', 
+        status: 'pending',
+        initiator: false,
         submitTime: '2026-01-20 10:30', 
         phone: '021-12345678', 
         providerId: 1,
@@ -237,7 +243,8 @@ const intentions = ref([
         title: '3500吨集装箱船建造', 
         intentionNo: 'R2026010002', 
         provider: '青岛XX造船厂', 
-        status: 'accepted', 
+        status: 'accepted',
+        initiator: false,
         submitTime: '2026-01-18 14:20', 
         phone: '0532-98765432', 
         providerId: 2,
@@ -249,7 +256,8 @@ const intentions = ref([
         title: '主机维修保养', 
         intentionNo: 'R2026010003', 
         provider: '上海XX船舶修理厂', 
-        status: 'rejected', 
+        status: 'rejected',
+        initiator: false,
         submitTime: '2026-01-15 09:45', 
         phone: '021-87654321', 
         providerId: 3,
@@ -261,7 +269,8 @@ const intentions = ref([
         title: '油轮改装设计', 
         intentionNo: 'R2026010004', 
         provider: '中船设计院', 
-        status: 'pending', 
+        status: 'pending',
+        initiator: true,
         submitTime: '2026-01-22 11:15', 
         phone: '010-66778899', 
         providerId: 4,
@@ -273,7 +282,8 @@ const intentions = ref([
         title: '8万吨散货船新造', 
         intentionNo: 'R2026010005', 
         provider: '大连XX船舶重工', 
-        status: 'accepted', 
+        status: 'accepted',
+        initiator: false,
         submitTime: '2026-01-17 13:30', 
         phone: '0411-55443322', 
         providerId: 5,
@@ -285,7 +295,8 @@ const intentions = ref([
         title: '船体检修', 
         intentionNo: 'R2026010006', 
         provider: '舟山XX修船厂', 
-        status: 'pending', 
+        status: 'pending',
+        initiator: true,
         submitTime: '2026-01-21 15:50', 
         phone: '0580-33221100', 
         providerId: 6,
@@ -296,7 +307,9 @@ const intentions = ref([
         type: 'repair', 
         title: '推进系统维修', 
         intentionNo: 'R2026010007', 
-        provider: '广州XX船舶服务', 
+        provider: '广州XX船舶服务',
+        status: 'pending',
+        initiator: false,
         status: 'accepted', 
         submitTime: '2026-01-16 08:20', 
         phone: '020-44556677', 
@@ -796,7 +809,21 @@ const navigateToDetail = (intention) => {
 }
 
 .btn-reject:hover {
-    background: #DC2626;
+    background: #FCA5A5;
+    color: white;
+}
+
+.waiting-status {
+    flex: 1;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #F59E0B;
+    background: #FEF3C7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Empty State */
