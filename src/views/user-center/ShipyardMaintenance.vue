@@ -245,22 +245,95 @@
               </div>
 
               <div class="form-item full-width">
-                <label>其他说明</label>
-                <textarea 
-                  v-model="formData.otherInfo" 
-                  :disabled="!isEditing"
-                  class="form-textarea"
-                  placeholder="补充其他重要信息"
-                  rows="3"
-                ></textarea>
+                <label>服务范围</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      v-model="formData.serviceTypes" 
+                      value="新建船建造"
+                      :disabled="!isEditing"
+                    />
+                    <span>新建船建造</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      v-model="formData.serviceTypes" 
+                      value="船舶改装"
+                      :disabled="!isEditing"
+                    />
+                    <span>船舶改装</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      v-model="formData.serviceTypes" 
+                      value="船舶拆解"
+                      :disabled="!isEditing"
+                    />
+                    <span>船舶拆解</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      v-model="formData.serviceTypes" 
+                      value="维修保养"
+                      :disabled="!isEditing"
+                    />
+                    <span>维修保养</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 核心能力编辑区 -->
+              <div class="form-item full-width">
+                <label>核心能力</label>
+                <div class="core-capabilities-list">
+                  <div v-for="(capability, index) in formData.coreCapabilities" :key="index" class="capability-item">
+                    <div class="capability-form">
+                      <div class="form-item">
+                        <label>标题（20字以内）</label>
+                        <input 
+                          v-model="capability.title" 
+                          :disabled="!isEditing"
+                          type="text" 
+                          class="form-input" 
+                          placeholder="如：散货船建造"
+                          maxlength="20"
+                        />
+                        <div class="char-count">{{ capability.title?.length || 0 }}/20</div>
+                      </div>
+                      <div class="form-item">
+                        <label>描述（50字以内）</label>
+                        <textarea 
+                          v-model="capability.description" 
+                          :disabled="!isEditing"
+                          class="form-textarea" 
+                          placeholder="简要描述该能力"
+                          rows="2"
+                          maxlength="50"
+                        ></textarea>
+                        <div class="char-count">{{ capability.description?.length || 0 }}/50</div>
+                      </div>
+                      <button v-if="isEditing" type="button" class="btn-remove-capability" @click="removeCapability(index)">删除</button>
+                    </div>
+                  </div>
+                  <button v-if="isEditing" type="button" class="btn-add-capability" @click="addCapability">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    添加核心能力
+                  </button>
+                </div>
               </div>
             </div>
           </section>
 
-          <!-- 建造案例 -->
+          <!-- 成功案例 -->
           <section class="form-section">
             <div class="section-header">
-              <h2>建造案例</h2>
+              <h2>成功案例</h2>
               <span class="section-tips">最多上传3个案例</span>
             </div>
 
@@ -346,7 +419,7 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                   </svg>
-                  上传图片
+                  ��传图片
                 </button>
               </div>
             </div>
@@ -389,20 +462,26 @@ const providerInfo = ref({
 
 // 表单数据
 const formData = reactive({
-  shipTypes: '',
-  city: '',
-  registeredCapital: '',
-  level: '',
-  annualCapacity: '',
-  dockCount: '',
-  maxDockSize: '',
-  buildingCapability: '',
-  contactPerson: '',
-  contactPhone: '',
-  email: '',
-  priceInfo: '',
-  buildCycle: '',
-  otherInfo: '',
+  companyIntro: '大连船舶重工集团是国内领先的大型船舶建造企业，拥有一级船厂资质。多年来致力于散货船、油船、集装箱船等大型船舶的设计和建造，年建造能力15艘以上，业务遍及全球主要航运市场。',
+  shipTypes: '散货船、油船、集装箱船、化学品船',
+  city: '大连市',
+  registeredCapital: '2亿元',
+  level: '一级',
+  annualCapacity: '15艘/年',
+  dockCount: '3个',
+  maxDockSize: '300m×60m',
+  buildingCapability: '散货船（10000-80000DWT）、油船（20000-100000DWT）',
+  contactPerson: '王经理',
+  contactPhone: '13900139000',
+  email: 'contact@dlshipyard.com',
+  foundedYear: 1992,
+  priceInfo: '根据船舶类型和吨位，建造价格在5000-20000万元之间',
+  buildCycle: '5万吨散货船建造周期12-18个月，根据复杂程度调整',
+  serviceTypes: ['新建船建造', '船舶改装'],
+  coreCapabilities: [
+    { title: '散货船建造', description: '拥有10000-80000吨各类散货船建造经验，累计完成100余艘' },
+    { title: '油轮建造', description: '精通油轮建造工艺，可提供节能环保解决方案' }
+  ],
   cases: [],
   certificates: [],
   photos: []
@@ -420,30 +499,20 @@ const skipToApproved = () => {
   console.log('[v0] 模拟跳过审核')
   providerInfo.value.status = 'approved'
   providerInfo.value.isPublished = true
-  // 填充示例数据
-  formData.shipTypes = '散货船、油船、集装箱船、化学品船'
-  formData.city = '大连市'
-  formData.registeredCapital = '2亿元'
-  formData.level = '一级'
-  formData.annualCapacity = '15艘/年'
-  formData.dockCount = '3个'
-  formData.maxDockSize = '300m×60m'
-  formData.buildingCapability = '散货船（10000-80000DWT）、油船（20000-100000DWT）'
-  formData.contactPerson = '王经理'
-  formData.contactPhone = '13900139000'
-  formData.email = 'contact@dlshipyard.com'
-  formData.cases = [
-    {
-      name: '8万吨散货船建造',
-      completedTime: '2023-12-01',
-      description: '成功建造某航运公司8万吨级散货船，采用节能环保设计，获得业主高度评价。',
-      image: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400&h=300&fit=crop'
-    }
-  ]
-  formData.certificates = [
-    { name: '营业执照.pdf', url: '/certificates/license.pdf' },
-    { name: '一级船厂资质证书.pdf', url: '/certificates/qualification.pdf' }
-  ]
+  // 数据已在formData中预填
+}
+
+// 核心能力管理
+const addCapability = () => {
+  formData.coreCapabilities.push({
+    title: '',
+    description: ''
+  })
+}
+
+const removeCapability = (index) => {
+  formData.coreCapabilities.splice(index, 1)
+}
   formData.photos = [
     { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop' }
   ]
@@ -1116,29 +1185,107 @@ const removePhoto = (index) => {
   height: 16px;
 }
 
-.btn-upload-photo {
+/* 字符计数 */
+.char-count {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* 复选框组 */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.checkbox-item span {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* 核心能力列表 */
+.core-capabilities-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 2px dashed #cbd5e1;
-  background: white;
-  color: #0ea5e9;
+  gap: 16px;
+}
+
+.capability-item {
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 14px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.capability-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.btn-remove-capability {
+  padding: 10px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  margin-top: 28px;
 }
 
-.btn-upload-photo:hover {
+.btn-remove-capability:hover {
+  background: #dc2626;
+}
+
+.btn-add-capability {
+  padding: 12px 24px;
+  background: white;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-add-capability:hover {
   border-color: #0ea5e9;
+  color: #0ea5e9;
   background: #f0f9ff;
 }
 
-.btn-upload-photo svg {
-  width: 32px;
-  height: 32px;
+.btn-add-capability svg {
+  width: 20px;
+  height: 20px;
 }
 </style>
