@@ -127,6 +127,23 @@
                             <button class="btn-accept" @click.stop="handleAccept(intention.id)">接受</button>
                             <button class="btn-reject" @click.stop="handleReject(intention.id)">拒绝</button>
                         </template>
+                        <!-- 已接受的意向显示选为服务供应商或前往服务中心 -->
+                        <template v-if="intention.status === 'accepted'">
+                            <button 
+                                v-if="!intention.selectedAsProvider" 
+                                class="btn-select-provider" 
+                                @click.stop="handleSelectProvider(intention.id)"
+                            >
+                                选为服务供应商
+                            </button>
+                            <button 
+                                v-else
+                                class="btn-service-center" 
+                                @click.stop="goToServiceCenter"
+                            >
+                              前往服务中心
+                            </button>
+                        </template>
                         <!-- 我发起的意向，等待对方接受 -->
                         <template v-if="intention.initiator && intention.status === 'pending'">
                             <span class="waiting-status">等待对方接受中...</span>
@@ -235,7 +252,8 @@ const intentions = ref([
         submitTime: '2026-01-20 10:30', 
         phone: '021-12345678', 
         providerId: 1,
-        dockingTime: ''
+        dockingTime: '',
+        selectedAsProvider: false
     },
     { 
         id: 2, 
@@ -248,7 +266,8 @@ const intentions = ref([
         submitTime: '2026-01-18 14:20', 
         phone: '0532-98765432', 
         providerId: 2,
-        dockingTime: '2026-01-19 16:00'
+        dockingTime: '2026-01-19 09:15',
+        selectedAsProvider: false
     },
     { 
         id: 3, 
@@ -261,7 +280,8 @@ const intentions = ref([
         submitTime: '2026-01-15 09:45', 
         phone: '021-87654321', 
         providerId: 3,
-        dockingTime: ''
+        dockingTime: '',
+        selectedAsProvider: false
     },
     { 
         id: 4, 
@@ -274,12 +294,13 @@ const intentions = ref([
         submitTime: '2026-01-22 11:15', 
         phone: '010-66778899', 
         providerId: 4,
-        dockingTime: ''
+        dockingTime: '',
+        selectedAsProvider: false
     },
     { 
         id: 5, 
         type: 'building', 
-        title: '8万吨散货船新造', 
+        title: '散货船建造', 
         intentionNo: 'R2026010005', 
         provider: '大连XX船舶重工', 
         status: 'accepted',
@@ -287,7 +308,8 @@ const intentions = ref([
         submitTime: '2026-01-17 13:30', 
         phone: '0411-55443322', 
         providerId: 5,
-        dockingTime: '2026-01-18 10:20'
+        dockingTime: '2026-01-18 10:20',
+        selectedAsProvider: false
     },
     { 
         id: 6, 
@@ -300,21 +322,8 @@ const intentions = ref([
         submitTime: '2026-01-21 15:50', 
         phone: '0580-33221100', 
         providerId: 6,
-        dockingTime: ''
-    },
-    { 
-        id: 7, 
-        type: 'repair', 
-        title: '推进系统维修', 
-        intentionNo: 'R2026010007', 
-        provider: '广州XX船舶服务',
-        status: 'pending',
-        initiator: false,
-        status: 'accepted', 
-        submitTime: '2026-01-16 08:20', 
-        phone: '020-44556677', 
-        providerId: 7,
-        dockingTime: '2026-01-17 09:30'
+        dockingTime: '',
+        selectedAsProvider: false
     }
 ])
 
@@ -433,6 +442,33 @@ const handleReject = (id) => {
         intention.status = 'rejected'
         console.log('[v0] 已拒绝意向:', id)
     }
+}
+
+const handleSelectProvider = (id) => {
+    const intention = intentions.value.find(i => i.id === id)
+    if (!intention) return
+    
+    // 显示确认对话框
+    if (confirm(`确认选定 ${intention.provider} 为服务供应商？选定后，同需求的其他意向将关闭。`)) {
+        console.log('[v0] 选定为服务供应商:', id)
+        intention.selectedAsProvider = true
+        
+        // 关闭同类型的其他已接受意向
+        const sameDemandType = intention.type
+        intentions.value.forEach(item => {
+            if (item.id !== id && item.type === sameDemandType && item.status === 'accepted') {
+                item.status = 'closed'
+                console.log('[v0] 关闭相同需求的意向:', item.id)
+            }
+        })
+        
+        alert(`已选定 ${intention.provider} 为服务供应商，同需求的其他意向已关闭`)
+    }
+}
+
+const goToServiceCenter = () => {
+    console.log('[v0] 前往服务中心')
+    router.push('/user-center/service/center')
 }
 
 const navigateToDetail = (intention) => {
@@ -811,6 +847,40 @@ const navigateToDetail = (intention) => {
 .btn-reject:hover {
     background: #FCA5A5;
     color: white;
+}
+
+.btn-select-provider {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: #10B981;
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-select-provider:hover {
+    background: #059669;
+}
+
+.btn-service-center {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: #6366F1;
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-service-center:hover {
+    background: #4F46E5;
 }
 
 .waiting-status {
