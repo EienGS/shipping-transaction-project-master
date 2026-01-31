@@ -326,7 +326,7 @@
                         </div>
 
                         <div class="upload-section">
-                            <h4>资质证书（最多8个）</h4>
+                            <h4>资质证书（最多8��）</h4>
                             <div class="file-list">
                                 <div v-for="(cert, index) in formData.certificates" :key="index" class="file-item">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -547,76 +547,74 @@ const removePhoto = (index) => {
 
 /* 未注册状态 */
 .unregistered-state {
-    max-width: 600px;
-    margin: 100px auto;
-    text-align: center;
-    background: white;
-    padding: 64px 48px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 48px 24px;
 }
 
 .empty-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 24px;
-    background: #F1F5F9;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+  color: #94a3b8;
 }
 
 .empty-icon svg {
-    width: 40px;
-    height: 40px;
-    color: #94A3B8;
+  width: 100%;
+  height: 100%;
 }
 
 .unregistered-state h2 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #0F172A;
-    margin: 0 0 12px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 12px 0;
 }
 
 .unregistered-state p {
-    font-size: 15px;
-    color: #64748B;
-    margin: 0 0 32px 0;
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 32px 0;
+  max-width: 500px;
 }
 
 .btn-register {
-    padding: 14px 32px;
-    background: #0EA5E9;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  transition: all 0.3s;
 }
 
 .btn-register:hover {
-    background: #0284C7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
 }
 
 .btn-skip-review {
-    margin-top: 16px;
-    padding: 10px 24px;
-    background: #F59E0B;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
+  margin-top: 16px;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #f59e0b;
+  color: white;
+  transition: all 0.3s;
 }
 
 .btn-skip-review:hover {
-    background: #D97706;
+  background: #d97706;
 }
 
 /* Status Banner */
