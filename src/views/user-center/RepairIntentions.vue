@@ -219,6 +219,24 @@
                 </div>
             </div>
         </div>
+
+        <!-- 选定服务供应商确认对话框 -->
+        <div v-if="selectProviderDialogVisible" class="modal-overlay" @click.self="selectProviderDialogVisible = false">
+            <div class="modal-content confirmation-dialog">
+                <div class="modal-header">
+                    <h2>选定服务供应商</h2>
+                    <button class="close-btn" @click="selectProviderDialogVisible = false">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirm-message">确认选定 {{ pendingProviderName }} 为服务供应商？</p>
+                    <p class="confirm-subtitle">选定后，同需求的其他意向将关闭。此操作不可撤销</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" @click="selectProviderDialogVisible = false">取消</button>
+                    <button class="btn-confirm" @click="confirmSelectProvider">确认选定</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -238,6 +256,9 @@ const currentPage = ref(1)
 const itemsPerPage = 6
 const detailVisible = ref(false)
 const selectedIntention = ref(null)
+const selectProviderDialogVisible = ref(false)
+const pendingProviderName = ref('')
+const pendingProviderId = ref(null)
 
 // Mock data
 const intentions = ref([
@@ -448,22 +469,31 @@ const handleSelectProvider = (id) => {
     const intention = intentions.value.find(i => i.id === id)
     if (!intention) return
     
-    // 显示确认对话框
-    if (confirm(`确认选定 ${intention.provider} 为服务供应商？选定后，同需求的其他意向将关闭。`)) {
-        console.log('[v0] 选定为服务供应商:', id)
-        intention.selectedAsProvider = true
-        
-        // 关闭同类型的其他已接受意向
-        const sameDemandType = intention.type
-        intentions.value.forEach(item => {
-            if (item.id !== id && item.type === sameDemandType && item.status === 'accepted') {
-                item.status = 'closed'
-                console.log('[v0] 关闭相同需求的意向:', item.id)
-            }
-        })
-        
-        alert(`已选定 ${intention.provider} 为服务供应商，同需求的其他意向已关闭`)
-    }
+    pendingProviderName.value = intention.provider
+    pendingProviderId.value = id
+    selectProviderDialogVisible.value = true
+    console.log('[v0] 打开选定供应商对话框:', id)
+}
+
+const confirmSelectProvider = () => {
+    const id = pendingProviderId.value
+    const intention = intentions.value.find(i => i.id === id)
+    if (!intention) return
+    
+    console.log('[v0] 选定为服务供应商:', id)
+    intention.selectedAsProvider = true
+    
+    // 关闭同类型的其他已接受意向
+    const sameDemandType = intention.type
+    intentions.value.forEach(item => {
+        if (item.id !== id && item.type === sameDemandType && item.status === 'accepted') {
+            item.status = 'closed'
+            console.log('[v0] 关闭相同需求的意向:', item.id)
+        }
+    })
+    
+    selectProviderDialogVisible.value = false
+    console.log('[v0] 已选定', intention.provider, '为服务供应商，同需求的其他意向已关闭')
 }
 
 const goToServiceCenter = () => {
@@ -898,9 +928,175 @@ const navigateToDetail = (intention) => {
 
 /* Empty State */
 .empty-state {
-    grid-column: 1 / -1;
     text-align: center;
-    padding: 60px 20px;
+    padding: 64px 24px;
+    color: #94A3B8;
+}
+
+.empty-state svg {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    opacity: 0.5;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #0F172A;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    background: white;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+}
+
+.btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #0EA5E9;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-confirm:hover {
+    background: #0284C7;
+}
+
+.confirmation-dialog {
+    max-width: 400px;
+}
+
+.confirm-message {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0F172A;
+    margin: 0 0 8px 0;
+}
+
+.confirm-subtitle {
+    font-size: 13px;
+    color: #64748B;
+    margin: 0;
+}
+
+/* Detail Sections */
+.detail-section {
+    margin-bottom: 24px;
+}
+
+.detail-section:last-child {
+    margin-bottom: 0;
+}
+
+.detail-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #E2E8F0;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #0F172A;
+    font-weight: 500;
 }
 
 .empty-icon {
