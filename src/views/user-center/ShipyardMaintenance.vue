@@ -122,16 +122,38 @@
                 ></textarea>
               </div>
 
-              <div class="form-item required">
-                <label>所在城市</label>
-                <input 
-                  v-model="formData.city" 
-                  :disabled="!isEditing"
-                  type="text" 
-                  class="form-input" 
-                  placeholder="如：大连市"
-                />
-              </div>
+            <div class="form-item required">
+              <label>船台数量</label>
+              <input 
+                v-model="formData.dockCount" 
+                :disabled="!isEditing"
+                type="text" 
+                class="form-input" 
+                placeholder="如：3个"
+              />
+            </div>
+
+            <div class="form-item required">
+              <label>占地面积</label>
+              <input 
+                v-model="formData.landArea" 
+                :disabled="!isEditing"
+                type="text" 
+                class="form-input" 
+                placeholder="如：500亩"
+              />
+            </div>
+
+            <div class="form-item required full-width">
+              <label>建造排期说明</label>
+              <textarea 
+                v-model="formData.buildingSchedule" 
+                :disabled="!isEditing"
+                class="form-textarea"
+                placeholder="请说明当前和未来的建造排期安排"
+                rows="3"
+              ></textarea>
+            </div>
 
               <div class="form-item required">
                 <label>注册资本</label>
@@ -276,16 +298,38 @@
             </div>
 
             <div class="form-grid">
-              <div class="form-item full-width">
-                <label>建造报价说明</label>
-                <textarea 
-                  v-model="formData.priceInfo" 
-                  :disabled="!isEditing"
-                  class="form-textarea"
-                  placeholder="如：根据船舶类型和吨位，建造价格在5000-20000万元之间"
-                  rows="2"
-                ></textarea>
-              </div>
+            <div class="form-item full-width">
+              <label>建造报价说明</label>
+              <textarea 
+                v-model="formData.priceInfo" 
+                :disabled="!isEditing"
+                class="form-textarea"
+                placeholder="如：根据船舶类型和吨位，建造价格在5000-20000万元之间"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <div class="form-item full-width">
+              <label>付款方式</label>
+              <textarea 
+                v-model="formData.paymentTerms" 
+                :disabled="!isEditing"
+                class="form-textarea"
+                placeholder="如：合同签订15%、船体搭载50%、下水时30%、交付时5%"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <div class="form-item full-width">
+              <label>配套服务</label>
+              <textarea 
+                v-model="formData.supportServices" 
+                :disabled="!isEditing"
+                class="form-textarea"
+                placeholder="请说明提供的配套服务，如：融资支持、技术培训、交付后保障等"
+                rows="2"
+              ></textarea>
+            </div>
 
               <div class="form-item full-width">
                 <label>付款方式</label>
@@ -349,6 +393,7 @@
                     <span>交付服务</span>
                   </label>
                 </div>
+              </div>
               </div>
 
               <!-- 核心能力编辑区 -->
@@ -528,22 +573,21 @@ const providerInfo = ref({
 // 表单数据
 const formData = reactive({
   companyIntro: '大连船舶重工集团是国内领先的大型船舶建造企业，拥有一级船厂资质。多年来致力于散货船、油船、集装箱船等大型船舶的设计和建造，年建造能力15艘以上，业务遍及全球主要航运市场。',
-  coreCapability: '散货船（10000-80000DWT）、油船（20000-100000DWT）、集装箱船（500-5000TEU）',
+  coreCapability: '散货船（10000-80000DWT）、油船（20000-100000DWT）、集装箱船',
   city: '大连市',
   registeredCapital: '2亿元',
   level: '一级',
-  slipwayCount: '6个',
   dockCount: '3个',
-  landArea: '150万平方米',
-  scheduleInfo: '现有空余船台2个，可接新订单；现有在建项目5艘，预计6个月内交付',
+  landArea: '500亩',
+  buildingSchedule: '船台1-2号：2026年3月-8月建造50000吨散货船1艘；船台3号：2026年2月-9月建造30000吨油轮1艘',
   contactPerson: '王经理',
   contactPhone: '13900139000',
   email: 'contact@dlshipyard.com',
   foundedYear: 1992,
   priceInfo: '根据船舶类型和吨位，建造价格在5000-20000万元之间',
-  paymentMethod: '分期付款，按建造进度30%-40%-30%支付',
-  supportingServices: '提供海试服务、交船培训、两年质保维护、备件供应等全方位配套服务',
-  serviceTypes: ['新建船舶', '精细建造'],
+  paymentTerms: '合同签订15%、船体搭载50%、下水时30%、交付时5%',
+  supportServices: '提供融资支持、技术培训、交付后24个月保障服务等配套支持',
+  serviceTypes: ['新建船舶', '精细建造', '设计优化'],
   coreCapabilities: [
     { title: '散货船建造', description: '拥有10000-80000吨各类散货船建造经验，累计完成100余艘' },
     { title: '油轮建造', description: '精通油轮建造工艺，可提供节能环保解决方案' }
