@@ -3,329 +3,551 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <h1 class="page-title">服务中心</h1>
-      <p class="page-description">管理您关联的设计院、造船厂、修船厂等服务提供商</p>
+      <p class="page-description">管理您的服务需求与服务提供状态</p>
     </div>
 
-    <!-- 统计卡片 -->
-    <div class="stats-container">
-      <el-card class="stat-card">
-        <div class="stat-content">
-          <div class="stat-number">{{ stats.totalProviders }}</div>
-          <div class="stat-label">总服务商</div>
-        </div>
-      </el-card>
-      <el-card class="stat-card">
-        <div class="stat-content">
-          <div class="stat-number">{{ stats.activeProviders }}</div>
-          <div class="stat-label">活跃服务商</div>
-        </div>
-      </el-card>
-      <el-card class="stat-card">
-        <div class="stat-content">
-          <div class="stat-number">{{ stats.totalTransactions }}</div>
-          <div class="stat-label">总交易次数</div>
-        </div>
-      </el-card>
-      <el-card class="stat-card">
-        <div class="stat-content">
-          <div class="stat-number">{{ stats.avgRating }}</div>
-          <div class="stat-label">平均评分</div>
-        </div>
-      </el-card>
+    <!-- 角色切换和统计 -->
+    <div class="stats-section">
+      <el-segmented v-model="currentRole" :options="roleOptions" size="large" />
+      
+      <div class="stats-container">
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-number">{{ currentRoleStats.total }}</div>
+            <div class="stat-label">{{ currentRole === 'demander' ? '我的需求' : '待服务需求' }}</div>
+          </div>
+        </el-card>
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-number">{{ currentRoleStats.inProgress }}</div>
+            <div class="stat-label">服务中</div>
+          </div>
+        </el-card>
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-number">{{ currentRoleStats.completed }}</div>
+            <div class="stat-label">已完成</div>
+          </div>
+        </el-card>
+        <el-card class="stat-card">
+          <div class="stat-content">
+            <div class="stat-number">{{ currentRoleStats.avgRating }}</div>
+            <div class="stat-label">平均评分</div>
+          </div>
+        </el-card>
+      </div>
     </div>
 
-    <!-- 服务类型tabs -->
+    <!-- 服务列表 -->
     <el-card class="service-list-card">
       <template #header>
         <div class="card-header">
-          <span>我的服务提供商</span>
-          <el-button type="primary" size="small">+ 添加服务商</el-button>
+          <span>{{ currentRole === 'demander' ? '我的服务需求' : '待服务列表' }}</span>
+          <el-select v-model="filterStatus" placeholder="筛选状态" clearable style="width: 150px">
+            <el-option label="服务中" value="inProgress" />
+            <el-option label="已完成" value="completed" />
+            <el-option label="待运营介入" value="needIntervention" />
+          </el-select>
         </div>
       </template>
 
-      <el-tabs v-model="activeTab">
-        <!-- 设计院 -->
-        <el-tab-pane label="设计院" name="design">
-          <div v-if="designProviders.length === 0" class="empty-state">
-            <el-empty description="暂无关联的设计院" />
-          </div>
-          <div v-else class="providers-grid">
-            <div v-for="provider in designProviders" :key="provider.id" class="provider-card">
-              <div class="provider-header">
-                <h3 class="provider-name">{{ provider.name }}</h3>
-                <el-tag type="success" size="small">{{ provider.status === 'active' ? '活跃' : '停用' }}</el-tag>
-              </div>
-              <div class="provider-info">
-                <div class="info-item">
-                  <span class="label">企业代码:</span>
-                  <span class="value">{{ provider.code }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系人:</span>
-                  <span class="value">{{ provider.contactPerson }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系电话:</span>
-                  <span class="value">{{ provider.phone }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">关联时间:</span>
-                  <span class="value">{{ formatDate(provider.bindTime) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">交易次数:</span>
-                  <span class="value">{{ provider.transactionCount }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">平均评分:</span>
-                  <span class="value">⭐ {{ provider.avgRating }}</span>
-                </div>
-              </div>
-              <div class="provider-actions">
-                <el-button link type="primary" size="small" @click="viewDetails(provider)">
-                  查看详情
-                </el-button>
-                <el-button link type="warning" size="small" @click="editProvider(provider)">
-                  编辑
-                </el-button>
-                <el-button link type="danger" size="small" @click="removeProvider(provider)">
-                  移除
-                </el-button>
-              </div>
+      <!-- 服务卡片列表 -->
+      <div v-if="filteredServices.length === 0" class="empty-state">
+        <el-empty description="暂无服务记录" />
+      </div>
+      <div v-else class="services-grid">
+        <div v-for="service in filteredServices" :key="service.id" class="service-card">
+          <div class="service-header">
+            <div class="service-title-row">
+              <h3 class="service-title">{{ service.title }}</h3>
+              <el-tag 
+                :type="getStatusTagType(service.status)" 
+                size="large"
+              >
+                {{ getStatusLabel(service.status) }}
+              </el-tag>
+            </div>
+            <div class="service-meta">
+              <span class="type-badge" :class="`type-${service.type}`">
+                {{ getTypeLabel(service.type) }}
+              </span>
+              <span class="service-no">{{ service.serviceNo }}</span>
             </div>
           </div>
-        </el-tab-pane>
 
-        <!-- 造船厂 -->
-        <el-tab-pane label="造船厂" name="shipyard">
-          <div v-if="shipyardProviders.length === 0" class="empty-state">
-            <el-empty description="暂无关联的造船厂" />
-          </div>
-          <div v-else class="providers-grid">
-            <div v-for="provider in shipyardProviders" :key="provider.id" class="provider-card">
-              <div class="provider-header">
-                <h3 class="provider-name">{{ provider.name }}</h3>
-                <el-tag type="success" size="small">{{ provider.status === 'active' ? '活跃' : '停用' }}</el-tag>
-              </div>
-              <div class="provider-info">
-                <div class="info-item">
-                  <span class="label">企业代码:</span>
-                  <span class="value">{{ provider.code }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系人:</span>
-                  <span class="value">{{ provider.contactPerson }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系电话:</span>
-                  <span class="value">{{ provider.phone }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">关联时间:</span>
-                  <span class="value">{{ formatDate(provider.bindTime) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">交易次数:</span>
-                  <span class="value">{{ provider.transactionCount }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">平均评分:</span>
-                  <span class="value">⭐ {{ provider.avgRating }}</span>
-                </div>
-              </div>
-              <div class="provider-actions">
-                <el-button link type="primary" size="small" @click="viewDetails(provider)">
-                  查看详情
-                </el-button>
-                <el-button link type="warning" size="small" @click="editProvider(provider)">
-                  编辑
-                </el-button>
-                <el-button link type="danger" size="small" @click="removeProvider(provider)">
-                  移除
-                </el-button>
-              </div>
+          <div class="service-body">
+            <div class="info-row">
+              <span class="label">{{ currentRole === 'demander' ? '服务提供方' : '需求方' }}:</span>
+              <span class="value">{{ currentRole === 'demander' ? service.provider : service.demander }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">联系电话:</span>
+              <span class="value">{{ service.contactPhone }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">创建时间:</span>
+              <span class="value">{{ service.createTime }}</span>
+            </div>
+            <div v-if="service.status === 'completed' && service.rating" class="info-row">
+              <span class="label">服务评分:</span>
+              <span class="value rating">
+                <el-rate v-model="service.rating" disabled size="small" />
+              </span>
             </div>
           </div>
-        </el-tab-pane>
 
-        <!-- 修船厂 -->
-        <el-tab-pane label="修船厂" name="repair">
-          <div v-if="repairProviders.length === 0" class="empty-state">
-            <el-empty description="暂无关联的修船厂" />
+          <div class="service-actions">
+            <el-button type="primary" link @click="viewServiceDetail(service)">查看详情</el-button>
+            
+            <!-- 服务提供方：服务中状态可以提交完成报告 -->
+            <el-button 
+              v-if="currentRole === 'provider' && service.status === 'inProgress' && !service.providerSubmitted"
+              type="success" 
+              @click="submitServiceReport(service)"
+            >
+              提交完成报告
+            </el-button>
+            
+            <!-- 需求方：等待确认时可以确认或拒绝 -->
+            <template v-if="currentRole === 'demander' && service.status === 'inProgress' && service.providerSubmitted">
+              <el-button type="success" @click="confirmService(service)">确认完成</el-button>
+              <el-button type="warning" @click="rejectService(service)">不予确认</el-button>
+            </template>
           </div>
-          <div v-else class="providers-grid">
-            <div v-for="provider in repairProviders" :key="provider.id" class="provider-card">
-              <div class="provider-header">
-                <h3 class="provider-name">{{ provider.name }}</h3>
-                <el-tag type="success" size="small">{{ provider.status === 'active' ? '活跃' : '停用' }}</el-tag>
-              </div>
-              <div class="provider-info">
-                <div class="info-item">
-                  <span class="label">企业代码:</span>
-                  <span class="value">{{ provider.code }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系人:</span>
-                  <span class="value">{{ provider.contactPerson }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">联系电话:</span>
-                  <span class="value">{{ provider.phone }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">关联时间:</span>
-                  <span class="value">{{ formatDate(provider.bindTime) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">交易次数:</span>
-                  <span class="value">{{ provider.transactionCount }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">平均评分:</span>
-                  <span class="value">⭐ {{ provider.avgRating }}</span>
-                </div>
-              </div>
-              <div class="provider-actions">
-                <el-button link type="primary" size="small" @click="viewDetails(provider)">
-                  查看详情
-                </el-button>
-                <el-button link type="warning" size="small" @click="editProvider(provider)">
-                  编辑
-                </el-button>
-                <el-button link type="danger" size="small" @click="removeProvider(provider)">
-                  移除
-                </el-button>
-              </div>
-            </div>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
+        </div>
+      </div>
     </el-card>
+
+    <!-- 提交完成报告对话框 -->
+    <el-dialog 
+      v-model="reportDialogVisible" 
+      title="提交服务完成报告" 
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="reportForm" label-width="100px">
+        <el-form-item label="服务说明">
+          <el-input 
+            v-model="reportForm.description" 
+            type="textarea" 
+            :rows="4"
+            placeholder="请详细描述已完成的服务内容"
+          />
+        </el-form-item>
+        <el-form-item label="上传附件">
+          <el-upload
+            v-model:file-list="reportForm.attachments"
+            action="#"
+            :auto-upload="false"
+            multiple
+            :limit="5"
+          >
+            <el-button type="primary">选择文件</el-button>
+            <template #tip>
+              <div class="el-upload__tip">最多上传5个文件，支持图片、文档等格式</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="reportDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitReport">提交报告</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 确认完成对话框 -->
+    <el-dialog 
+      v-model="confirmDialogVisible" 
+      title="确认服务完成" 
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="confirmForm" label-width="100px">
+        <el-form-item label="服务评分" required>
+          <el-rate v-model="confirmForm.rating" size="large" />
+        </el-form-item>
+        <el-form-item label="评价内容" required>
+          <el-input 
+            v-model="confirmForm.comment" 
+            type="textarea" 
+            :rows="4"
+            placeholder="请对本次服务进行评价"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="confirmDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitConfirm">确认完成</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 拒绝确认对话框 -->
+    <el-dialog 
+      v-model="rejectDialogVisible" 
+      title="不予确认" 
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-alert 
+        title="提交后将等待运营人员介入处理" 
+        type="warning" 
+        :closable="false"
+        style="margin-bottom: 20px"
+      />
+      <el-form :model="rejectForm" label-width="100px">
+        <el-form-item label="拒绝原因" required>
+          <el-input 
+            v-model="rejectForm.reason" 
+            type="textarea" 
+            :rows="4"
+            placeholder="请说明服务未达预期的原因"
+          />
+        </el-form-item>
+        <el-form-item label="相关材料">
+          <el-upload
+            v-model:file-list="rejectForm.attachments"
+            action="#"
+            :auto-upload="false"
+            multiple
+            :limit="5"
+          >
+            <el-button type="primary">上传证明材料</el-button>
+            <template #tip>
+              <div class="el-upload__tip">如有相关证明材料，请一并上传</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="rejectDialogVisible = false">取消</el-button>
+        <el-button type="warning" @click="submitReject">提交</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 服务详情对话框 -->
+    <el-dialog 
+      v-model="detailDialogVisible" 
+      title="服务详情" 
+      width="700px"
+    >
+      <div v-if="selectedService" class="detail-content">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="服务编号">{{ selectedService.serviceNo }}</el-descriptions-item>
+          <el-descriptions-item label="服务类型">{{ getTypeLabel(selectedService.type) }}</el-descriptions-item>
+          <el-descriptions-item label="需求标题" :span="2">{{ selectedService.title }}</el-descriptions-item>
+          <el-descriptions-item label="需求方">{{ selectedService.demander }}</el-descriptions-item>
+          <el-descriptions-item label="服务提供方">{{ selectedService.provider }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{ selectedService.createTime }}</el-descriptions-item>
+          <el-descriptions-item label="服务状态">
+            <el-tag :type="getStatusTagType(selectedService.status)">
+              {{ getStatusLabel(selectedService.status) }}
+            </el-tag>
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <!-- 服务提供方提交的报告 -->
+        <div v-if="selectedService.providerReport" class="report-section">
+          <h3>服务完成报告</h3>
+          <div class="report-content">
+            <p>{{ selectedService.providerReport.description }}</p>
+            <div v-if="selectedService.providerReport.attachments?.length" class="attachments">
+              <h4>附件:</h4>
+              <div class="attachment-list">
+                <el-tag 
+                  v-for="(file, index) in selectedService.providerReport.attachments" 
+                  :key="index"
+                  type="info"
+                >
+                  {{ file.name }}
+                </el-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 需求方的评价 -->
+        <div v-if="selectedService.status === 'completed' && selectedService.evaluation" class="evaluation-section">
+          <h3>服务评价</h3>
+          <div class="evaluation-content">
+            <div class="rating-row">
+              <span>评分:</span>
+              <el-rate v-model="selectedService.rating" disabled />
+            </div>
+            <p>{{ selectedService.evaluation.comment }}</p>
+          </div>
+        </div>
+
+        <!-- 拒绝确认的信息 -->
+        <div v-if="selectedService.status === 'needIntervention' && selectedService.rejection" class="rejection-section">
+          <h3>拒绝确认信息</h3>
+          <div class="rejection-content">
+            <p><strong>拒绝原因:</strong> {{ selectedService.rejection.reason }}</p>
+            <div v-if="selectedService.rejection.attachments?.length" class="attachments">
+              <h4>相关材料:</h4>
+              <div class="attachment-list">
+                <el-tag 
+                  v-for="(file, index) in selectedService.rejection.attachments" 
+                  :key="index"
+                  type="warning"
+                >
+                  {{ file.name }}
+                </el-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 
-const activeTab = ref('design')
+const router = useRouter()
 
-// 统计数据
-const stats = ref({
-  totalProviders: 12,
-  activeProviders: 10,
-  totalTransactions: 45,
-  avgRating: 4.6
+// 角色选项
+const roleOptions = [
+  { label: '我是需求方', value: 'demander' },
+  { label: '我是服务方', value: 'provider' }
+]
+const currentRole = ref('demander')
+
+// 状态筛选
+const filterStatus = ref('')
+
+// 对话框控制
+const reportDialogVisible = ref(false)
+const confirmDialogVisible = ref(false)
+const rejectDialogVisible = ref(false)
+const detailDialogVisible = ref(false)
+const selectedService = ref(null)
+
+// 表单数据
+const reportForm = ref({
+  description: '',
+  attachments: []
 })
 
-// Mock数据
-const designProviders = ref([
+const confirmForm = ref({
+  rating: 0,
+  comment: ''
+})
+
+const rejectForm = ref({
+  reason: '',
+  attachments: []
+})
+
+// Mock 服务数据
+const services = ref([
   {
     id: 1,
-    name: 'XX船舶设计研究院',
-    code: 'DSN-001',
-    contactPerson: '李工',
-    phone: '0755-12345678',
-    bindTime: '2025-08-15',
-    status: 'active',
-    transactionCount: 8,
-    avgRating: 4.7
+    serviceNo: 'SVC-2026010001',
+    type: 'design',
+    title: '5万吨散货船设计方案',
+    demander: '某航运有限公司',
+    provider: 'XX船舶设计研究所',
+    contactPhone: '021-12345678',
+    createTime: '2026-01-20 10:30',
+    status: 'inProgress', // inProgress, completed, needIntervention
+    providerSubmitted: false,
+    rating: 0,
+    providerReport: null,
+    evaluation: null,
+    rejection: null
   },
   {
     id: 2,
-    name: '浙江海洋设计中心',
-    code: 'DSN-002',
-    contactPerson: '王女士',
-    phone: '0571-87654321',
-    bindTime: '2025-09-20',
-    status: 'active',
-    transactionCount: 5,
-    avgRating: 4.5
-  }
-])
-
-const shipyardProviders = ref([
+    serviceNo: 'SVC-2026010002',
+    type: 'building',
+    title: '3500吨集装箱船建造',
+    demander: '海运集团',
+    provider: '青岛XX造船厂',
+    contactPhone: '0532-98765432',
+    createTime: '2026-01-18 14:20',
+    status: 'inProgress',
+    providerSubmitted: true,
+    rating: 0,
+    providerReport: {
+      description: '已完成船体建造、动力系统安装、涂装等全部工序，各项指标符合设计要求',
+      attachments: [
+        { name: '建造完成报告.pdf' },
+        { name: '检测证书.pdf' }
+      ]
+    },
+    evaluation: null,
+    rejection: null
+  },
   {
     id: 3,
-    name: '中国船舶集团造船厂',
-    code: 'SBY-001',
-    contactPerson: '张总',
-    phone: '0411-22334455',
-    bindTime: '2025-07-10',
-    status: 'active',
-    transactionCount: 12,
-    avgRating: 4.8
-  },
-  {
-    id: 4,
-    name: '舟山国际造船有限公司',
-    code: 'SBY-002',
-    contactPerson: '陈先生',
-    phone: '0580-11223344',
-    bindTime: '2025-10-05',
-    status: 'active',
-    transactionCount: 3,
-    avgRating: 4.6
+    serviceNo: 'SVC-2026010003',
+    type: 'repair',
+    title: '主机维修保养',
+    demander: '远洋运输公司',
+    provider: '上海XX船舶修理厂',
+    contactPhone: '021-87654321',
+    createTime: '2026-01-15 09:45',
+    status: 'completed',
+    providerSubmitted: true,
+    rating: 5,
+    providerReport: {
+      description: '已完成主机大修、更换磨损部件、调试测试，设备运行正常',
+      attachments: [
+        { name: '维修报告.pdf' }
+      ]
+    },
+    evaluation: {
+      comment: '服务专业，维修质量高，设备运行稳定，非常满意！'
+    },
+    rejection: null
   }
 ])
 
-const repairProviders = ref([
-  {
-    id: 5,
-    name: '青岛海西湾修船厂',
-    code: 'REP-001',
-    contactPerson: '胡经理',
-    phone: '0532-55667788',
-    bindTime: '2025-06-20',
-    status: 'active',
-    transactionCount: 15,
-    avgRating: 4.7
-  },
-  {
-    id: 6,
-    name: '广州文冲船厂',
-    code: 'REP-002',
-    contactPerson: '刘主任',
-    phone: '020-99887766',
-    bindTime: '2025-11-01',
-    status: 'active',
-    transactionCount: 7,
-    avgRating: 4.5
+// 计算属性 - 当前角色的统计数据
+const currentRoleStats = computed(() => {
+  const roleServices = services.value
+  return {
+    total: roleServices.length,
+    inProgress: roleServices.filter(s => s.status === 'inProgress').length,
+    completed: roleServices.filter(s => s.status === 'completed').length,
+    avgRating: (roleServices.filter(s => s.rating > 0).reduce((sum, s) => sum + s.rating, 0) / 
+                roleServices.filter(s => s.rating > 0).length || 0).toFixed(1)
   }
-])
+})
+
+// 过滤后的服务列表
+const filteredServices = computed(() => {
+  let filtered = services.value
+  if (filterStatus.value) {
+    filtered = filtered.filter(s => s.status === filterStatus.value)
+  }
+  return filtered
+})
 
 // 方法
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('zh-CN')
+const getTypeLabel = (type) => {
+  const labels = {
+    design: '设计',
+    building: '建造',
+    repair: '维修'
+  }
+  return labels[type] || type
 }
 
-const viewDetails = (provider) => {
-  console.log('[v0] 查看服务商详情:', provider.id)
-  ElMessage.info(`查看 ${provider.name} 的详情`)
+const getStatusLabel = (status) => {
+  const labels = {
+    inProgress: '服务中',
+    completed: '已完成',
+    needIntervention: '待运营介入'
+  }
+  return labels[status] || status
 }
 
-const editProvider = (provider) => {
-  console.log('[v0] 编辑服务商:', provider.id)
-  ElMessage.info(`编辑 ${provider.name} 的信息`)
+const getStatusTagType = (status) => {
+  const types = {
+    inProgress: 'warning',
+    completed: 'success',
+    needIntervention: 'danger'
+  }
+  return types[status] || 'info'
 }
 
-const removeProvider = (provider) => {
-  ElMessageBox.confirm(
-    `确定要移除 ${provider.name} 吗？`,
-    '移除服务商',
-    { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
-  ).then(() => {
-    if (activeTab.value === 'design') {
-      designProviders.value = designProviders.value.filter(p => p.id !== provider.id)
-    } else if (activeTab.value === 'shipyard') {
-      shipyardProviders.value = shipyardProviders.value.filter(p => p.id !== provider.id)
-    } else if (activeTab.value === 'repair') {
-      repairProviders.value = repairProviders.value.filter(p => p.id !== provider.id)
-    }
-    ElMessage.success('已移除服务商')
-  }).catch(() => {
-    ElMessage.info('已取消')
-  })
+// 查看服务详情
+const viewServiceDetail = (service) => {
+  selectedService.value = service
+  detailDialogVisible.value = true
+  console.log('[v0] 查看服务详情:', service.id)
+}
+
+// 提交完成报告
+const submitServiceReport = (service) => {
+  selectedService.value = service
+  reportForm.value = {
+    description: '',
+    attachments: []
+  }
+  reportDialogVisible.value = true
+  console.log('[v0] 提交完成报告:', service.id)
+}
+
+const submitReport = () => {
+  if (!reportForm.value.description) {
+    ElMessage.warning('请填写服务说明')
+    return
+  }
+  
+  selectedService.value.providerSubmitted = true
+  selectedService.value.providerReport = {
+    description: reportForm.value.description,
+    attachments: reportForm.value.attachments.map(f => ({ name: f.name }))
+  }
+  
+  reportDialogVisible.value = false
+  ElMessage.success('服务完成报告已提交，等待需求方确认')
+  console.log('[v0] 报告已提交:', selectedService.value.id)
+}
+
+// 确认服务完成
+const confirmService = (service) => {
+  selectedService.value = service
+  confirmForm.value = {
+    rating: 0,
+    comment: ''
+  }
+  confirmDialogVisible.value = true
+  console.log('[v0] 确认服务完成:', service.id)
+}
+
+const submitConfirm = () => {
+  if (confirmForm.value.rating === 0) {
+    ElMessage.warning('请选择评分')
+    return
+  }
+  if (!confirmForm.value.comment) {
+    ElMessage.warning('请填写评价内容')
+    return
+  }
+  
+  selectedService.value.status = 'completed'
+  selectedService.value.rating = confirmForm.value.rating
+  selectedService.value.evaluation = {
+    comment: confirmForm.value.comment
+  }
+  
+  confirmDialogVisible.value = false
+  ElMessage.success('服务已确认完成')
+  console.log('[v0] 服务已确认完成:', selectedService.value.id)
+}
+
+// 拒绝确认
+const rejectService = (service) => {
+  selectedService.value = service
+  rejectForm.value = {
+    reason: '',
+    attachments: []
+  }
+  rejectDialogVisible.value = true
+  console.log('[v0] 拒绝确认服务:', service.id)
+}
+
+const submitReject = () => {
+  if (!rejectForm.value.reason) {
+    ElMessage.warning('请填写拒绝原因')
+    return
+  }
+  
+  selectedService.value.status = 'needIntervention'
+  selectedService.value.rejection = {
+    reason: rejectForm.value.reason,
+    attachments: rejectForm.value.attachments.map(f => ({ name: f.name }))
+  }
+  
+  rejectDialogVisible.value = false
+  ElMessage.warning('已提交不予确认，等待运营人员介入处理')
+  console.log('[v0] 已拒绝确认:', selectedService.value.id)
 }
 </script>
 
@@ -335,7 +557,7 @@ const removeProvider = (provider) => {
 }
 
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .page-title {
@@ -351,12 +573,21 @@ const removeProvider = (provider) => {
   margin: 0;
 }
 
-/* 统计卡片 */
+/* 角色切换和统计 */
+.stats-section {
+  margin-bottom: 24px;
+}
+
+.stats-section :deep(.el-segmented) {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
 .stats-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
 }
 
 .stat-card {
@@ -389,14 +620,10 @@ const removeProvider = (provider) => {
   font-weight: 500;
 }
 
-/* 服务商列表 */
+/* 服务列表 */
 .service-list-card {
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.service-list-card :deep(.el-card__header) {
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-header {
@@ -413,66 +640,169 @@ const removeProvider = (provider) => {
   text-align: center;
 }
 
-.providers-grid {
+.services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   gap: 20px;
 }
 
-.provider-card {
+.service-card {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 20px;
   transition: all 0.3s;
 }
 
-.provider-card:hover {
+.service-card:hover {
   border-color: #1890ff;
   box-shadow: 0 4px 12px rgba(24, 144, 255, 0.1);
 }
 
-.provider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.service-header {
   margin-bottom: 16px;
-  padding-bottom: 12px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.provider-name {
+.service-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.service-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #0f172a;
   margin: 0;
   flex: 1;
 }
 
-.provider-info {
+.service-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.type-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.type-design {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.type-building {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.type-repair {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.service-no {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.service-body {
   margin-bottom: 16px;
 }
 
-.info-item {
+.info-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
   font-size: 13px;
 }
 
-.info-item .label {
+.info-row .label {
   color: #64748b;
   font-weight: 500;
 }
 
-.info-item .value {
+.info-row .value {
   color: #0f172a;
   font-weight: 600;
 }
 
-.provider-actions {
+.info-row .rating {
+  display: flex;
+  align-items: center;
+}
+
+.service-actions {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* 详情对话框 */
+.detail-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.report-section,
+.evaluation-section,
+.rejection-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+}
+
+.report-section h3,
+.evaluation-section h3,
+.rejection-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+}
+
+.report-content p,
+.evaluation-content p,
+.rejection-content p {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.attachments {
+  margin-top: 12px;
+}
+
+.attachments h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 8px 0;
+}
+
+.attachment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
 }
 </style>
