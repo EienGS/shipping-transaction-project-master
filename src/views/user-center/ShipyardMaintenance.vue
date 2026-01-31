@@ -17,8 +17,8 @@
 
     <!-- 已注册状态 -->
     <template v-else>
-      <!-- Status Banner -->
-      <div class="status-banner" :class="`status-${providerInfo.status}`">
+      <!-- Status Banner (不在首次填报时显示) -->
+      <div v-if="providerInfo.status !== 'filling'" class="status-banner" :class="`status-${providerInfo.status}`">
         <div class="banner-content">
           <svg v-if="providerInfo.status === 'pending'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="banner-icon">
             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -62,6 +62,25 @@
       <!-- Form Content -->
       <div class="form-container">
         <form @submit.prevent="saveInfo">
+          <!-- 公司简介 -->
+          <section class="form-section">
+            <div class="section-header">
+              <h2>公司简介</h2>
+              <span class="section-badge required">必填</span>
+            </div>
+            <div class="form-item full-width required">
+              <textarea 
+                v-model="formData.companyIntro" 
+                :disabled="!isEditing"
+                class="form-textarea"
+                placeholder="请简要介绍公司的历史、规模、主营业务等信息（300字以内）"
+                rows="5"
+                maxlength="300"
+              ></textarea>
+              <div class="char-count">{{ formData.companyIntro?.length || 0 }}/300</div>
+            </div>
+          </section>
+
           <!-- 基础信息（只读） -->
           <section class="form-section">
             <div class="section-header">
@@ -93,12 +112,12 @@
 
             <div class="form-grid">
               <div class="form-item required full-width">
-                <label>主要建造船型</label>
+                <label>核心建造能力</label>
                 <textarea 
-                  v-model="formData.shipTypes" 
+                  v-model="formData.coreCapability" 
                   :disabled="!isEditing"
                   class="form-textarea"
-                  placeholder="请描述您的主要建造船型，如：散货船、油船、集装箱船、化学品船等"
+                  placeholder="请描述您的核心建造能力，如：散货船（10000-80000DWT）、油船（20000-100000DWT）"
                   rows="3"
                 ></textarea>
               </div>
@@ -136,13 +155,13 @@
               </div>
 
               <div class="form-item required">
-                <label>年建造能力</label>
+                <label>船台数量</label>
                 <input 
-                  v-model="formData.annualCapacity" 
+                  v-model="formData.slipwayCount" 
                   :disabled="!isEditing"
                   type="text" 
                   class="form-input" 
-                  placeholder="如：15艘/年"
+                  placeholder="如：6个"
                 />
               </div>
 
@@ -158,14 +177,25 @@
               </div>
 
               <div class="form-item required">
-                <label>最大船坞尺寸</label>
+                <label>占地面积</label>
                 <input 
-                  v-model="formData.maxDockSize" 
+                  v-model="formData.landArea" 
                   :disabled="!isEditing"
                   type="text" 
                   class="form-input" 
-                  placeholder="如：300m×60m"
+                  placeholder="如：150万平方米"
                 />
+              </div>
+
+              <div class="form-item required full-width">
+                <label>建造排期说明</label>
+                <textarea 
+                  v-model="formData.scheduleInfo" 
+                  :disabled="!isEditing"
+                  class="form-textarea"
+                  placeholder="请说明当前建造排期情况，如：现有空余船台2个，可接新订单"
+                  rows="3"
+                ></textarea>
               </div>
 
               <div class="form-item required full-width">
@@ -202,6 +232,17 @@
               </div>
 
               <div class="form-item required">
+                <label>联系电话</label>
+                <input 
+                  v-model="formData.contactPhone" 
+                  :disabled="!isEditing"
+                  type="tel" 
+                  class="form-input" 
+                  placeholder="请输入联系电话"
+                />
+              </div>
+
+              <div class="form-item required">
                 <label>官方邮箱</label>
                 <input 
                   v-model="formData.email" 
@@ -209,6 +250,19 @@
                   type="email" 
                   class="form-input" 
                   placeholder="请输入企业邮箱"
+                />
+              </div>
+
+              <div class="form-item required">
+                <label>成立年份</label>
+                <input 
+                  v-model="formData.foundedYear" 
+                  :disabled="!isEditing"
+                  type="number" 
+                  class="form-input" 
+                  placeholder="如：2010"
+                  min="1900"
+                  max="2026"
                 />
               </div>
             </div>
@@ -234,12 +288,23 @@
               </div>
 
               <div class="form-item full-width">
-                <label>建造周期说明</label>
+                <label>付款方式</label>
                 <textarea 
-                  v-model="formData.buildCycle" 
+                  v-model="formData.paymentMethod" 
                   :disabled="!isEditing"
                   class="form-textarea"
-                  placeholder="按船舶吨位/类型说明建造周期，如：5万吨散货船建造周期12-18个月"
+                  placeholder="如：分期付款，按建造进度30%-40%-30%支付"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <div class="form-item full-width">
+                <label>配套服务</label>
+                <textarea 
+                  v-model="formData.supportingServices" 
+                  :disabled="!isEditing"
+                  class="form-textarea"
+                  placeholder="请描述提供的配套服务，如：海试服务、交船培训、质保维护等"
                   rows="2"
                 ></textarea>
               </div>
@@ -251,37 +316,37 @@
                     <input 
                       type="checkbox" 
                       v-model="formData.serviceTypes" 
-                      value="新建船建造"
+                      value="新建船舶"
                       :disabled="!isEditing"
                     />
-                    <span>新建船建造</span>
+                    <span>新建船舶</span>
                   </label>
                   <label class="checkbox-item">
                     <input 
                       type="checkbox" 
                       v-model="formData.serviceTypes" 
-                      value="船舶改装"
+                      value="精细建造"
                       :disabled="!isEditing"
                     />
-                    <span>船舶改装</span>
+                    <span>精细建造</span>
                   </label>
                   <label class="checkbox-item">
                     <input 
                       type="checkbox" 
                       v-model="formData.serviceTypes" 
-                      value="船舶拆解"
+                      value="设计优化"
                       :disabled="!isEditing"
                     />
-                    <span>船舶拆解</span>
+                    <span>设计优化</span>
                   </label>
                   <label class="checkbox-item">
                     <input 
                       type="checkbox" 
                       v-model="formData.serviceTypes" 
-                      value="维修保养"
+                      value="交付服务"
                       :disabled="!isEditing"
                     />
-                    <span>维修保养</span>
+                    <span>交付服务</span>
                   </label>
                 </div>
               </div>
@@ -463,21 +528,22 @@ const providerInfo = ref({
 // 表单数据
 const formData = reactive({
   companyIntro: '大连船舶重工集团是国内领先的大型船舶建造企业，拥有一级船厂资质。多年来致力于散货船、油船、集装箱船等大型船舶的设计和建造，年建造能力15艘以上，业务遍及全球主要航运市场。',
-  shipTypes: '散货船、油船、集装箱船、化学品船',
+  coreCapability: '散货船（10000-80000DWT）、油船（20000-100000DWT）、集装箱船（500-5000TEU）',
   city: '大连市',
   registeredCapital: '2亿元',
   level: '一级',
-  annualCapacity: '15艘/年',
+  slipwayCount: '6个',
   dockCount: '3个',
-  maxDockSize: '300m×60m',
-  buildingCapability: '散货船（10000-80000DWT）、油船（20000-100000DWT）',
+  landArea: '150万平方米',
+  scheduleInfo: '现有空余船台2个，可接新订单；现有在建项目5艘，预计6个月内交付',
   contactPerson: '王经理',
   contactPhone: '13900139000',
   email: 'contact@dlshipyard.com',
   foundedYear: 1992,
   priceInfo: '根据船舶类型和吨位，建造价格在5000-20000万元之间',
-  buildCycle: '5万吨散货船建造周期12-18个月，根据复杂程度调整',
-  serviceTypes: ['新建船建造', '船舶改装'],
+  paymentMethod: '分期付款，按建造进度30%-40%-30%支付',
+  supportingServices: '提供海试服务、交船培训、两年质保维护、备件供应等全方位配套服务',
+  serviceTypes: ['新建船舶', '精细建造'],
   coreCapabilities: [
     { title: '散货船建造', description: '拥有10000-80000吨各类散货船建造经验，累计完成100余艘' },
     { title: '油轮建造', description: '精通油轮建造工艺，可提供节能环保解决方案' }
@@ -487,10 +553,10 @@ const formData = reactive({
   photos: []
 })
 
-// 开始注册
+// 开始注册（首次填报状态）
 const startRegistration = () => {
-  console.log('[v0] 开始填报造船厂信息')
-  providerInfo.value.status = 'editing' // 临时状态，表示正在填报
+  console.log('[v0] 开始注册')
+  providerInfo.value.status = 'filling'
   isEditing.value = true
 }
 
