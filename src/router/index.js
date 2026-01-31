@@ -128,6 +128,11 @@ const routes = [
         component: () => import('../views/user-center/TradeVerificationCenter.vue')
       },
       {
+        path: 'service/center',
+        name: 'ServiceCenter',
+        component: () => import('../views/user-center/ServiceCenter.vue')
+      },
+      {
         path: 'service/design',
         name: 'DesignProviderMaintenance',
         component: () => import('../views/user-center/DesignProviderMaintenance.vue')
