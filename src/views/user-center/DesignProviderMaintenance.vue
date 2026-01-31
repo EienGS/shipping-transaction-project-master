@@ -248,17 +248,6 @@
             </div>
 
             <div class="form-item full-width">
-              <label>服务范围说明</label>
-              <textarea 
-                v-model="formData.serviceScope" 
-                :disabled="!isEditing"
-                class="form-textarea"
-                placeholder="请描述您的服务范围和业务方向"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div class="form-item full-width">
               <label>服务范围</label>
               <div class="checkbox-group">
                 <label class="checkbox-item">
@@ -491,7 +480,6 @@ const formData = reactive({
   foundedYear: 1985,
   designPrice: '根据船舶类型和吨位，设计费用在50-200万元之间',
   designCycle: '5万吨散货船设计周期6-8个月，根据复杂程度调整',
-  serviceScope: '提供全流程设计服务，包括概念设计、基本设计、详细设计及技术支持',
   serviceTypes: ['新建船设计', '详细设计', '技术咨询'],
   coreCapabilities: [
     { title: '散货船设计', description: '拥有5000-80000吨各类散货船详细设计经验，累计完成80余艘' },
