@@ -45,6 +45,25 @@
     <!-- Form Content -->
     <div class="form-container">
       <form @submit.prevent="saveInfo">
+        <!-- 公司简介 -->
+        <section class="form-section">
+          <div class="section-header">
+            <h2>公司简介</h2>
+            <span class="section-badge required">必填</span>
+          </div>
+          <div class="form-item full-width required">
+            <textarea 
+              v-model="formData.companyIntro" 
+              :disabled="!isEditing"
+              class="form-textarea"
+              placeholder="请简要介绍公司的历史、规模、主营业务等信息（300字以内）"
+              rows="5"
+              maxlength="300"
+            ></textarea>
+            <div class="char-count">{{ formData.companyIntro?.length || 0 }}/300</div>
+          </div>
+        </section>
+
         <!-- 基础信息（只读） -->
         <section class="form-section">
           <div class="section-header">
@@ -182,6 +201,19 @@
                 placeholder="请输入企业邮箱"
               />
             </div>
+
+            <div class="form-item required">
+              <label>成立年份</label>
+              <input 
+                v-model="formData.foundedYear" 
+                :disabled="!isEditing"
+                type="number" 
+                class="form-input" 
+                placeholder="如：2010"
+                min="1900"
+                max="2026"
+              />
+            </div>
           </div>
         </section>
 
@@ -216,22 +248,106 @@
             </div>
 
             <div class="form-item full-width">
-              <label>其他说明</label>
+              <label>服务范围说明</label>
               <textarea 
-                v-model="formData.otherInfo" 
+                v-model="formData.serviceScope" 
                 :disabled="!isEditing"
                 class="form-textarea"
-                placeholder="补充其他重要信息"
+                placeholder="请描述您的服务范围和业务方向"
                 rows="3"
               ></textarea>
+            </div>
+
+            <div class="form-item full-width">
+              <label>服务范围</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="新建船设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>新建船设计</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="详细设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>详细设计</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="技术咨询"
+                    :disabled="!isEditing"
+                  />
+                  <span>技术咨询</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="改装设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>改装设计</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 核心能力编辑区 -->
+            <div class="form-item full-width">
+              <label>核心能力</label>
+              <div class="core-capabilities-list">
+                <div v-for="(capability, index) in formData.coreCapabilities" :key="index" class="capability-item">
+                  <div class="capability-form">
+                    <div class="form-item">
+                      <label>标题（20字以内）</label>
+                      <input 
+                        v-model="capability.title" 
+                        :disabled="!isEditing"
+                        type="text" 
+                        class="form-input" 
+                        placeholder="如：散货船设计"
+                        maxlength="20"
+                      />
+                      <div class="char-count">{{ capability.title?.length || 0 }}/20</div>
+                    </div>
+                    <div class="form-item">
+                      <label>描述（50字以内）</label>
+                      <textarea 
+                        v-model="capability.description" 
+                        :disabled="!isEditing"
+                        class="form-textarea" 
+                        placeholder="简要描述该能力"
+                        rows="2"
+                        maxlength="50"
+                      ></textarea>
+                      <div class="char-count">{{ capability.description?.length || 0 }}/50</div>
+                    </div>
+                    <button v-if="isEditing" type="button" class="btn-remove-capability" @click="removeCapability(index)">删除</button>
+                  </div>
+                </div>
+                <button v-if="isEditing" type="button" class="btn-add-capability" @click="addCapability">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  添加核心能力
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- 设计案例 -->
+        <!-- 成功案例 -->
         <section class="form-section">
           <div class="section-header">
-            <h2>设计案例</h2>
+            <h2>成功案例</h2>
             <span class="section-tips">最多上传3个案例</span>
           </div>
 
@@ -361,6 +477,7 @@ const providerInfo = ref({
 
 // 表单数据
 const formData = reactive({
+  companyIntro: '上海船舶设计研究院成立于1985年，是国内领先的专业船舶设计机构，拥有甲级设计资质。多年来致力于散货船、油船、集装箱船等各类船型的设计研发，累计完成设计项目300余项，业务遍及全球20多个国家和地区。',
   coreDirection: '专注于散货船、油船、集装箱船的详细设计与优化设计',
   city: '上海市',
   registeredCapital: '5000万元',
@@ -371,9 +488,15 @@ const formData = reactive({
   contactPerson: '张工',
   contactPhone: '13800138000',
   email: 'contact@shshipdesign.com',
+  foundedYear: 1985,
   designPrice: '根据船舶类型和吨位，设计费用在50-200万元之间',
   designCycle: '5万吨散货船设计周期6-8个月，根据复杂程度调整',
-  otherInfo: '提供全流程设计服务，包括概念设计、基本设计、详细设计及技术支持',
+  serviceScope: '提供全流程设计服务，包括概念设计、基本设计、详细设计及技术支持',
+  serviceTypes: ['新建船设计', '详细设计', '技术咨询'],
+  coreCapabilities: [
+    { title: '散货船设计', description: '拥有5000-80000吨各类散货船详细设计经验，累计完成80余艘' },
+    { title: '油船优化设计', description: '精通油船流体力学优化，可有效降低油耗15%以上' }
+  ],
   cases: [
     {
       name: '5万吨散货船详细设计',
@@ -459,6 +582,18 @@ const uploadPhoto = () => {
 
 const removePhoto = (index) => {
   formData.photos.splice(index, 1)
+}
+
+// 核心能力管理
+const addCapability = () => {
+  formData.coreCapabilities.push({
+    title: '',
+    description: ''
+  })
+}
+
+const removeCapability = (index) => {
+  formData.coreCapabilities.splice(index, 1)
 }
 </script>
 
@@ -992,79 +1127,111 @@ const removePhoto = (index) => {
 }
 
 .btn-upload-photo svg {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Custom Content Editor */
-.custom-content-display {
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
-  min-height: 200px;
-  line-height: 1.6;
+/* 字符计数 */
+.char-count {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: right;
+  margin-top: 4px;
 }
 
-.editor-container {
+/* 复选框组 */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.checkbox-item span {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* 核心能力列表 */
+.core-capabilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.capability-item {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  overflow: hidden;
-}
-
-.editor-toolbar {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
+  padding: 16px;
   background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.editor-btn, .editor-select, .editor-color {
-  padding: 6px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  background: white;
+.capability-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.btn-remove-capability {
+  padding: 10px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 28px;
+}
+
+.btn-remove-capability:hover {
+  background: #dc2626;
+}
+
+.btn-add-capability {
+  padding: 12px 24px;
+  background: white;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
   font-size: 14px;
+  font-weight: 600;
   transition: all 0.3s;
 }
 
-.editor-btn:hover {
-  background: #e2e8f0;
+.btn-add-capability:hover {
+  border-color: #0ea5e9;
+  color: #0ea5e9;
+  background: #f0f9ff;
 }
 
-.editor-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.editor-textarea {
-  width: 100%;
-  padding: 16px;
-  border: none;
-  resize: vertical;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.editor-textarea:focus {
-  outline: none;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .form-grid, .info-grid, .case-form {
-    grid-template-columns: 1fr;
-  }
-
-  .photo-grid {
-    grid-template-columns: 1fr;
-  }
+.btn-add-capability svg {
+  width: 20px;
+  height: 20px;
 }
 </style>
