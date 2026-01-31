@@ -323,43 +323,7 @@
           </div>
         </section>
 
-        <!-- 自定义内容编辑器 -->
-        <section class="form-section">
-          <div class="section-header">
-            <h2>自定义内容</h2>
-            <span class="section-tips">支持富文本编辑，插入图片</span>
-          </div>
-          <div v-if="!isEditing" class="custom-content-display" v-html="formData.customContent"></div>
-          <div v-else class="editor-container">
-            <div class="editor-toolbar">
-              <button type="button" class="editor-btn" title="加粗">
-                <strong>B</strong>
-              </button>
-              <button type="button" class="editor-btn" title="斜体">
-                <em>I</em>
-              </button>
-              <button type="button" class="editor-btn" title="标题">
-                H
-              </button>
-              <select class="editor-select">
-                <option>字号</option>
-                <option>14px</option>
-                <option>16px</option>
-                <option>18px</option>
-                <option>20px</option>
-              </select>
-              <input type="color" class="editor-color" title="文字颜色" />
-              <button type="button" class="editor-btn" title="插入图片">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <path d="M21 15l-5-5L5 21"/>
-                </svg>
-              </button>
-            </div>
-            <textarea v-model="formData.customContent" class="editor-textarea" rows="10" placeholder="在此编辑自定义内容..."></textarea>
-          </div>
-        </section>
+
       </form>
     </div>
   </div>
@@ -424,8 +388,7 @@ const formData = reactive({
   ],
   photos: [
     { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop' }
-  ],
-  customContent: '<h3>关于我们</h3><p>上海船舶设计研究院成立于1985年，是国内领先的船舶设计企业...</p>'
+  ]
 })
 
 // 开始编辑
