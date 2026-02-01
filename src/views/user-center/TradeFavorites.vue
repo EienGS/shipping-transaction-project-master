@@ -620,11 +620,84 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
 .purchase-row {
   position: relative;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #F1F5F9;
+  transition: 0.3s;
   cursor: pointer;
+}
+
+.purchase-row:hover {
+  border-color: #3B82F6;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.fav-btn-demand {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   transition: all 0.3s;
+}
+
+.fav-btn-demand:hover {
+  transform: scale(1.1);
+}
+
+.fav-btn-demand.active {
+  color: #ef4444;
+}
+
+.row-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.p-badge {
+  color: #3B82F6;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.p-time {
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.row-middle p {
+  font-size: 14px;
+  color: #1E293B;
+  margin: 4px 0;
+}
+
+.budget span {
+  color: #EF4444;
+  font-weight: 700;
+}
+
+.contact-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0F172A;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .purchase-row:hover {
