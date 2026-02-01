@@ -1,359 +1,151 @@
 <template>
   <div class="lease-publish-demands-page">
-    <!-- Page Header -->
     <div class="page-header">
-      <h1>出租需求列表</h1>
-      <p>管理我发布的出租需求，包括租赁信息和空船信息</p>
+      <h1 class="page-title">我的出租船舶</h1>
+      <button class="btn-publish" @click="goToPublish">
+        <svg viewBox="0 0 24 24" fill="none" class="icon">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        发布出租信息
+      </button>
     </div>
 
-    <!-- Filters -->
-    <div class="filters-section">
+    <!-- 筛选器 -->
+    <div class="filters-bar">
       <div class="filter-group">
-        <input 
-          v-model="searchKeyword" 
-          type="text" 
-          placeholder="搜索船名、船舶识别号..." 
-          class="search-input"
-        />
-      </div>
-      
-      <div class="filter-group">
-        <select v-model="filterType" class="filter-select">
+        <select v-model="filterStatus" class="filter-select" @change="applyFilters">
+          <option value="">全部状态</option>
+          <option value="pending">待审核</option>
+          <option value="approved">已上架</option>
+          <option value="offline">已下架</option>
+          <option value="rejected">已驳回</option>
+        </select>
+
+        <select v-model="filterType" class="filter-select" @change="applyFilters">
           <option value="">全部类型</option>
           <option value="lease">租赁信息</option>
           <option value="idle">空船信息</option>
         </select>
-      </div>
 
-      <div class="filter-group">
-        <select v-model="filterStatus" class="filter-select">
-          <option value="">全部状态</option>
-          <option value="pending">待审核</option>
-          <option value="approved">已发布</option>
-          <option value="rejected">已驳回</option>
-        </select>
+        <input 
+          v-model="searchKeyword" 
+          type="text" 
+          class="search-input" 
+          placeholder="搜索船名..."
+          @input="applyFilters"
+        />
       </div>
 
       <button class="btn-reset" @click="resetFilters">重置</button>
     </div>
 
-    <!-- Demands Grid -->
-    <div class="demands-grid">
-      <div v-if="filteredDemands.length === 0" class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p>暂无出租需求</p>
-      </div>
-
-      <div v-for="demand in filteredDemands" :key="demand.id" class="demand-card">
-        <div class="card-header">
-          <span class="demand-type-badge" :class="demand.demandType">{{ getDemandTypeLabel(demand.demandType) }}</span>
-          <span class="status-badge" :class="demand.status">{{ getStatusLabel(demand.status) }}</span>
+    <!-- 船舶卡片列表 -->
+    <div class="vessels-grid">
+      <div v-for="vessel in filteredVessels" :key="vessel.id" class="vessel-card">
+        <div class="card-image">
+          <img :src="`https://picsum.photos/seed/${vessel.id}/400/260`" alt="vessel">
+          <div class="status-badge" :class="vessel.status">{{ getStatusText(vessel.status) }}</div>
+          <div class="type-badge" :class="vessel.demandType">{{ vessel.demandType === 'lease' ? '租赁信息' : '空船信息' }}</div>
         </div>
 
-        <div class="card-content">
-          <h3>{{ demand.vesselName || '未命名船舶' }}</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">船舶类型:</span>
-              <span class="value">{{ demand.vesselType }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">载重吨:</span>
-              <span class="value">{{ demand.deadweight }}吨</span>
-            </div>
-            <div class="info-item" v-if="demand.demandType === 'lease'">
-              <span class="label">租赁类型:</span>
-              <span class="value">{{ getLeaseTypeLabel(demand.leaseType) }}</span>
-            </div>
-            <div class="info-item" v-if="demand.demandType === 'lease'">
-              <span class="label">租金:</span>
-              <span class="value">{{ demand.rentalPrice }}万元/{{ demand.leaseType === 'voyage' ? '航次' : '月' }}</span>
-            </div>
-            <div class="info-item" v-if="demand.demandType === 'idle'">
-              <span class="label">当前位置:</span>
-              <span class="value">{{ demand.currentLocation }}</span>
-            </div>
-            <div class="info-item" v-if="demand.demandType === 'idle'">
-              <span class="label">可用时间:</span>
-              <span class="value">{{ demand.availableDateStart }} 至 {{ demand.availableDateEnd }}</span>
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="vessel-name">{{ vessel.vesselName || '未命名船舶' }}</h3>
+            <div class="intention-badge" v-if="vessel.intentionCount > 0">
+              <svg viewBox="0 0 24 24" fill="none" class="icon">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ vessel.intentionCount }}人意向
             </div>
           </div>
-          <div class="submit-time">提交时间: {{ demand.submitTime }}</div>
-        </div>
 
-        <div class="card-actions">
-          <button class="btn-action btn-view" @click="viewDemand(demand)">查看详情</button>
-          <button class="btn-action btn-edit" @click="editDemand(demand)">编辑</button>
-          <button class="btn-action btn-delete" @click="deleteDemand(demand.id)">删除</button>
+          <div class="vessel-meta">
+            <span>{{ vessel.vesselType }}</span>
+            <span class="divider">|</span>
+            <span>{{ vessel.deadweight }} DWT</span>
+          </div>
+
+          <div class="vessel-info">
+            <div class="info-row" v-if="vessel.demandType === 'lease'">
+              <span class="label">租金:</span>
+              <span class="price">¥ {{ vessel.rentalPrice }}<small>万/{{ vessel.leaseType === 'voyage' ? '航次' : '月' }}</small></span>
+            </div>
+            <div class="info-row" v-if="vessel.demandType === 'idle'">
+              <span class="label">当前位置:</span>
+              <span class="value">{{ vessel.currentLocation }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">发布时间:</span>
+              <span class="value">{{ vessel.publishDate }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-detail" @click="viewDetail(vessel.id)">查看详情</button>
+            <button class="btn-edit" @click="editVessel(vessel.id)">编辑</button>
+            <button 
+              v-if="vessel.status === 'approved'" 
+              class="btn-offline" 
+              @click="confirmOffline(vessel.id)"
+            >
+              下架
+            </button>
+            <button 
+              v-if="vessel.status === 'offline'" 
+              class="btn-online" 
+              @click="confirmOnline(vessel.id)"
+            >
+              上架
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- 空状态 -->
+    <div v-if="filteredVessels.length === 0" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" class="empty-icon">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="empty-text">暂无出租船舶信息</p>
+      <button class="btn-empty-publish" @click="goToPublish">立即发布</button>
+    </div>
+
+    <!-- 编辑模态框 - 根据类型显示不同表单 -->
     <div v-if="editModalVisible" class="modal-overlay" @click.self="closeEditModal">
-      <div class="modal-content edit-modal">
+      <div class="modal-content large">
         <div class="modal-header">
-          <h2>编辑{{ editingDemand?.demandType === 'lease' ? '租赁' : '空船' }}信息</h2>
+          <h2>编辑{{ editingVessel?.demandType === 'lease' ? '租赁' : '空船' }}信息</h2>
           <button class="close-btn" @click="closeEditModal">✕</button>
         </div>
-        
-        <div class="modal-body">
-          <!-- Lease Info -->
-          <template v-if="editingDemand?.demandType === 'lease'">
-            <div class="form-section">
-              <h4>船舶信息</h4>
-              <div class="form-grid">
-                <div class="form-item">
-                  <label>船舶类型 *</label>
-                  <input type="text" v-model="editForm.vesselType" readonly>
-                </div>
-                <div class="form-item">
-                  <label>航区 *</label>
-                  <input type="text" v-model="editForm.navigationArea" readonly>
-                </div>
-                <div class="form-item">
-                  <label>船名</label>
-                  <input type="text" v-model="editForm.vesselName">
-                </div>
-                <div class="form-item">
-                  <label>船级</label>
-                  <input type="text" v-model="editForm.classificationSociety">
-                </div>
-                <div class="form-item">
-                  <label>建造厂</label>
-                  <input type="text" v-model="editForm.buildPlace">
-                </div>
-                <div class="form-item">
-                  <label>建造日期 *</label>
-                  <input type="text" v-model="editForm.buildDate">
-                </div>
-                <div class="form-item">
-                  <label>船旗 *</label>
-                  <select v-model="editForm.flag">
-                    <option value="">请选择</option>
-                    <option value="中国">中国</option>
-                    <option value="巴拿马">巴拿马</option>
-                    <option value="利比里亚">利比里亚</option>
-                  </select>
-                </div>
-                <div class="form-item">
-                  <label>船籍港</label>
-                  <input type="text" v-model="editForm.portOfRegistry">
-                </div>
-                <div class="form-item">
-                  <label>总吨 *</label>
-                  <input type="number" v-model.number="editForm.grossTonnage">
-                </div>
-                <div class="form-item">
-                  <label>净吨 *</label>
-                  <input type="number" v-model.number="editForm.netTonnage">
-                </div>
-                <div class="form-item">
-                  <label>总长(米) *</label>
-                  <input type="number" v-model.number="editForm.length">
-                </div>
-                <div class="form-item">
-                  <label>型宽(米) *</label>
-                  <input type="number" v-model.number="editForm.width">
-                </div>
-                <div class="form-item">
-                  <label>型深(米) *</label>
-                  <input type="number" v-model.number="editForm.depth">
-                </div>
-                <div class="form-item">
-                  <label>主机功率(kW)</label>
-                  <input type="number" v-model.number="editForm.mainEnginePower">
-                </div>
-                <div class="form-item">
-                  <label>主机型号</label>
-                  <input type="text" v-model="editForm.mainEngineModel">
-                </div>
-                <div class="form-item">
-                  <label>载重(吨) *</label>
-                  <input type="number" v-model.number="editForm.deadweight">
-                </div>
-              </div>
-            </div>
 
-            <div class="form-section">
-              <h4>租赁信息</h4>
-              <div class="form-grid">
-                <template v-if="editForm.leaseType === 'time' || editForm.leaseType === 'bareboat'">
-                  <div class="form-item">
-                    <label>租金标准(万元/月) *</label>
-                    <input type="number" v-model.number="editForm.rentalPrice" step="0.01">
-                  </div>
-                  <div class="form-item">
-                    <label>租赁期限(月) *</label>
-                    <input type="text" v-model="editForm.leaseDuration">
-                  </div>
-                  <div class="form-item full-width">
-                    <label>可租起始时间 *</label>
-                    <input type="date" v-model="editForm.availableDate">
-                  </div>
-                </template>
-                
-                <template v-if="editForm.leaseType === 'voyage'">
-                  <div class="form-item">
-                    <label>租金标准(万元/航次) *</label>
-                    <input type="number" v-model.number="editForm.rentalPrice" step="0.01">
-                  </div>
-                  <div class="form-item full-width">
-                    <label>航线范围 *</label>
-                    <input type="text" v-model="editForm.voyageRoute">
-                  </div>
-                  <div class="form-item full-width">
-                    <label>航次周期 *</label>
-                    <input type="text" v-model="editForm.voyageCycle">
-                  </div>
-                </template>
-
-                <div class="form-item full-width">
-                  <label>租赁要求 *</label>
-                  <textarea v-model="editForm.rentalRequirements" rows="3" maxlength="300"></textarea>
-                  <span class="char-count">{{ editForm.rentalRequirements?.length || 0 }}/300</span>
-                </div>
-
-                <div class="form-item">
-                  <label>联系人 *</label>
-                  <input type="text" v-model="editForm.contactName">
-                </div>
-                <div class="form-item">
-                  <label>联系电话 *</label>
-                  <input type="tel" v-model="editForm.contactPhone">
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Idle Ship Info -->
-          <template v-if="editingDemand?.demandType === 'idle'">
-            <div class="form-section">
-              <h4>船舶信息</h4>
-              <div class="form-grid">
-                <div class="form-item">
-                  <label>船舶类型 *</label>
-                  <input type="text" v-model="editForm.vesselType" readonly>
-                </div>
-                <div class="form-item">
-                  <label>航区 *</label>
-                  <input type="text" v-model="editForm.navigationArea" readonly>
-                </div>
-                <div class="form-item">
-                  <label>船名</label>
-                  <input type="text" v-model="editForm.vesselName">
-                </div>
-                <div class="form-item">
-                  <label>船级</label>
-                  <input type="text" v-model="editForm.classificationSociety">
-                </div>
-                <div class="form-item">
-                  <label>建造厂</label>
-                  <input type="text" v-model="editForm.buildPlace">
-                </div>
-                <div class="form-item">
-                  <label>建造日期 *</label>
-                  <input type="text" v-model="editForm.buildDate">
-                </div>
-                <div class="form-item">
-                  <label>船旗 *</label>
-                  <select v-model="editForm.flag">
-                    <option value="">请选择</option>
-                    <option value="中国">中国</option>
-                    <option value="巴拿马">巴拿马</option>
-                    <option value="利比里亚">利比里亚</option>
-                  </select>
-                </div>
-                <div class="form-item">
-                  <label>船籍港</label>
-                  <input type="text" v-model="editForm.portOfRegistry">
-                </div>
-                <div class="form-item">
-                  <label>总吨 *</label>
-                  <input type="number" v-model.number="editForm.grossTonnage" readonly>
-                </div>
-                <div class="form-item">
-                  <label>净吨 *</label>
-                  <input type="number" v-model.number="editForm.netTonnage" readonly>
-                </div>
-                <div class="form-item">
-                  <label>总长(米) *</label>
-                  <input type="number" v-model.number="editForm.length" readonly>
-                </div>
-                <div class="form-item">
-                  <label>型宽(米) *</label>
-                  <input type="number" v-model.number="editForm.width" readonly>
-                </div>
-                <div class="form-item">
-                  <label>型深(米) *</label>
-                  <input type="number" v-model.number="editForm.depth" readonly>
-                </div>
-                <div class="form-item">
-                  <label>主机功率(kW)</label>
-                  <input type="number" v-model.number="editForm.mainEnginePower">
-                </div>
-                <div class="form-item">
-                  <label>主机型号</label>
-                  <input type="text" v-model="editForm.mainEngineModel">
-                </div>
-                <div class="form-item">
-                  <label>载重(吨) *</label>
-                  <input type="number" v-model.number="editForm.deadweight" readonly>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <h4>空船信息</h4>
-              <div class="form-grid">
-                <div class="form-item full-width">
-                  <label>空船当前位置 *</label>
-                  <input type="text" v-model="editForm.currentLocation">
-                </div>
-
-                <div class="form-item full-width">
-                  <label>预计可用时间 *</label>
-                  <div class="date-range">
-                    <input type="date" v-model="editForm.availableDateStart">
-                    <span class="separator">至</span>
-                    <input type="date" v-model="editForm.availableDateEnd">
-                  </div>
-                </div>
-
-                <div class="form-item full-width">
-                  <label>可租赁类型 *</label>
-                  <div class="checkbox-group">
-                    <label><input type="checkbox" value="time" v-model="editForm.leaseTypes"> 期租</label>
-                    <label><input type="checkbox" value="bareboat" v-model="editForm.leaseTypes"> 光租</label>
-                    <label><input type="checkbox" value="voyage" v-model="editForm.leaseTypes"> 航次租船</label>
-                  </div>
-                </div>
-
-                <div class="form-item">
-                  <label>联系人 *</label>
-                  <input type="text" v-model="editForm.contactName">
-                </div>
-
-                <div class="form-item">
-                  <label>联系电话 *</label>
-                  <input type="tel" v-model="editForm.contactPhone">
-                </div>
-
-                <div class="form-item full-width">
-                  <label>空船备注</label>
-                  <textarea v-model="editForm.remarks" rows="3" maxlength="200"></textarea>
-                  <span class="char-count">{{ editForm.remarks?.length || 0 }}/200</span>
-                </div>
-              </div>
-            </div>
-          </template>
+        <div class="modal-body-wrapper">
+          <form @submit.prevent="saveEdit" class="modal-form">
+            <!-- 根据类型显示不同的表单,字段参考PublishLease.vue 和 PublishIdle.vue -->
+            <p style="padding: 40px; text-align: center; color: #64748b;">编辑表单（字段参考PublishLease.vue和PublishIdle.vue）</p>
+          </form>
         </div>
 
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeEditModal">取消</button>
-          <button class="btn-confirm" @click="saveEdit">保存</button>
+          <button type="button" class="btn-cancel" @click="closeEditModal">取消</button>
+          <button type="button" class="btn-save" @click="saveEdit">保存修改</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div v-if="confirmDialogVisible" class="modal-overlay" @click.self="confirmDialogVisible = false">
+      <div class="modal-content confirm">
+        <div class="modal-header">
+          <h2>{{ confirmTitle }}</h2>
+          <button class="close-btn" @click="confirmDialogVisible = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <p>{{ confirmMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="confirmDialogVisible = false">取消</button>
+          <button class="btn-confirm" @click="handleConfirm">确认</button>
         </div>
       </div>
     </div>
@@ -362,410 +154,537 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-// Filters
-const searchKeyword = ref('')
-const filterType = ref('')
+const router = useRouter()
+
+// 筛选器状态
 const filterStatus = ref('')
+const filterType = ref('')
+const searchKeyword = ref('')
 
-// Mock Data
-const demands = ref([
+// 模态框状态
+const editModalVisible = ref(false)
+const confirmDialogVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmAction = ref(null)
+const currentVesselId = ref(null)
+const editingVessel = ref(null)
+
+// Mock 数据
+const vessels = ref([
   {
     id: 1,
     demandType: 'lease',
     vesselName: '远洋货轮',
     vesselType: '散货船',
-    navigationArea: '无限航区',
     deadweight: 32000,
     leaseType: 'time',
     rentalPrice: 35,
-    leaseDuration: '12-24',
-    availableDate: '2026-03-01',
-    rentalRequirements: '诚信租赁，按时支付租金',
-    contactName: '张经理',
-    contactPhone: '13800138000',
     status: 'approved',
-    submitTime: '2026-01-15 10:30',
-    classificationSociety: 'DNV',
-    buildPlace: '中国',
-    buildDate: '2015年6月',
-    flag: '中国',
-    portOfRegistry: '上海',
-    grossTonnage: 25000,
-    netTonnage: 15000,
-    length: 185,
-    width: 28,
-    depth: 15,
-    mainEnginePower: 9480,
-    mainEngineModel: '6S50MC'
+    publishDate: '2026-01-15',
+    intentionCount: 5
   },
   {
     id: 2,
     demandType: 'idle',
     vesselName: '海洋之星',
     vesselType: '油船',
-    navigationArea: '无限航区',
     deadweight: 28000,
     currentLocation: '上海港',
-    availableDateStart: '2026-02-01',
-    availableDateEnd: '2026-06-30',
-    leaseTypes: ['time', 'bareboat'],
-    contactName: '李经理',
-    contactPhone: '13900139000',
-    remarks: '船舶状况良好，可随时交接',
-    status: 'pending',
-    submitTime: '2026-01-20 14:20',
-    classificationSociety: 'ClassNK',
-    buildPlace: '日本',
-    buildDate: '2013年3月',
-    flag: '利比里亚',
-    portOfRegistry: '新加坡',
-    grossTonnage: 20000,
-    netTonnage: 12000,
-    length: 165,
-    width: 26,
-    depth: 14,
-    mainEnginePower: 8500,
-    mainEngineModel: 'MAN B&W'
+    status: 'approved',
+    publishDate: '2026-01-20',
+    intentionCount: 3
+  },
+  {
+    id: 3,
+    demandType: 'lease',
+    vesselName: '蓝鲸号',
+    vesselType: '集装箱船',
+    deadweight: 25000,
+    leaseType: 'voyage',
+    rentalPrice: 80,
+    status: 'offline',
+    publishDate: '2026-01-10',
+    intentionCount: 0
   }
 ])
 
-// Computed
-const filteredDemands = computed(() => {
-  let result = demands.value
+// 计算过滤后的船舶列表
+const filteredVessels = computed(() => {
+  let result = vessels.value
 
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(d => 
-      d.vesselName?.toLowerCase().includes(keyword)
-    )
+  if (filterStatus.value) {
+    result = result.filter(v => v.status === filterStatus.value)
   }
 
   if (filterType.value) {
-    result = result.filter(d => d.demandType === filterType.value)
+    result = result.filter(v => v.demandType === filterType.value)
   }
 
-  if (filterStatus.value) {
-    result = result.filter(d => d.status === filterStatus.value)
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase()
+    result = result.filter(v => 
+      v.vesselName?.toLowerCase().includes(keyword)
+    )
   }
 
   return result
 })
 
-// Methods
-const resetFilters = () => {
-  searchKeyword.value = ''
-  filterType.value = ''
-  filterStatus.value = ''
-}
-
-const getDemandTypeLabel = (type) => {
-  const labels = { lease: '租赁信息', idle: '空船信息' }
-  return labels[type] || type
-}
-
-const getStatusLabel = (status) => {
-  const labels = { pending: '待审核', approved: '已发布', rejected: '已驳回' }
-  return labels[status] || status
-}
-
-const getLeaseTypeLabel = (type) => {
-  const labels = { time: '期租', bareboat: '光租', voyage: '航次租船' }
-  return labels[type] || type
-}
-
-const viewDemand = (demand) => {
-  console.log('[v0] 查看出租需求详情:', demand.id)
-  alert(`查看需求详情: ${demand.vesselName}`)
-}
-
-const deleteDemand = (id) => {
-  if (confirm('确定删除此需求？')) {
-    const index = demands.value.findIndex(d => d.id === id)
-    if (index !== -1) {
-      demands.value.splice(index, 1)
-      console.log('[v0] 已删除需求:', id)
-    }
+// 获取状态文本
+const getStatusText = (status) => {
+  const statusMap = {
+    pending: '待审核',
+    approved: '已上架',
+    offline: '已下架',
+    rejected: '已驳回'
   }
+  return statusMap[status] || status
 }
 
-// Edit Modal
-const editModalVisible = ref(false)
-const editingDemand = ref(null)
-const editForm = ref({})
+// 应用筛选
+const applyFilters = () => {
+  console.log('[v0] 应用筛选')
+}
 
-const editDemand = (demand) => {
-  editingDemand.value = demand
-  editForm.value = { ...demand }
+// 重置筛选
+const resetFilters = () => {
+  filterStatus.value = ''
+  filterType.value = ''
+  searchKeyword.value = ''
+}
+
+// 跳转到发布页面
+const goToPublish = () => {
+  router.push('/vessel-leasing/publish-lease')
+}
+
+// 查看详情
+const viewDetail = (id) => {
+  console.log('[v0] 查看详情:', id)
+}
+
+// 编辑船舶
+const editVessel = (id) => {
+  const vessel = vessels.value.find(v => v.id === id)
+  editingVessel.value = vessel
   editModalVisible.value = true
-  console.log('[v0] 编辑出租需求:', demand.id)
 }
 
+// 关闭编辑模态框
 const closeEditModal = () => {
   editModalVisible.value = false
-  editingDemand.value = null
-  editForm.value = {}
+  editingVessel.value = null
 }
 
+// 保存编辑
 const saveEdit = () => {
-  const index = demands.value.findIndex(d => d.id === editingDemand.value.id)
-  if (index !== -1) {
-    demands.value[index] = { ...editForm.value }
-    console.log('[v0] 保存编辑:', editForm.value)
+  console.log('[v0] 保存编辑')
+  editModalVisible.value = false
+}
+
+// 确认下架
+const confirmOffline = (id) => {
+  currentVesselId.value = id
+  confirmTitle.value = '下架确认'
+  confirmMessage.value = '确定要下架此船舶吗？'
+  confirmAction.value = 'offline'
+  confirmDialogVisible.value = true
+}
+
+// 确认上架
+const confirmOnline = (id) => {
+  currentVesselId.value = id
+  confirmTitle.value = '上架确认'
+  confirmMessage.value = '确定要上架此船舶吗？'
+  confirmAction.value = 'online'
+  confirmDialogVisible.value = true
+}
+
+// 处理确认
+const handleConfirm = () => {
+  const vessel = vessels.value.find(v => v.id === currentVesselId.value)
+  if (vessel) {
+    vessel.status = confirmAction.value === 'offline' ? 'offline' : 'approved'
   }
-  closeEditModal()
+  confirmDialogVisible.value = false
 }
 </script>
 
 <style scoped>
 .lease-publish-demands-page {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px 24px;
   min-height: 100vh;
-  background: #F8FAFC;
+  background: white;
 }
 
 .page-header {
   margin-bottom: 32px;
-}
-
-.page-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 8px;
-}
-
-.page-header p {
-  font-size: 15px;
-  color: #64748B;
-}
-
-.filters-section {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.filter-group {
-  flex: 1;
-  min-width: 200px;
-}
-
-.search-input,
-.filter-select {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-.search-input:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: #0EA5E9;
-}
-
-.btn-reset {
-  padding: 12px 24px;
-  background: #F1F5F9;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-reset:hover {
-  background: #E2E8F0;
-}
-
-.demands-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 24px;
-}
-
-.demand-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.demand-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
-.card-header {
-  padding: 16px 20px;
-  background: #F8FAFC;
-  border-bottom: 1px solid #E2E8F0;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.demand-type-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.btn-publish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
 }
 
-.demand-type-badge.lease {
-  background: #DBEAFE;
-  color: #1E40AF;
+.btn-publish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
-.demand-type-badge.idle {
-  background: #FEF3C7;
-  color: #92400E;
+.btn-publish .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* 筛选区 */
+.filters-bar {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+  border-color: #0ea5e9;
+  outline: none;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.btn-reset {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-reset:hover {
+  background: #e2e8f0;
+}
+
+/* 船舶卡片网格 */
+.vessels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.vessel-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.vessel-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.card-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .status-badge {
-  padding: 4px 12px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.status-badge.pending {
+  background: rgba(254, 243, 199, 0.95);
+  color: #92400e;
+}
+
+.status-badge.approved {
+  background: rgba(209, 250, 229, 0.95);
+  color: #065f46;
+}
+
+.status-badge.offline {
+  background: rgba(229, 231, 235, 0.95);
+  color: #374151;
+}
+
+.status-badge.rejected {
+  background: rgba(254, 226, 226, 0.95);
+  color: #991b1b;
+}
+
+.type-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.type-badge.lease {
+  background: rgba(59, 130, 246, 0.95);
+  color: white;
+}
+
+.type-badge.idle {
+  background: rgba(139, 92, 246, 0.95);
+  color: white;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.vessel-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  flex: 1;
+}
+
+.intention-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #fef3c7;
+  color: #92400e;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
 }
 
-.status-badge.pending {
-  background: #FEF3C7;
-  color: #92400E;
+.intention-badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
-.status-badge.approved {
-  background: #D1FAE5;
-  color: #065F46;
+.vessel-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #64748b;
 }
 
-.status-badge.rejected {
-  background: #FEE2E2;
-  color: #991B1B;
+.divider {
+  color: #cbd5e1;
 }
 
-.card-content {
-  padding: 20px;
-}
-
-.card-content h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0F172A;
+.vessel-info {
   margin-bottom: 16px;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.info-item {
+.info-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-item .label {
-  font-size: 12px;
-  color: #64748B;
-  font-weight: 500;
-}
-
-.info-item .value {
+  justify-content: space-between;
+  margin-bottom: 8px;
   font-size: 14px;
-  color: #0F172A;
+}
+
+.info-row .label {
+  color: #94a3b8;
+}
+
+.info-row .value {
+  color: #1e293b;
   font-weight: 600;
 }
 
-.submit-time {
+.info-row .price {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.price small {
   font-size: 12px;
-  color: #94A3B8;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #F1F5F9;
+  font-weight: 600;
 }
 
 .card-actions {
-  padding: 16px 20px;
-  background: #F8FAFC;
-  border-top: 1px solid #E2E8F0;
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
-.btn-action {
+.btn-detail,
+.btn-edit,
+.btn-offline,
+.btn-online {
   flex: 1;
-  padding: 8px 16px;
+  padding: 10px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.btn-view {
-  background: #EFF6FF;
-  color: #1E40AF;
+.btn-detail {
+  background: #f1f5f9;
+  color: #64748b;
 }
 
-.btn-view:hover {
-  background: #DBEAFE;
+.btn-detail:hover {
+  background: #e2e8f0;
 }
 
 .btn-edit {
-  background: #F0FDF4;
-  color: #15803D;
+  background: #f0fdf4;
+  color: #15803d;
 }
 
 .btn-edit:hover {
-  background: #DCFCE7;
+  background: #dcfce7;
 }
 
-.btn-delete {
-  background: #FEF2F2;
-  color: #B91C1C;
+.btn-offline {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
-.btn-delete:hover {
-  background: #FEE2E2;
+.btn-offline:hover {
+  background: #fee2e2;
 }
 
+.btn-online {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.btn-online:hover {
+  background: #dbeafe;
+}
+
+/* 空状态 */
 .empty-state {
-  grid-column: 1 / -1;
   text-align: center;
-  padding: 80px 24px;
-  color: #94A3B8;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  grid-column: 1 / -1;
 }
 
-.empty-state svg {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
-  opacity: 0.5;
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  color: #cbd5e1;
+  margin: 0 auto 24px;
 }
 
-.empty-state p {
+.empty-text {
   font-size: 16px;
+  color: #64748b;
+  margin: 0 0 24px 0;
 }
 
-/* Modal Styles */
+.btn-empty-publish {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.btn-empty-publish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+/* 模态框样式 */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -784,10 +703,18 @@ const saveEdit = () => {
   background: white;
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 900px;
-  width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.modal-content.large {
+  max-width: 900px;
+  width: 100%;
+}
+
+.modal-content.confirm {
+  max-width: 480px;
+  width: 100%;
 }
 
 .modal-header {
@@ -795,13 +722,13 @@ const saveEdit = () => {
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #0F172A;
+  color: #0f172a;
   margin: 0;
 }
 
@@ -809,160 +736,79 @@ const saveEdit = () => {
   background: none;
   border: none;
   font-size: 24px;
-  color: #94A3B8;
+  color: #94a3b8;
   cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.3s;
 }
 
 .close-btn:hover {
-  color: #0F172A;
+  color: #0f172a;
+}
+
+.modal-body-wrapper {
+  padding: 24px;
+  max-height: calc(90vh - 180px);
+  overflow-y: auto;
 }
 
 .modal-body {
   padding: 24px;
 }
 
-.form-section {
-  margin-bottom: 32px;
-}
-
-.form-section:last-child {
-  margin-bottom: 0;
-}
-
-.form-section h4 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #E2E8F0;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.form-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-item.full-width {
-  grid-column: 1 / -1;
-}
-
-.form-item label {
-  font-size: 13px;
-  font-weight: 600;
+.modal-body p {
+  font-size: 15px;
   color: #475569;
-  margin-bottom: 6px;
-}
-
-.form-item input,
-.form-item select,
-.form-item textarea {
-  padding: 10px 12px;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.3s;
-}
-
-.form-item input:focus,
-.form-item select:focus,
-.form-item textarea:focus {
-  outline: none;
-  border-color: #0EA5E9;
-}
-
-.form-item input[readonly] {
-  background: #F8FAFC;
-  color: #94A3B8;
-}
-
-.date-range {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.date-range input {
-  flex: 1;
-}
-
-.separator {
-  color: #94A3B8;
-  font-weight: 600;
-}
-
-.checkbox-group {
-  display: flex;
-  gap: 20px;
-  margin-top: 6px;
-}
-
-.checkbox-group label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: normal;
-  cursor: pointer;
-}
-
-.checkbox-group input {
-  width: auto;
-}
-
-.char-count {
-  font-size: 12px;
-  color: #94A3B8;
-  margin-top: 4px;
-  text-align: right;
+  margin: 0;
 }
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid #E2E8F0;
-  background: #F8FAFC;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
   display: flex;
   gap: 12px;
   justify-content: flex-end;
 }
 
-.btn-cancel {
+.btn-cancel,
+.btn-save,
+.btn-confirm {
   padding: 10px 20px;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  background: white;
-  color: #475569;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+}
+
+.btn-cancel {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
 }
 
 .btn-cancel:hover {
-  background: #F1F5F9;
-  border-color: #CBD5E1;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
+.btn-save,
 .btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #0EA5E9;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+  border: none;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
 }
 
+.btn-save:hover,
 .btn-confirm:hover {
-  background: #0284C7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 </style>
