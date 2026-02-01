@@ -1,89 +1,103 @@
 <template>
-  <div class="lease-publish-demands">
+  <div class="lease-publish-demands-page">
     <div class="page-header">
-      <h1>我的租赁信息</h1>
-      <p class="subtitle">管理您发布的租赁信息和空船信息</p>
+      <h1 class="page-title">我的出租船舶</h1>
+      <button class="btn-publish" @click="goToPublish">
+        <svg viewBox="0 0 24 24" fill="none" class="icon">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        发布出租信息
+      </button>
     </div>
 
-    <!-- 筛选栏 -->
-    <div class="filter-bar">
-      <div class="filter-left">
-        <input 
-          v-model="searchKeyword" 
-          type="text" 
-          class="search-input" 
-          placeholder="搜索船名、IMO、船型..."
-        />
-      </div>
-      <div class="filter-right">
-        <select v-model="filterStatus" class="filter-select">
+    <!-- 筛选器 -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <select v-model="filterStatus" class="filter-select" @change="applyFilters">
           <option value="">全部状态</option>
-          <option value="published">已上架</option>
+          <option value="pending">待审核</option>
+          <option value="approved">已上架</option>
           <option value="offline">已下架</option>
+          <option value="rejected">已驳回</option>
         </select>
-        <select v-model="filterType" class="filter-select">
+
+        <select v-model="filterType" class="filter-select" @change="applyFilters">
           <option value="">全部类型</option>
           <option value="time">期租</option>
           <option value="bareboat">光租</option>
           <option value="voyage">航次租船</option>
           <option value="idle">空船</option>
         </select>
+
+        <input 
+          v-model="searchKeyword" 
+          type="text" 
+          class="search-input" 
+          placeholder="搜索船名..."
+          @input="applyFilters"
+        />
       </div>
+
+      <button class="btn-reset" @click="resetFilters">重置</button>
     </div>
 
-    <!-- 列表区域 -->
+    <!-- 船舶卡片列表 -->
     <div class="vessels-grid">
-      <div v-for="item in filteredList" :key="item.id" class="vessel-card">
-        <div class="vessel-image">
-          <img :src="item.image" :alt="item.vesselName" />
-          <div class="status-badge" :class="item.status">
-            {{ item.status === 'published' ? '已上架' : '已下架' }}
-          </div>
-          <div class="type-badge" :class="`type-${item.leaseType}`">
-            {{ getTypeLabel(item.leaseType) }}
-          </div>
+      <div v-for="vessel in filteredVessels" :key="vessel.id" class="vessel-card">
+        <div class="card-image">
+          <img :src="vessel.image || `https://picsum.photos/seed/${vessel.id}/400/260`" alt="vessel">
+          <div class="status-badge" :class="vessel.status">{{ getStatusText(vessel.status) }}</div>
+          <div class="type-badge" :class="`type-${vessel.leaseType}`">{{ getTypeLabel(vessel.leaseType) }}</div>
         </div>
-        
-        <div class="vessel-content">
-          <h3 class="vessel-title">{{ item.vesselName }}</h3>
-          
-          <div class="vessel-specs">
-            <div class="spec-item">
-              <span class="spec-label">船型</span>
-              <span class="spec-value">{{ item.vesselType }}</span>
-            </div>
-            <div class="spec-item">
-              <span class="spec-label">载重</span>
-              <span class="spec-value">{{ item.dwt }} DWT</span>
-            </div>
-            <div class="spec-item">
-              <span class="spec-label">船龄</span>
-              <span class="spec-value">{{ item.age }}年</span>
-            </div>
-            <div class="spec-item">
-              <span class="spec-label">航区</span>
-              <span class="spec-value">{{ item.navigationArea }}</span>
+
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="vessel-name">{{ vessel.vesselName || '未命名船舶' }}</h3>
+            <div class="intention-badge" v-if="vessel.intentionCount > 0">
+              <svg viewBox="0 0 24 24" fill="none" class="icon">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ vessel.intentionCount }}人意向
             </div>
           </div>
 
-          <div v-if="item.leaseType !== 'idle'" class="price-info">
-            <span class="price">{{ item.price }}</span>
-            <span class="price-unit">万元/{{ item.leaseType === 'voyage' ? '航次' : '月' }}</span>
-          </div>
-          <div v-else class="idle-info">
-            <span class="label">可用时间：</span>
-            <span class="value">{{ item.availableDate }}</span>
+          <div class="vessel-meta">
+            <span>{{ vessel.vesselType }}</span>
+            <span class="divider">|</span>
+            <span>{{ vessel.deadweight || vessel.dwt }} DWT</span>
           </div>
 
-          <div class="vessel-footer">
-            <button class="btn-action btn-view" @click="viewDetail(item)">查看详情</button>
-            <button class="btn-action btn-edit" @click="editItem(item)">编辑</button>
+          <div class="vessel-info">
+            <div class="info-row" v-if="vessel.leaseType !== 'idle' && vessel.rentalPrice">
+              <span class="label">租金:</span>
+              <span class="price">¥ {{ vessel.rentalPrice || vessel.price }}<small>万/{{ vessel.leaseType === 'voyage' ? '航次' : '月' }}</small></span>
+            </div>
+            <div class="info-row" v-if="vessel.leaseType === 'idle' && vessel.currentLocation">
+              <span class="label">当前位置:</span>
+              <span class="value">{{ vessel.currentLocation }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">发布时间:</span>
+              <span class="value">{{ vessel.publishDate }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-detail" @click="viewDetail(vessel.id)">查看详情</button>
+            <button class="btn-edit" @click="editVessel(vessel)">编辑</button>
             <button 
-              class="btn-action" 
-              :class="item.status === 'published' ? 'btn-offline' : 'btn-online'"
-              @click="toggleStatus(item)"
+              v-if="vessel.status === 'approved'" 
+              class="btn-offline" 
+              @click="confirmOffline(vessel.id)"
             >
-              {{ item.status === 'published' ? '下架' : '上架' }}
+              下架
+            </button>
+            <button 
+              v-if="vessel.status === 'offline'" 
+              class="btn-online" 
+              @click="confirmOnline(vessel.id)"
+            >
+              上架
             </button>
           </div>
         </div>
@@ -91,24 +105,25 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="filteredList.length === 0" class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 7h-9M14 17h6M3 7h.01M3 12h.01M3 17h.01M6 7h.01M6 12h.01M6 17h.01"/>
+    <div v-if="filteredVessels.length === 0" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" class="empty-icon">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <p>暂无租赁信息</p>
+      <p class="empty-text">暂无出租船舶信息</p>
+      <button class="btn-empty-publish" @click="goToPublish">立即发布</button>
     </div>
 
-    <!-- 编辑弹窗 -->
+    <!-- 编辑模态框 -->
     <div v-if="editModalVisible" class="modal-overlay" @click.self="closeEditModal">
-      <div class="modal-content">
+      <div class="modal-content large">
         <div class="modal-header">
           <h2>编辑{{ editForm.leaseType === 'idle' ? '空船信息' : '租赁信息' }}</h2>
           <button class="close-btn" @click="closeEditModal">✕</button>
         </div>
 
-        <div class="modal-body">
-          <form class="edit-form">
-            <!-- 船舶基本信息（只读） -->
+        <div class="modal-body-wrapper">
+          <form @submit.prevent="saveEdit" class="modal-form">
+            <!-- 船舶基本信息 -->
             <div class="form-section">
               <h3 class="section-title">船舶基本信息</h3>
               
@@ -319,34 +334,64 @@
         </div>
       </div>
     </div>
+
+    <!-- 确认对话框 -->
+    <div v-if="confirmDialogVisible" class="modal-overlay" @click.self="confirmDialogVisible = false">
+      <div class="modal-content confirm">
+        <div class="modal-header">
+          <h2>{{ confirmTitle }}</h2>
+          <button class="close-btn" @click="confirmDialogVisible = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <p>{{ confirmMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="confirmDialogVisible = false">取消</button>
+          <button class="btn-confirm" @click="handleConfirm">确认</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-const searchKeyword = ref('')
+const router = useRouter()
+
+// 筛选器状态
 const filterStatus = ref('')
 const filterType = ref('')
+const searchKeyword = ref('')
+
+// 模态框状态
 const editModalVisible = ref(false)
+const confirmDialogVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmAction = ref(null)
+const currentVesselId = ref(null)
 const editForm = ref({})
 
-// 模拟数据
-const demandsList = ref([
+// Mock 数据
+const vessels = ref([
   {
     id: 1,
     vesselName: '远洋货轮',
     imo: 'IMO9876543',
     vesselType: '散货船',
-    dwt: 57000,
-    age: 8,
-    navigationArea: '无限航区',
+    deadweight: 32000,
+    dwt: 32000,
     leaseType: 'time',
-    price: '50',
-    status: 'published',
-    image: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400&h=300&fit=crop',
-    classificationSociety: 'DNV',
-    buildPlace: '中国',
+    rentalPrice: 35,
+    price: 35,
+    status: 'approved',
+    publishDate: '2026-01-15',
+    intentionCount: 5,
+    navigationArea: '无限航区',
+    classificationSociety: 'CCS',
+    buildPlace: '大连造船厂',
     buildDate: '2015年6月',
     flag: '中国',
     portOfRegistry: '上海',
@@ -357,63 +402,92 @@ const demandsList = ref([
     depth: 15,
     mainEnginePower: 9480,
     mainEngineModel: '6S50MC',
-    deadweight: 32000,
-    rentalPrice: 50,
     leaseDuration: '12-24',
     availableDate: '2026-03-01',
-    rentalRequirements: '船况良好，具备相关运营资质',
-    contactName: '张先生',
-    contactPhone: '13800138000'
+    rentalRequirements: '船舶状况良好，可立即投入使用',
+    contactName: '张经理',
+    contactPhone: '13800138000',
+    image: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400&h=300&fit=crop'
   },
   {
     id: 2,
     vesselName: '海洋之星',
     imo: 'IMO9876544',
     vesselType: '油船',
-    dwt: 45000,
-    age: 10,
-    navigationArea: '无限航区',
+    deadweight: 28000,
+    dwt: 28000,
     leaseType: 'idle',
-    status: 'published',
-    image: 'https://images.unsplash.com/photo-1568478784932-3e1c6d4c6c0e?w=400&h=300&fit=crop',
-    availableDate: '2026-02-15 至 2026-05-15',
     currentLocation: '上海港',
+    status: 'approved',
+    publishDate: '2026-01-20',
+    intentionCount: 3,
+    navigationArea: '无限航区',
     availableDateStart: '2026-02-15',
-    availableDateEnd: '2026-05-15',
+    availableDateEnd: '2026-06-30',
     leaseTypes: ['time', 'bareboat'],
-    remarks: '船况良好，可立即投入使用',
-    contactName: '李女士',
+    remarks: '船况良好，可随时投入使用',
+    contactName: '李经理',
     contactPhone: '13900139000',
-    classificationSociety: 'ClassNK',
-    buildPlace: '日本',
-    buildDate: '2013年3月',
-    flag: '利比里亚',
-    portOfRegistry: '新加坡',
-    grossTonnage: 20000,
-    netTonnage: 12000,
-    length: 165,
-    width: 26,
-    depth: 14,
-    mainEnginePower: 8500,
-    mainEngineModel: 'MAN B&W',
-    deadweight: 28000
+    image: 'https://images.unsplash.com/photo-1564731071754-8f82c62e3b75?w=400&h=300&fit=crop'
+  },
+  {
+    id: 3,
+    vesselName: '蓝鲸号',
+    imo: 'IMO9876545',
+    vesselType: '集装箱船',
+    deadweight: 25000,
+    dwt: 25000,
+    leaseType: 'voyage',
+    rentalPrice: 80,
+    price: 80,
+    status: 'offline',
+    publishDate: '2026-01-10',
+    intentionCount: 0,
+    navigationArea: '无限航区',
+    voyageRoute: '上海-新加坡',
+    voyageCycle: '30天',
+    rentalRequirements: '适合东南亚航线',
+    contactName: '王船长',
+    contactPhone: '13700137000',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop'
   }
 ])
 
-const filteredList = computed(() => {
-  return demandsList.value.filter(item => {
-    const matchKeyword = !searchKeyword.value || 
-      item.vesselName.includes(searchKeyword.value) ||
-      item.imo.includes(searchKeyword.value) ||
-      item.vesselType.includes(searchKeyword.value)
-    
-    const matchStatus = !filterStatus.value || item.status === filterStatus.value
-    const matchType = !filterType.value || item.leaseType === filterType.value
-    
-    return matchKeyword && matchStatus && matchType
-  })
+// 计算过滤后的船舶列表
+const filteredVessels = computed(() => {
+  let result = vessels.value
+
+  if (filterStatus.value) {
+    result = result.filter(v => v.status === filterStatus.value)
+  }
+
+  if (filterType.value) {
+    result = result.filter(v => v.leaseType === filterType.value)
+  }
+
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase()
+    result = result.filter(v => 
+      v.vesselName?.toLowerCase().includes(keyword) ||
+      v.imo?.toLowerCase().includes(keyword)
+    )
+  }
+
+  return result
 })
 
+// 获取状态文本
+const getStatusText = (status) => {
+  const statusMap = {
+    pending: '待审核',
+    approved: '已上架',
+    offline: '已下架',
+    rejected: '已驳回'
+  }
+  return statusMap[status] || status
+}
+
+// 获取类型标签
 const getTypeLabel = (type) => {
   const labels = {
     time: '期租',
@@ -424,79 +498,165 @@ const getTypeLabel = (type) => {
   return labels[type] || type
 }
 
-const viewDetail = (item) => {
-  console.log('[v0] 查看详情:', item)
+// 应用筛选
+const applyFilters = () => {
+  console.log('[v0] 应用筛选')
 }
 
-const editItem = (item) => {
-  editForm.value = { ...item }
+// 重置筛选
+const resetFilters = () => {
+  filterStatus.value = ''
+  filterType.value = ''
+  searchKeyword.value = ''
+}
+
+// 跳转到发布页面
+const goToPublish = () => {
+  router.push('/vessel-leasing/publish-lease')
+}
+
+// 查看详情
+const viewDetail = (id) => {
+  console.log('[v0] 查看详情:', id)
+}
+
+// 编辑船舶
+const editVessel = (vessel) => {
+  editForm.value = { ...vessel }
+  if (!editForm.value.leaseTypes) {
+    editForm.value.leaseTypes = []
+  }
   editModalVisible.value = true
 }
 
+// 关闭编辑模态框
 const closeEditModal = () => {
   editModalVisible.value = false
   editForm.value = {}
 }
 
+// 保存编辑
 const saveEdit = () => {
   console.log('[v0] 保存编辑:', editForm.value)
-  const index = demandsList.value.findIndex(d => d.id === editForm.value.id)
+  const index = vessels.value.findIndex(v => v.id === editForm.value.id)
   if (index !== -1) {
-    demandsList.value[index] = { ...editForm.value }
+    vessels.value[index] = { ...editForm.value }
   }
-  closeEditModal()
+  editModalVisible.value = false
 }
 
-const toggleStatus = (item) => {
-  item.status = item.status === 'published' ? 'offline' : 'published'
-  console.log('[v0] 切换状态:', item)
+// 确认下架
+const confirmOffline = (id) => {
+  currentVesselId.value = id
+  confirmTitle.value = '下架确认'
+  confirmMessage.value = '确定要下架此船舶吗？'
+  confirmAction.value = 'offline'
+  confirmDialogVisible.value = true
+}
+
+// 确认上架
+const confirmOnline = (id) => {
+  currentVesselId.value = id
+  confirmTitle.value = '上架确认'
+  confirmMessage.value = '确定要上架此船舶吗？'
+  confirmAction.value = 'online'
+  confirmDialogVisible.value = true
+}
+
+// 处理确认
+const handleConfirm = () => {
+  const vessel = vessels.value.find(v => v.id === currentVesselId.value)
+  if (vessel) {
+    vessel.status = confirmAction.value === 'offline' ? 'offline' : 'approved'
+  }
+  confirmDialogVisible.value = false
 }
 </script>
 
 <style scoped>
-.lease-publish-demands {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+.lease-publish-demands-page {
+  min-height: 100vh;
+  background: white;
 }
 
 .page-header {
   margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.page-header h1 {
-  font-size: 28px;
+.page-title {
+  font-size: 24px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 8px 0;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #64748b;
   margin: 0;
 }
 
-/* 筛选栏 */
-.filter-bar {
+.btn-publish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.btn-publish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.btn-publish .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* 筛选区 */
+.filters-bar {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.filter-left {
+.filter-group {
+  display: flex;
+  gap: 12px;
   flex: 1;
 }
 
+.filter-select {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+  border-color: #0ea5e9;
+  outline: none;
+}
+
 .search-input {
-  width: 100%;
-  max-width: 400px;
+  flex: 1;
   padding: 10px 16px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -510,53 +670,49 @@ const toggleStatus = (item) => {
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
-.filter-right {
-  display: flex;
-  gap: 12px;
-}
-
-.filter-select {
-  padding: 10px 16px;
-  border: 1px solid #e2e8f0;
+.btn-reset {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  border: none;
   border-radius: 8px;
+  color: #64748b;
   font-size: 14px;
-  background: white;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.filter-select:hover {
-  border-color: #cbd5e1;
+.btn-reset:hover {
+  background: #e2e8f0;
 }
 
-/* 卡片网格 */
+/* 船舶卡片网格 */
 .vessels-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 24px;
 }
 
 .vessel-card {
   background: white;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
 }
 
 .vessel-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   transform: translateY(-4px);
 }
 
-.vessel-image {
+.card-image {
   position: relative;
-  width: 100%;
   height: 200px;
   overflow: hidden;
 }
 
-.vessel-image img {
+.card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -566,190 +722,239 @@ const toggleStatus = (item) => {
   position: absolute;
   top: 12px;
   right: 12px;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+  backdrop-filter: blur(8px);
 }
 
-.status-badge.published {
-  background: #dcfce7;
-  color: #166534;
+.status-badge.pending {
+  background: rgba(254, 243, 199, 0.95);
+  color: #92400e;
+}
+
+.status-badge.approved {
+  background: rgba(209, 250, 229, 0.95);
+  color: #065f46;
 }
 
 .status-badge.offline {
-  background: #fee2e2;
+  background: rgba(229, 231, 235, 0.95);
+  color: #374151;
+}
+
+.status-badge.rejected {
+  background: rgba(254, 226, 226, 0.95);
   color: #991b1b;
 }
 
 .type-badge {
   position: absolute;
-  top: 12px;
+  bottom: 12px;
   left: 12px;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
 }
 
 .type-badge.type-time {
-  color: #0ea5e9;
+  background: rgba(59, 130, 246, 0.95);
+  color: white;
 }
 
 .type-badge.type-bareboat {
-  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.95);
+  color: white;
 }
 
 .type-badge.type-voyage {
-  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.95);
+  color: white;
 }
 
 .type-badge.type-idle {
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.95);
+  color: white;
 }
 
-.vessel-content {
-  padding: 20px;
+.card-body {
+  padding: 16px;
 }
 
-.vessel-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 16px 0;
-}
-
-.vessel-specs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.spec-item {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
 }
 
-.spec-label {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.spec-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.price-info, .idle-info {
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.price {
-  font-size: 24px;
+.vessel-name {
+  font-size: 18px;
   font-weight: 700;
-  color: #0ea5e9;
+  color: #1e293b;
+  margin: 0;
+  flex: 1;
 }
 
-.price-unit {
-  font-size: 14px;
-  color: #64748b;
-  margin-left: 4px;
+.intention-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.idle-info {
-  text-align: left;
+.intention-badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
-.idle-info .label {
+.vessel-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
   font-size: 13px;
   color: #64748b;
 }
 
-.idle-info .value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
+.divider {
+  color: #cbd5e1;
 }
 
-.vessel-footer {
+.vessel-info {
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.info-row .label {
+  color: #94a3b8;
+}
+
+.info-row .value {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.info-row .price {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.price small {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-actions {
   display: flex;
   gap: 8px;
 }
 
-.btn-action {
+.btn-detail,
+.btn-edit,
+.btn-offline,
+.btn-online {
   flex: 1;
   padding: 10px;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.btn-view {
+.btn-detail {
   background: #f1f5f9;
-  color: #475569;
+  color: #64748b;
 }
 
-.btn-view:hover {
+.btn-detail:hover {
   background: #e2e8f0;
 }
 
 .btn-edit {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #f0fdf4;
+  color: #15803d;
 }
 
 .btn-edit:hover {
-  background: #bfdbfe;
+  background: #dcfce7;
 }
 
 .btn-offline {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .btn-offline:hover {
-  background: #fecaca;
+  background: #fee2e2;
 }
 
 .btn-online {
-  background: #dcfce7;
-  color: #166534;
+  background: #eff6ff;
+  color: #1e40af;
 }
 
 .btn-online:hover {
-  background: #bbf7d0;
+  background: #dbeafe;
 }
 
 /* 空状态 */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: #94a3b8;
+  background: white;
+  border-radius: 12px;
+  grid-column: 1 / -1;
 }
 
-.empty-state svg {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 16px;
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  color: #cbd5e1;
+  margin: 0 auto 24px;
 }
 
-.empty-state p {
+.empty-text {
   font-size: 16px;
-  margin: 0;
+  color: #64748b;
+  margin: 0 0 24px 0;
 }
 
-/* 弹窗 */
+.btn-empty-publish {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.btn-empty-publish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+/* 模态框样式 */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -766,12 +971,22 @@ const toggleStatus = (item) => {
 
 .modal-content {
   background: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-height: 90vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.modal-content.large {
+  max-width: 900px;
+  width: 100%;
+}
+
+.modal-content.confirm {
+  max-width: 480px;
+  width: 100%;
 }
 
 .modal-header {
@@ -780,6 +995,7 @@ const toggleStatus = (item) => {
   align-items: center;
   padding: 24px;
   border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -790,52 +1006,115 @@ const toggleStatus = (item) => {
 }
 
 .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
   width: 32px;
   height: 32px;
-  border: none;
-  background: #f1f5f9;
-  border-radius: 8px;
-  font-size: 20px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
 }
 
 .close-btn:hover {
-  background: #e2e8f0;
+  color: #0f172a;
 }
 
-.modal-body {
+.modal-body-wrapper {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
 }
 
-.edit-form {
+.modal-body {
+  padding: 24px;
+}
+
+.modal-body p {
+  font-size: 15px;
+  color: #475569;
+  margin: 0;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.btn-cancel,
+.btn-save,
+.btn-confirm {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.btn-cancel:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-save,
+.btn-confirm {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.btn-save:hover,
+.btn-confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+/* 表单样式 */
+.modal-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 24px;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .section-title {
   font-size: 16px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 8px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e2e8f0;
+  margin: 0 0 20px 0;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-bottom: 16px;
 }
 
 .form-item {
@@ -848,58 +1127,50 @@ const toggleStatus = (item) => {
   grid-column: 1 / -1;
 }
 
+.form-item.required label::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 4px;
+}
+
 .form-item label {
   font-size: 14px;
   font-weight: 600;
   color: #475569;
 }
 
-.form-item.required label::after {
-  content: ' *';
-  color: #ef4444;
-}
-
-.form-input {
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.form-input:read-only {
-  background: #f8fafc;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-
+.form-input,
 .form-textarea {
   padding: 10px 14px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
   transition: all 0.3s;
 }
 
+.form-input:focus,
 .form-textarea:focus {
   outline: none;
   border-color: #0ea5e9;
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
+.form-input[readonly] {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
 .char-count {
   font-size: 12px;
   color: #94a3b8;
   text-align: right;
+  margin-top: -4px;
 }
 
 .date-range {
@@ -908,7 +1179,7 @@ const toggleStatus = (item) => {
   gap: 12px;
 }
 
-.separator {
+.date-range .separator {
   color: #94a3b8;
 }
 
@@ -921,54 +1192,13 @@ const toggleStatus = (item) => {
 .checkbox-group label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: normal;
+  gap: 6px;
+  font-size: 14px;
+  color: #475569;
   cursor: pointer;
 }
 
 .checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
   cursor: pointer;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 24px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.btn-cancel {
-  padding: 10px 24px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-cancel:hover {
-  background: #f8fafc;
-}
-
-.btn-save {
-  padding: 10px 24px;
-  border: none;
-  background: #0ea5e9;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-save:hover {
-  background: #0284c7;
 }
 </style>
