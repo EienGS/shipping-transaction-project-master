@@ -629,7 +629,7 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
 }
 
 .purchase-row:hover {
-  border-color: #3B82F6;
+  border-color: var(--primary);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
@@ -664,7 +664,7 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
 }
 
 .p-badge {
-  color: #3B82F6;
+  color: var(--primary);
   background: rgba(59, 130, 246, 0.1);
   padding: 2px 10px;
   border-radius: 4px;
@@ -679,7 +679,7 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
 
 .row-middle p {
   font-size: 14px;
-  color: #1E293B;
+  color: var(--text-main);
   margin: 4px 0;
 }
 
@@ -693,7 +693,7 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
   margin-top: 16px;
   padding: 10px;
   border-radius: 8px;
-  background: #0F172A;
+  background: var(--dark-bg);
   color: white;
   border: none;
   cursor: pointer;
