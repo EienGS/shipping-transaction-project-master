@@ -167,7 +167,7 @@
             <p>船龄：{{ p.buildYear }}</p>
             <p class="budget">预算：<span>{{ p.budget }}</span></p>
           </div>
-          <button class="contact-btn" @click.stop="viewPurchaseDetail(p.id)">查看详情</button>
+          <button class="contact-btn" @click.stop="viewPurchaseDetail(p.id)">立即对接咨询</button>
         </div>
       </div>
 
