@@ -3,7 +3,7 @@
     <div class="search-filter-section">
       <div class="header-content">
         <h1 class="page-title">购售需求收藏</h1>
-        <div class="stats-badge">共 {{ favoritedVessels.length }} 项收藏</div>
+        <div class="stats-badge">共 {{ totalFavorites }} 项收藏</div>
       </div>
       
       <div class="search-card">
@@ -36,22 +36,22 @@
             </div>
 
             <div class="select-item">
-              <span class="select-label">船舶状态</span>
-              <select v-model="filterStatus" @change="applyFilters" class="modern-select">
-                <option value="">全部状态</option>
-                <option value="在售">在售</option>
-                <option value="已成交">已成交</option>
-                <option value="已下架">已下架</option>
-              </select>
-            </div>
-
-            <div class="select-item">
               <span class="select-label">类型</span>
               <select v-model="filterType" @change="applyFilters" class="modern-select">
                 <option value="">全部类型</option>
                 <option value="散货船">散货船</option>
                 <option value="油船">油船</option>
                 <option value="集装箱船">集装箱船</option>
+              </select>
+            </div>
+
+            <div v-if="activeTab === 'sale'" class="select-item">
+              <span class="select-label">船舶状态</span>
+              <select v-model="filterStatus" @change="applyFilters" class="modern-select">
+                <option value="">全部状态</option>
+                <option value="在售">在售</option>
+                <option value="已成交">已成交</option>
+                <option value="已下架">已下架</option>
               </select>
             </div>
           </div>
@@ -90,46 +90,92 @@
       </div>
     </div>
 
-    <div v-if="filteredFavorites.length > 0" class="vessel-cards-grid">
-      <div 
-        v-for="v in filteredFavorites" 
-        :key="v.id" 
-        class="vessel-ui-card"
-        @click="viewVesselDetail(v.id)"
+    <!-- Tabs -->
+    <div class="tabs-section">
+      <button 
+        class="tab-btn" 
+        :class="{ active: activeTab === 'sale' }" 
+        @click="activeTab = 'sale'"
       >
-        <div class="image-box">
-          <img :src="`https://picsum.photos/seed/${v.id}/400/260`" alt="vessel">
-          <div class="type-badge">{{ v.type }}</div>
-          <button class="fav-btn active" @click.stop="removeFavorite(v.id)">❤</button>
-        </div>
-        <div class="info-box">
-          <h3 class="name">
-            <span :class="['status-badge', `status-${v.status}`]">{{ v.status }}</span>
-            {{ v.name }}
-          </h3>
-          <div class="meta">
-            <span>{{ v.age }}年船龄</span>
-            <span class="divider">|</span>
-            <span>{{ v.dwt }} DWT</span>
+        出售信息 ({{ favoritedVessels.length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        :class="{ active: activeTab === 'demand' }" 
+        @click="activeTab = 'demand'"
+      >
+        求购信息 ({{ favoritedDemands.length }})
+      </button>
+    </div>
+
+    <!-- 出售信息 Tab -->
+    <div v-if="activeTab === 'sale'">
+      <div v-if="filteredSaleVessels.length > 0" class="vessel-cards-grid">
+        <div 
+          v-for="v in filteredSaleVessels" 
+          :key="v.id" 
+          class="vessel-ui-card"
+          @click="viewVesselDetail(v.id)"
+        >
+          <div class="image-box">
+            <img :src="`https://picsum.photos/seed/${v.id}/400/260`" alt="vessel">
+            <div class="type-badge">{{ v.type }}</div>
+            <button class="fav-btn active" @click.stop="removeFavorite(v.id, 'sale')">❤</button>
           </div>
-          <div class="collection-time">
-            <span>收藏于: {{ v.collectedAt }}</span>
-          </div>
-          <div class="footer">
-            <div class="price">
-              <span class="label">期望售价:</span>
-              <span class="amount">¥ {{ v.price }}<small>万</small></span>
+          <div class="info-box">
+            <h3 class="name">
+              <span :class="['status-badge', `status-${v.status}`]">{{ v.status }}</span>
+              {{ v.name }}
+            </h3>
+            <div class="meta">
+              <span>{{ v.age }}年船龄</span>
+              <span class="divider">|</span>
+              <span>{{ v.dwt }} DWT</span>
             </div>
-            <button class="detail-btn">查看详情</button>
+            <div class="collection-time">
+              <span>收藏于: {{ v.collectedAt }}</span>
+            </div>
+            <div class="footer">
+              <div class="price">
+                <span class="label">期望售价:</span>
+                <span class="amount">¥ {{ v.price }}<small>万</small></span>
+              </div>
+              <button class="detail-btn">查看详情</button>
+            </div>
           </div>
         </div>
       </div>
+
+      <div v-else class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h2>还没有收藏出售信息</h2>
+        <p>浏览船舶时点击❤按钮即可收藏喜欢的船源</p>
+      </div>
     </div>
 
-    <div v-else class="empty-state">
-      <div class="empty-icon">📭</div>
-      <h2>还没有收藏</h2>
-      <p>浏览船舶时点击❤按钮即可收藏喜欢的船源</p>
+    <!-- 求购信息 Tab -->
+    <div v-if="activeTab === 'demand'">
+      <div v-if="filteredDemands.length > 0" class="purchase-list">
+        <div v-for="p in filteredDemands" :key="p.id" class="purchase-row" @click="viewPurchaseDetail(p.id)">
+          <button class="fav-btn-demand active" @click.stop="removeFavorite(p.id, 'demand')">❤</button>
+          <div class="row-top">
+            <span class="p-badge">{{ p.type }}</span>
+            <span class="p-time">收藏于 {{ p.collectedAt }}</span>
+          </div>
+          <div class="row-middle">
+            <p>航区：{{ p.area }}</p>
+            <p>船龄：{{ p.buildYear }}</p>
+            <p class="budget">预算：<span>{{ p.budget }}</span></p>
+          </div>
+          <button class="contact-btn" @click.stop="viewPurchaseDetail(p.id)">查看详情</button>
+        </div>
+      </div>
+
+      <div v-else class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h2>还没有收藏求购信息</h2>
+        <p>浏览求购需求时点击❤按钮即可收藏感兴趣的需求</p>
+      </div>
     </div>
   </div>
 </template>
@@ -144,6 +190,7 @@ const searchTitle = ref('')
 const filterStatus = ref('')
 const filterDateRange = ref('')
 const filterType = ref('')
+const activeTab = ref('sale')
 
 const favoritedVessels = ref([
   { id: 2, name: '集装箱船 "PACIFIC LINK"', type: '集装箱船', age: 5, dwt: '32,000', price: 6800, status: '在售', collectedAt: '2024-01-20' },
@@ -152,6 +199,14 @@ const favoritedVessels = ref([
   { id: 1, name: '5.7万吨散货船 "OCEAN STAR"', type: '散货船', age: 8, dwt: '57,000', price: 3500, status: '在售', collectedAt: '2024-01-10' },
   { id: 12, name: '好望角型散货船 "CAPE STAR"', type: '散货船', age: 8, dwt: '180,000', price: 22000, status: '已下架', collectedAt: '2024-01-05' }
 ])
+
+const favoritedDemands = ref([
+  { id: 'GQ1', type: '散货船', area: '无限航区', buildYear: '2015-2023', budget: '3000-5000万', collectedAt: '2024-01-22' },
+  { id: 'GQ2', type: '油船', area: '国内近海', buildYear: '2018年以后', budget: '8000万以内', collectedAt: '2024-01-20' },
+  { id: 'GQ3', type: '集装箱船', area: '东南亚航线', buildYear: '不限', budget: '2500-4000万', collectedAt: '2024-01-18' }
+])
+
+const totalFavorites = computed(() => favoritedVessels.value.length + favoritedDemands.value.length)
 
 const filterDateRangeText = computed(() => {
   const rangeMap = { '7days': '最近7天', '30days': '最近30天', '90days': '最近90天' }
@@ -168,7 +223,7 @@ const getDateDaysAgo = (daysAgo) => {
   return date.toISOString().split('T')[0]
 }
 
-const filteredFavorites = computed(() => {
+const filteredSaleVessels = computed(() => {
   let vessels = favoritedVessels.value
   if (searchTitle.value) {
     vessels = vessels.filter(v => v.name.toLowerCase().includes(searchTitle.value.toLowerCase()))
@@ -187,15 +242,37 @@ const filteredFavorites = computed(() => {
   return vessels
 })
 
+const filteredDemands = computed(() => {
+  let demands = favoritedDemands.value
+  if (searchTitle.value) {
+    demands = demands.filter(d => d.type.toLowerCase().includes(searchTitle.value.toLowerCase()))
+  }
+  if (filterDateRange.value) {
+    let daysLimit = filterDateRange.value === '7days' ? 7 : filterDateRange.value === '30days' ? 30 : 90
+    const cutoffDate = getDateDaysAgo(daysLimit)
+    demands = demands.filter(d => d.collectedAt >= cutoffDate)
+  }
+  if (filterType.value) {
+    demands = demands.filter(d => d.type === filterType.value)
+  }
+  return demands
+})
+
 const applyFilters = () => { /* Logic */ }
 const resetFilters = () => {
   searchTitle.value = ''; filterStatus.value = ''; filterDateRange.value = ''; filterType.value = ''
 }
-const removeFavorite = (id) => {
-  const index = favoritedVessels.value.findIndex(v => v.id === id)
-  if (index !== -1) favoritedVessels.value.splice(index, 1)
+const removeFavorite = (id, type) => {
+  if (type === 'sale') {
+    const index = favoritedVessels.value.findIndex(v => v.id === id)
+    if (index !== -1) favoritedVessels.value.splice(index, 1)
+  } else {
+    const index = favoritedDemands.value.findIndex(d => d.id === id)
+    if (index !== -1) favoritedDemands.value.splice(index, 1)
+  }
 }
 const viewVesselDetail = (id) => { router.push(`/shipping-trade/vessel/${id}`) }
+const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}`) }
 </script>
 
 <style scoped>
@@ -437,7 +514,37 @@ const viewVesselDetail = (id) => { router.push(`/shipping-trade/vessel/${id}`) }
   opacity: 1;
 }
 
-/* --- Rest of the styles (Grid, Cards, etc.) - Keep original but ensure compatibility --- */
+/* Tabs */
+.tabs-section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: #0ea5e9;
+}
+
+.tab-btn.active {
+  color: #0ea5e9;
+  border-bottom-color: #0ea5e9;
+}
+
+/* --- Sale Cards Grid --- */
 .vessel-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -503,6 +610,106 @@ const viewVesselDetail = (id) => { router.push(`/shipping-trade/vessel/${id}`) }
 }
 .detail-btn:hover { background: #0ea5e9; color: white; }
 
+/* --- Purchase Demand List --- */
+.purchase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.purchase-row {
+  position: relative;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.purchase-row:hover {
+  border-color: #0ea5e9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.fav-btn-demand {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+.row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.p-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.p-time {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.row-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.row-middle p {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+.row-middle .budget {
+  font-weight: 600;
+}
+
+.row-middle .budget span {
+  color: #0ea5e9;
+  font-size: 15px;
+}
+
+.contact-btn {
+  width: 100%;
+  padding: 10px;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.contact-btn:hover {
+  background: #0284c7;
+}
+
 .empty-state { text-align: center; padding: 80px 0; color: #64748b; }
 .empty-icon { font-size: 48px; margin-bottom: 16px; }
 
@@ -513,5 +720,6 @@ const viewVesselDetail = (id) => { router.push(`/shipping-trade/vessel/${id}`) }
   .select-item { min-width: 0; }
   .action-buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .trade-favorites-container { padding: 16px; }
+  .vessel-cards-grid { grid-template-columns: 1fr; }
 }
 </style>
