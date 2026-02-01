@@ -612,8 +612,8 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
 
 /* --- Purchase Demand List --- */
 .purchase-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 16px;
 }
 
@@ -622,7 +622,7 @@ const viewPurchaseDetail = (id) => { router.push(`/shipping-trade/purchase/${id}
   background: white;
   border-radius: 16px;
   padding: 20px;
-  margin-bottom: 16px;
+  width: 360px;
   border: 1px solid #F1F5F9;
   transition: 0.3s;
   cursor: pointer;
