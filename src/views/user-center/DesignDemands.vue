@@ -397,7 +397,7 @@ const closeEditModal = () => {
 
 // 跳转到发布页面
 const goToPublish = () => {
-  router.push('/ship-repair/publish/design')
+  router.push('/ship-repair/publish-demand/design')
 }
 
 // 保存编辑
@@ -703,7 +703,7 @@ const confirmToggle = () => {
   gap: 8px;
   padding: 12px 16px;
   background: #f8fafc;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #e2e8f0;
 }
 
 .btn-action {
@@ -727,29 +727,30 @@ const confirmToggle = () => {
 }
 
 .btn-edit {
-  background: #f59e0b;
-  color: white;
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .btn-edit:hover {
-  background: #d97706;
+  background: #e2e8f0;
 }
 
 .btn-toggle {
-  background: #ef4444;
-  color: white;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .btn-toggle:hover {
-  background: #dc2626;
+  background: #fde68a;
 }
 
 .btn-toggle.active {
-  background: #10b981;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .btn-toggle.active:hover {
-  background: #059669;
+  background: #a7f3d0;
 }
 
 /* 模态框 */

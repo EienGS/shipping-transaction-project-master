@@ -103,6 +103,21 @@ const routes = [
         component: () => import('../views/user-center/PurchaseDemands.vue')
       },
       {
+        path: 'demands/design',
+        name: 'DesignDemands',
+        component: () => import('../views/user-center/DesignDemands.vue')
+      },
+      {
+        path: 'demands/shipbuilding',
+        name: 'BuildDemands',
+        component: () => import('../views/user-center/BuildDemands.vue')
+      },
+      {
+        path: 'demands/repair',
+        name: 'RepairDemands',
+        component: () => import('../views/user-center/RepairDemands.vue')
+      },
+      {
         path: 'favorites/trade',
         name: 'TradeFavorites',
         component: () => import('../views/user-center/TradeFavorites.vue')
@@ -136,6 +151,16 @@ const routes = [
         path: 'service/design',
         name: 'DesignProviderMaintenance',
         component: () => import('../views/user-center/DesignProviderMaintenance.vue')
+      },
+      {
+        path: 'service/shipyard',
+        name: 'ShipyardMaintenance',
+        component: () => import('../views/user-center/ShipyardMaintenance.vue')
+      },
+      {
+        path: 'service/repair',
+        name: 'RepairMaintenance',
+        component: () => import('../views/user-center/RepairYardMaintenance.vue')
       },
     ]
   },
