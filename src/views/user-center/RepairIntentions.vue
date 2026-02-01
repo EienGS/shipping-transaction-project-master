@@ -517,9 +517,7 @@ const navigateToDetail = (intention) => {
 <style scoped>
 /* Base Container */
 .intention-container {
-    max-width: 1400px;
     margin: 0 auto;
-    padding: 24px;
 }
 
 /* Search & Filter Section */
