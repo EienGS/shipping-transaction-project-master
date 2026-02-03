@@ -133,10 +133,10 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="currentRole === 'seller'">
+              <tr>
                 <td class="label">交付时间</td>
                 <td colspan="3">
-                  <input v-model="form.deliveryDate" type="date" class="form-input">
+                  <input v-model="form.deliveryDate" type="date" class="form-input" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
