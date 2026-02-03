@@ -140,9 +140,6 @@
           <button v-if="verification.status === 'waiting_submit' && currentRole === 'seller'" class="btn-submit-review" @click="submitToReview(verification)">
             提交审核
           </button>
-          <button v-if="verification.status === 'waiting_submit' && currentRole === 'seller'" class="btn-edit" @click="openFillingModal(verification, 'seller')">
-            编辑
-          </button>
           <button v-if="verification.status === 'waiting_submit' && currentRole === 'buyer'" class="btn-edit" @click="openFillingModal(verification, 'buyer')">
             编辑
           </button>
