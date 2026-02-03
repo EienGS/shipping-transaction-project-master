@@ -43,7 +43,7 @@
               <el-col :xs="24" :sm="12" :md="4">
                 <el-select 
                   v-model="searchParams.transactionType" 
-                  placeholder="交易方式"
+                  placeholder="录入模式"
                   clearable
                   @change="handleSearch"
                 >
@@ -117,11 +117,17 @@
             </template>
           </el-table-column>
           <el-table-column prop="transactionDate" label="成交时间" width="120" />
-          <el-table-column prop="transactionType" label="交易方式" width="100">
+          <el-table-column prop="transactionType" label="录入模式" width="100">
             <template #default="{ row }">
               <el-tag :type="row.transactionType === 'verification' ? 'success' : 'info'" size="small">
                 {{ row.transactionType === 'verification' ? '关联鉴证' : '手动录入' }}
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="verificationNo" label="关联申请编号" width="150">
+            <template #default="{ row }">
+              <span v-if="row.verificationNo">{{ row.verificationNo }}</span>
+              <span v-else style="color: #94a3b8;">-</span>
             </template>
           </el-table-column>
           <el-table-column prop="status" label="状态" width="100">
@@ -132,8 +138,11 @@
             </template>
           </el-table-column>
           <el-table-column prop="operator" label="录入人" width="100" />
-          <el-table-column label="操作" width="200" fixed="right">
+          <el-table-column label="操作" width="250" fixed="right">
             <template #default="{ row }">
+              <el-button link type="primary" size="small" @click="handleView(row)">
+                查看
+              </el-button>
               <el-button link type="primary" size="small" @click="handleEdit(row)">
                 编辑
               </el-button>
@@ -339,6 +348,89 @@
         </el-form>
       </el-card>
     </div>
+
+    <!-- 详情对话框 -->
+    <el-dialog 
+      v-model="showDetail" 
+      title="成交信息详情" 
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <div v-if="currentDetail" class="detail-content">
+        <div class="detail-section">
+          <h3 class="section-title">基本信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">成交编号</span>
+              <span class="detail-value">{{ currentDetail.id }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">录入模式</span>
+              <span class="detail-value">
+                <el-tag :type="currentDetail.transactionType === 'verification' ? 'success' : 'info'" size="small">
+                  {{ currentDetail.transactionType === 'verification' ? '关联鉴证' : '手动录入' }}
+                </el-tag>
+              </span>
+            </div>
+            <div class="detail-item" v-if="currentDetail.verificationNo">
+              <span class="detail-label">关联鉴证申请编号</span>
+              <span class="detail-value highlight">{{ currentDetail.verificationNo }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="section-title">船舶信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">船舶名称</span>
+              <span class="detail-value">{{ currentDetail.vesselName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">船舶类型</span>
+              <span class="detail-value">{{ currentDetail.vesselType }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">载重吨</span>
+              <span class="detail-value">{{ currentDetail.deadweight }} DWT</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">船龄</span>
+              <span class="detail-value">{{ currentDetail.vesselAge }} 年</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="section-title">成交信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">成交金额</span>
+              <span class="detail-value price">¥{{ currentDetail.amount }}万元</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">成交时间</span>
+              <span class="detail-value">{{ currentDetail.transactionDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">状态</span>
+              <span class="detail-value">
+                <el-tag :type="currentDetail.status === 'published' ? 'success' : 'info'" size="small">
+                  {{ currentDetail.status === 'published' ? '已发布' : '已下架' }}
+                </el-tag>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">录入人</span>
+              <span class="detail-value">{{ currentDetail.operator }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="closeDetail">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -379,6 +471,7 @@ const transactions = ref([
     amount: 8500,
     transactionDate: '2024-01-15',
     transactionType: 'verification',
+    verificationNo: 'VF202401001',
     status: 'published',
     operator: '张三'
   },
@@ -391,6 +484,7 @@ const transactions = ref([
     amount: 7200,
     transactionDate: '2024-01-10',
     transactionType: 'manual',
+    verificationNo: null,
     status: 'published',
     operator: '李四'
   },
@@ -403,6 +497,7 @@ const transactions = ref([
     amount: 9800,
     transactionDate: '2024-01-08',
     transactionType: 'verification',
+    verificationNo: 'VF202401003',
     status: 'archived',
     operator: '王五'
   }
@@ -520,6 +615,21 @@ const handleAddTransaction = () => {
   isEditing.value = false
 }
 
+// 查看详情
+const showDetail = ref(false)
+const currentDetail = ref(null)
+
+const handleView = (row) => {
+  console.log('[v0] 查看详情:', row)
+  currentDetail.value = row
+  showDetail.value = true
+}
+
+const closeDetail = () => {
+  showDetail.value = false
+  currentDetail.value = null
+}
+
 // 编辑
 const handleEdit = (row) => {
   console.log('[v0] 编辑:', row)
@@ -604,6 +714,64 @@ const handleBack = () => {
 </script>
 
 <style scoped>
+/* 详情对话框样式 */
+.detail-content {
+  padding: 12px 0;
+}
+
+.detail-section {
+  margin-bottom: 28px;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #0EA5E9;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #0F172A;
+}
+
+.detail-value.price {
+  color: #EF4444;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.detail-value.highlight {
+  color: #0EA5E9;
+  font-weight: 600;
+}
+
+</style>
 .transaction-manage-container {
   padding: 24px;
   background: #F8FAFC;
