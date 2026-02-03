@@ -100,19 +100,31 @@
 
         <div class="card-footer">
           <div class="progress-bar">
-            <div class="progress-step" :class="{ completed: !['waiting_seller', 'waiting_buyer'].includes(verification.status) }"></div>
+            <!-- 卖方填报 -->
+            <div class="progress-step" :class="{ completed: !['waiting_seller'].includes(verification.status) }"></div>
             <div class="progress-line" :class="{ completed: ['waiting_submit', 'waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
+            
+            <!-- 买方填报 -->
             <div class="progress-step" :class="{ completed: ['waiting_submit', 'waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
             <div class="progress-line" :class="{ completed: ['waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
+            
+            <!-- 待审核 -->
             <div class="progress-step" :class="{ completed: ['reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
-            <div class="progress-line" :class="{ completed: ['approved', 'rejected'].includes(verification.status) }"></div>
-            <div class="progress-step" :class="{ completed: ['approved', 'rejected'].includes(verification.status) }"></div>
+            
+            <!-- 审核通过后的节点 -->
+            <template v-if="verification.status === 'approved'">
+              <div class="progress-line completed"></div>
+              <div class="progress-step completed"></div>
+            </template>
+            
+            <!-- 驳回后没有额外节点 -->
           </div>
           <div class="progress-labels">
             <span>卖方填报</span>
             <span>买方填报</span>
             <span>待审核</span>
-            <span>{{ verification.status === 'approved' ? '已通过' : '已驳回' }}</span>
+            <span v-if="verification.status === 'approved'">待制证</span>
+            <span v-else-if="verification.status === 'rejected'">已驳回</span>
           </div>
         </div>
 
