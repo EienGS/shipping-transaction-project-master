@@ -40,6 +40,7 @@
           <h3>船舶交易基本情况</h3>
           <div class="info-table-wrapper">
             <table class="info-table">
+              <tbody>
               <tr>
                 <td class="label">船名</td>
                 <td>{{ verification?.vesselName }}</td>
@@ -138,12 +139,14 @@
                   <textarea v-model="form.remarks" class="form-textarea" placeholder="其他补充说明..." :readonly="currentRole === 'buyer'"></textarea>
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
 
           <h3 style="margin-top: 24px;">{{ roleLabel }}经办人信息</h3>
           <div class="info-table-wrapper">
             <table class="info-table">
+              <tbody>
               <tr>
                 <td class="label">经办人姓名</td>
                 <td>
@@ -160,6 +163,7 @@
                   <input v-model="form.deliveryDate" type="date" class="form-input">
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
         </div>
