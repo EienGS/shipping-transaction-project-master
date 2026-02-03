@@ -247,68 +247,189 @@
           <h3>电子文件提交</h3>
           <p class="section-tips">支持 PDF、JPG 格式，单文件不超过 20MB</p>
 
+          <!-- 身份类型选择 -->
+          <div class="identity-type-selector">
+            <label class="type-label">身份类型：</label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" v-model="identityType" value="individual" name="identityType">
+                <span>个人</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" v-model="identityType" value="company" name="identityType">
+                <span>企业</span>
+              </label>
+            </div>
+          </div>
+
           <div class="file-upload-section">
             <h4>{{ roleLabel }}需提交文件</h4>
             
-            <div class="file-item">
-              <label>{{ currentRole === 'seller' ? '营业执照（加盖电子公章）' : '营业执照' }}</label>
-              <div class="file-upload-area" @click="triggerFileInput('file1')">
-                <input type="file" ref="fileInput1" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file1')">
-                <div v-if="!uploadedFiles.file1" class="upload-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                  </svg>
-                  <p>点击上传文件</p>
-                </div>
-                <div v-else class="file-uploaded">
-                  <div class="file-info">
-                    <div class="file-name">{{ uploadedFiles.file1.name }}</div>
-                    <div class="file-size">{{ (uploadedFiles.file1.size / 1024 / 1024).toFixed(2) }} MB</div>
+            <!-- 个人身份证 -->
+            <template v-if="identityType === 'individual'">
+              <div class="file-item">
+                <label>身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('idCardFront')">
+                  <input type="file" ref="fileInputIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'idCardFront')">
+                  <div v-if="!uploadedFiles.idCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
                   </div>
-                  <button @click.stop="removeFile('file1')" class="btn-remove">删除</button>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.idCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.idCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('idCardFront')" class="btn-remove">删除</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="file-item">
-              <label>经办人身份证正面</label>
-              <div class="file-upload-area" @click="triggerFileInput('file2')">
-                <input type="file" ref="fileInput2" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file2')">
-                <div v-if="!uploadedFiles.file2" class="upload-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                  </svg>
-                  <p>点击上传文件</p>
-                </div>
-                <div v-else class="file-uploaded">
-                  <div class="file-info">
-                    <div class="file-name">{{ uploadedFiles.file2.name }}</div>
-                    <div class="file-size">{{ (uploadedFiles.file2.size / 1024 / 1024).toFixed(2) }} MB</div>
+              <div class="file-item">
+                <label>身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('idCardBack')">
+                  <input type="file" ref="fileInputIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'idCardBack')">
+                  <div v-if="!uploadedFiles.idCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
                   </div>
-                  <button @click.stop="removeFile('file2')" class="btn-remove">删除</button>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.idCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.idCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('idCardBack')" class="btn-remove">删除</button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
 
-            <div class="file-item">
-              <label>经办人身份证反面</label>
-              <div class="file-upload-area" @click="triggerFileInput('file3')">
-                <input type="file" ref="fileInput3" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file3')">
-                <div v-if="!uploadedFiles.file3" class="upload-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                  </svg>
-                  <p>点击上传文件</p>
-                </div>
-                <div v-else class="file-uploaded">
-                  <div class="file-info">
-                    <div class="file-name">{{ uploadedFiles.file3.name }}</div>
-                    <div class="file-size">{{ (uploadedFiles.file3.size / 1024 / 1024).toFixed(2) }} MB</div>
+            <!-- 企业证件 -->
+            <template v-else-if="identityType === 'company'">
+              <div class="file-item">
+                <label>营业执照{{ currentRole === 'seller' ? '（加盖电子公章）' : '' }}</label>
+                <div class="file-upload-area" @click="triggerFileInput('businessLicense')">
+                  <input type="file" ref="fileInputBusinessLicense" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'businessLicense')">
+                  <div v-if="!uploadedFiles.businessLicense" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
                   </div>
-                  <button @click.stop="removeFile('file3')" class="btn-remove">删除</button>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.businessLicense.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.businessLicense.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('businessLicense')" class="btn-remove">删除</button>
+                  </div>
                 </div>
               </div>
-            </div>
+
+              <div class="file-item">
+                <label>法人身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('legalIdCardFront')">
+                  <input type="file" ref="fileInputLegalIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'legalIdCardFront')">
+                  <div v-if="!uploadedFiles.legalIdCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.legalIdCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.legalIdCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('legalIdCardFront')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>法人身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('legalIdCardBack')">
+                  <input type="file" ref="fileInputLegalIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'legalIdCardBack')">
+                  <div v-if="!uploadedFiles.legalIdCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.legalIdCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.legalIdCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('legalIdCardBack')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>经办人身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('operatorIdCardFront')">
+                  <input type="file" ref="fileInputOperatorIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'operatorIdCardFront')">
+                  <div v-if="!uploadedFiles.operatorIdCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.operatorIdCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.operatorIdCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('operatorIdCardFront')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>经办人身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('operatorIdCardBack')">
+                  <input type="file" ref="fileInputOperatorIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'operatorIdCardBack')">
+                  <div v-if="!uploadedFiles.operatorIdCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.operatorIdCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.operatorIdCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('operatorIdCardBack')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>授权委托书（加盖公章）</label>
+                <div class="file-upload-area" @click="triggerFileInput('authLetter')">
+                  <input type="file" ref="fileInputAuthLetter" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'authLetter')">
+                  <div v-if="!uploadedFiles.authLetter" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.authLetter.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.authLetter.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('authLetter')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -333,10 +454,18 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit'])
 
 const currentStep = ref(1)
+const identityType = ref('individual') // 'individual' or 'company'
 const uploadedFiles = ref({
-  file1: null,
-  file2: null,
-  file3: null
+  // 个人
+  idCardFront: null,
+  idCardBack: null,
+  // 企业
+  businessLicense: null,
+  legalIdCardFront: null,
+  legalIdCardBack: null,
+  operatorIdCardFront: null,
+  operatorIdCardBack: null,
+  authLetter: null
 })
 
 const form = ref({
@@ -385,12 +514,19 @@ const removeFile = (fileKey) => {
 }
 
 const triggerFileInput = (fileKey) => {
-  if (fileKey === 'file1') {
-    document.querySelector('input[ref="fileInput1"]')?.click()
-  } else if (fileKey === 'file2') {
-    document.querySelector('input[ref="fileInput2"]')?.click()
-  } else if (fileKey === 'file3') {
-    document.querySelector('input[ref="fileInput3"]')?.click()
+  const inputMap = {
+    'idCardFront': 'fileInputIdCardFront',
+    'idCardBack': 'fileInputIdCardBack',
+    'businessLicense': 'fileInputBusinessLicense',
+    'legalIdCardFront': 'fileInputLegalIdCardFront',
+    'legalIdCardBack': 'fileInputLegalIdCardBack',
+    'operatorIdCardFront': 'fileInputOperatorIdCardFront',
+    'operatorIdCardBack': 'fileInputOperatorIdCardBack',
+    'authLetter': 'fileInputAuthLetter'
+  }
+  const refName = inputMap[fileKey]
+  if (refName) {
+    document.querySelector(`input[ref="${refName}"]`)?.click()
   }
 }
 
@@ -511,10 +647,53 @@ const submitFilling = () => {
 }
 
 .buyer-cert-notice p {
-  margin: 0;
   font-size: 13px;
   color: #475569;
   font-weight: 500;
+}
+
+.identity-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.type-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.radio-group {
+  display: flex;
+  gap: 24px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #475569;
+}
+
+.radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.radio-item span {
+  user-select: none;
+}
+
+.modal-body {
+  padding: 24px;
 }
 
 .modal-body {
