@@ -79,6 +79,14 @@
               <div class="detail-label">成交价格</div>
               <div class="detail-value highlight" colspan="3">¥ {{ verification?.amount }}</div>
             </div>
+            <div class="detail-row">
+              <div class="detail-label">交付日期</div>
+              <div class="detail-value" colspan="3">{{ verification?.deliveryDate || '2024-02-28' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">备注</div>
+              <div class="detail-value" colspan="3">{{ verification?.remarks || '无' }}</div>
+            </div>
           </div>
         </div>
 
