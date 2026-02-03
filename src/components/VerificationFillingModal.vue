@@ -57,85 +57,85 @@
               <tr>
                 <td class="label">建造船厂</td>
                 <td colspan="3">
-                  <input v-model="form.shipyard" type="text" class="form-input" placeholder="大连中远海运川崎">
+                  <input v-model="form.shipyard" type="text" class="form-input" placeholder="大连中远海运川崎" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">建造日期</td>
                 <td>
-                  <input v-model="form.buildDate" type="date" class="form-input">
+                  <input v-model="form.buildDate" type="date" class="form-input" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">船籍港</td>
                 <td>
-                  <input v-model="form.port" type="text" class="form-input" placeholder="ZHOUSHAN">
+                  <input v-model="form.port" type="text" class="form-input" placeholder="ZHOUSHAN" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">总长(m)</td>
                 <td>
-                  <input v-model="form.length" type="text" class="form-input" placeholder="199.90">
+                  <input v-model="form.length" type="text" class="form-input" placeholder="199.90" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">型深(m)</td>
                 <td>
-                  <input v-model="form.depth" type="text" class="form-input" placeholder="18.50">
+                  <input v-model="form.depth" type="text" class="form-input" placeholder="18.50" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">总吨(t)</td>
                 <td>
-                  <input v-model="form.tonnage" type="text" class="form-input" placeholder="36000">
+                  <input v-model="form.tonnage" type="text" class="form-input" placeholder="36000" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">型宽(m)</td>
                 <td>
-                  <input v-model="form.width" type="text" class="form-input" placeholder="32.26">
+                  <input v-model="form.width" type="text" class="form-input" placeholder="32.26" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">载重(容)量</td>
                 <td>
-                  <input v-model="form.deadweight" type="text" class="form-input" placeholder="61000 DWT">
+                  <input v-model="form.deadweight" type="text" class="form-input" placeholder="61000 DWT" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">船级</td>
                 <td>
-                  <input v-model="form.classification" type="text" class="form-input" placeholder="CCS">
+                  <input v-model="form.classification" type="text" class="form-input" placeholder="CCS" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">主机功率(KW)</td>
                 <td>
-                  <input v-model="form.enginePower" type="text" class="form-input" placeholder="8600">
+                  <input v-model="form.enginePower" type="text" class="form-input" placeholder="8600" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">航区</td>
                 <td>
-                  <input v-model="form.navigationArea" type="text" class="form-input" placeholder="无限航区">
+                  <input v-model="form.navigationArea" type="text" class="form-input" placeholder="无限航区" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">船舶识别号</td>
                 <td>
-                  <input v-model="form.imo" type="text" class="form-input" placeholder="CN20181234567">
+                  <input v-model="form.imo" type="text" class="form-input" placeholder="CN20181234567" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">主机型号</td>
                 <td>
-                  <input v-model="form.engineModel" type="text" class="form-input" placeholder="MAN B&W 6550ME-B9">
+                  <input v-model="form.engineModel" type="text" class="form-input" placeholder="MAN B&W 6550ME-B9" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">成交价格(大写)</td>
                 <td colspan="2">
-                  <input v-model="form.priceText" type="text" class="form-input" placeholder="捌仟伍佰万元整">
+                  <input v-model="form.priceText" type="text" class="form-input" placeholder="捌仟伍佰万元整" :readonly="currentRole === 'buyer'">
                 </td>
                 <td>
                   <div class="price-input-cell">
                     <span>¥</span>
-                    <input v-model="form.price" type="number" class="form-input" placeholder="85000000">
+                    <input v-model="form.price" type="number" class="form-input" placeholder="85000000" :readonly="currentRole === 'buyer'">
                   </div>
                 </td>
               </tr>
               <tr>
                 <td class="label">备注</td>
                 <td colspan="3">
-                  <textarea v-model="form.remarks" class="form-textarea" placeholder="其他补充说明..."></textarea>
+                  <textarea v-model="form.remarks" class="form-textarea" placeholder="其他补充说明..." :readonly="currentRole === 'buyer'"></textarea>
                 </td>
               </tr>
             </table>
@@ -224,13 +224,17 @@
           </div>
 
           <div class="confirmation-box">
-            <input v-model="form.certificateConfirmed" type="checkbox" id="certConfirm">
-            <label for="certConfirm">我确认上述表单信息与数据库同步的证书信息一致，且真实有效</label>
+            <input v-model="form.certificateConfirmed" type="checkbox" id="certConfirm" :disabled="currentRole === 'buyer'">
+            <label for="certConfirm">{{ currentRole === 'buyer' ? '卖方已确认上述表单信息与数据库同步的证书信息一致，且真实有效' : '我确认上述表单信息与数据库同步的证书信息一致，且真实有效' }}</label>
           </div>
 
-          <div v-if="!form.certificateConfirmed" class="upload-alert">
+          <div v-if="!form.certificateConfirmed && currentRole === 'seller'" class="upload-alert">
             <p>发现证书信息不一致？</p>
             <button class="btn-upload-supp">补充上传异常说明</button>
+          </div>
+          
+          <div v-if="currentRole === 'buyer'" class="buyer-cert-notice">
+            <p>以上证书信息由卖方确认，仅供查看参考</p>
           </div>
         </div>
 
@@ -492,6 +496,21 @@ const submitFilling = () => {
   font-size: 13px;
   color: #78350F;
   margin: 0;
+}
+
+.buyer-cert-notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: #F1F5F9;
+  border-left: 3px solid #64748B;
+  border-radius: 4px;
+}
+
+.buyer-cert-notice p {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
 }
 
 .modal-body {

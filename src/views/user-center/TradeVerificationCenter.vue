@@ -129,6 +129,9 @@
           <button v-if="verification.status === 'waiting_buyer' && currentRole === 'buyer'" class="btn-filling" @click="openFillingModal(verification, 'buyer')">
             开始填报
           </button>
+          <button v-if="verification.status === 'waiting_buyer' && currentRole === 'seller'" class="btn-edit" @click="openFillingModal(verification, 'seller')">
+            编辑
+          </button>
           <div v-if="verification.status === 'waiting_buyer' && currentRole === 'seller'" class="waiting-tip">
             等待买方填报信息...
           </div>
@@ -136,6 +139,12 @@
           <!-- 等待提交审核 -->
           <button v-if="verification.status === 'waiting_submit' && currentRole === 'seller'" class="btn-submit-review" @click="submitToReview(verification)">
             提交审核
+          </button>
+          <button v-if="verification.status === 'waiting_submit' && currentRole === 'seller'" class="btn-edit" @click="openFillingModal(verification, 'seller')">
+            编辑
+          </button>
+          <button v-if="verification.status === 'waiting_submit' && currentRole === 'buyer'" class="btn-edit" @click="openFillingModal(verification, 'buyer')">
+            编辑
           </button>
           <button v-if="verification.status === 'waiting_submit'" class="btn-detail" @click="openDetailModal(verification)">
             查看详情
@@ -751,7 +760,8 @@ onMounted(() => {
 .btn-filling,
 .btn-detail,
 .btn-download,
-.btn-retry {
+.btn-retry,
+.btn-edit {
   flex: 1;
   min-width: 100px;
   padding: 8px 12px;
@@ -802,6 +812,15 @@ onMounted(() => {
 .btn-retry:hover {
   background: #E2E8F0;
   border-color: #CBD5E1;
+}
+
+.btn-edit {
+  background: #F59E0B;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #D97706;
 }
 
 .btn-submit-review {
