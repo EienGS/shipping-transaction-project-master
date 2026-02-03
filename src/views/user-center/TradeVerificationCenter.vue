@@ -3,8 +3,27 @@
     <!-- Search & Filter Section -->
     <div class="search-filter-section">
       <div class="header-content">
-        <h1 class="page-title">交易鉴证中心</h1>
-        <div class="stats-badge">共 {{ allVerifications.length }} 项鉴证</div>
+        <div class="title-group">
+          <h1 class="page-title">交易鉴证中心</h1>
+          <div class="stats-badge">共 {{ allVerifications.length }} 项鉴证</div>
+        </div>
+        <div class="role-switch">
+          <span class="role-label">当前角色：</span>
+          <button 
+            class="role-btn" 
+            :class="{ active: currentRole === 'seller' }" 
+            @click="currentRole = 'seller'"
+          >
+            卖方
+          </button>
+          <button 
+            class="role-btn" 
+            :class="{ active: currentRole === 'buyer' }" 
+            @click="currentRole = 'buyer'"
+          >
+            买方
+          </button>
+        </div>
       </div>
 
       <div class="search-card">
@@ -354,10 +373,62 @@ onMounted(() => {
 }
 
 .header-content {
-  margin-bottom: 20px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  
+  margin-bottom: 24px;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.role-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8FAFC;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.role-label {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+  padding: 0 4px;
+}
+
+.role-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+  color: #64748B;
+}
+
+.role-btn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.role-btn.active {
+  background: #0EA5E9;
+  color: white;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
 }
 
 .page-title {
