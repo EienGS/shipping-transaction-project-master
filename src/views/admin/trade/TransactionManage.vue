@@ -43,7 +43,7 @@
               <el-col :xs="24" :sm="12" :md="4">
                 <el-select 
                   v-model="searchParams.transactionType" 
-                  placeholder="录入模式"
+                  placeholder="交易方式"
                   clearable
                   @change="handleSearch"
                 >
@@ -138,7 +138,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="operator" label="录入人" width="100" />
-          <el-table-column label="操作" width="250" fixed="right">
+          <el-table-column label="操作" width="260" fixed="right">
             <template #default="{ row }">
               <el-button link type="primary" size="small" @click="handleView(row)">
                 查看
@@ -163,17 +163,79 @@
       </el-card>
     </div>
 
-    <!-- 表单视图 -->
+    <!-- 表单/详情视图 -->
     <div v-else class="form-view">
       <div class="form-header">
         <el-button text icon="ArrowLeft" @click="handleBack">
           返回列表
         </el-button>
-        <h2>{{ isEditing ? '编辑成交信息' : '录入成交信息' }}</h2>
+        <h2>{{ showDetail ? '成交信息详情' : (isEditing ? '编辑成交信息' : '录入成交信息') }}</h2>
         <span />
       </div>
 
-      <el-card class="form-card">
+      <!-- 详情视图 -->
+      <el-card v-if="showDetail" class="detail-card">
+        <div class="detail-section">
+          <h3 class="section-title">基本信息</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">编号</span>
+              <span class="detail-value">{{ detailData?.id }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">录入模式</span>
+              <span class="detail-value">
+                <el-tag :type="detailData?.transactionType === 'verification' ? 'success' : 'info'" size="small">
+                  {{ detailData?.transactionType === 'verification' ? '关联鉴证' : '手动录入' }}
+                </el-tag>
+              </span>
+            </div>
+            <div class="detail-item" v-if="detailData?.verificationNo">
+              <span class="detail-label">关联鉴证申请编号</span>
+              <span class="detail-value highlight">{{ detailData?.verificationNo }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">船舶名称</span>
+              <span class="detail-value">{{ detailData?.vesselName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">船舶类型</span>
+              <span class="detail-value">{{ detailData?.vesselType }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">载重吨</span>
+              <span class="detail-value">{{ detailData?.deadweight }} DWT</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">船龄</span>
+              <span class="detail-value">{{ detailData?.vesselAge }} 年</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">成交金额</span>
+              <span class="detail-value price">¥{{ detailData?.amount }} 万元</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">成交时间</span>
+              <span class="detail-value">{{ detailData?.transactionDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">状态</span>
+              <span class="detail-value">
+                <el-tag :type="detailData?.status === 'published' ? 'success' : 'info'" size="small">
+                  {{ detailData?.status === 'published' ? '已发布' : '已下架' }}
+                </el-tag>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">录入人</span>
+              <span class="detail-value">{{ detailData?.operator }}</span>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
+      <!-- 表单视图 -->
+      <el-card v-else class="form-card">
         <el-form :model="formData" :rules="formRules" ref="formRef" label-width="140px">
           <!-- 录入模式选择 -->
           <el-form-item label="录入模式">
@@ -317,7 +379,7 @@
               :rows="4"
               maxlength="200"
               show-word-limit
-              placeholder="可填写交易核心亮点，如"5000吨散货船近洋航线成交"，用于用户端案例展示补充"
+              placeholder="可填写交易核心亮点，如'5000吨散货船近洋航线成交'，用于用户端案例展示补充"
             />
           </el-form-item>
 
@@ -348,89 +410,6 @@
         </el-form>
       </el-card>
     </div>
-
-    <!-- 详情对话框 -->
-    <el-dialog 
-      v-model="showDetail" 
-      title="成交信息详情" 
-      width="800px"
-      :close-on-click-modal="false"
-    >
-      <div v-if="currentDetail" class="detail-content">
-        <div class="detail-section">
-          <h3 class="section-title">基本信息</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">成交编号</span>
-              <span class="detail-value">{{ currentDetail.id }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">录入模式</span>
-              <span class="detail-value">
-                <el-tag :type="currentDetail.transactionType === 'verification' ? 'success' : 'info'" size="small">
-                  {{ currentDetail.transactionType === 'verification' ? '关联鉴证' : '手动录入' }}
-                </el-tag>
-              </span>
-            </div>
-            <div class="detail-item" v-if="currentDetail.verificationNo">
-              <span class="detail-label">关联鉴证申请编号</span>
-              <span class="detail-value highlight">{{ currentDetail.verificationNo }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="section-title">船舶信息</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">船舶名称</span>
-              <span class="detail-value">{{ currentDetail.vesselName }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">船舶类型</span>
-              <span class="detail-value">{{ currentDetail.vesselType }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">载重吨</span>
-              <span class="detail-value">{{ currentDetail.deadweight }} DWT</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">船龄</span>
-              <span class="detail-value">{{ currentDetail.vesselAge }} 年</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="section-title">成交信息</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">成交金额</span>
-              <span class="detail-value price">¥{{ currentDetail.amount }}万元</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">成交时间</span>
-              <span class="detail-value">{{ currentDetail.transactionDate }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">状态</span>
-              <span class="detail-value">
-                <el-tag :type="currentDetail.status === 'published' ? 'success' : 'info'" size="small">
-                  {{ currentDetail.status === 'published' ? '已发布' : '已下架' }}
-                </el-tag>
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">录入人</span>
-              <span class="detail-value">{{ currentDetail.operator }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <el-button @click="closeDetail">关闭</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -471,7 +450,7 @@ const transactions = ref([
     amount: 8500,
     transactionDate: '2024-01-15',
     transactionType: 'verification',
-    verificationNo: 'VF202401001',
+    verificationNo: 'VER202401001',
     status: 'published',
     operator: '张三'
   },
@@ -497,7 +476,7 @@ const transactions = ref([
     amount: 9800,
     transactionDate: '2024-01-08',
     transactionType: 'verification',
-    verificationNo: 'VF202401003',
+    verificationNo: 'VER202401002',
     status: 'archived',
     operator: '王五'
   }
@@ -613,28 +592,26 @@ const handleSearch = () => {
 const handleAddTransaction = () => {
   showForm.value = true
   isEditing.value = false
+  showDetail.value = false
 }
 
 // 查看详情
 const showDetail = ref(false)
-const currentDetail = ref(null)
-
+const detailData = ref(null)
 const handleView = (row) => {
   console.log('[v0] 查看详情:', row)
-  currentDetail.value = row
+  detailData.value = row
   showDetail.value = true
-}
-
-const closeDetail = () => {
-  showDetail.value = false
-  currentDetail.value = null
+  showForm.value = true
+  isEditing.value = false
 }
 
 // 编辑
 const handleEdit = (row) => {
   console.log('[v0] 编辑:', row)
   showForm.value = true
-  isEditing.value = true
+  isEditing.value = false
+  showDetail.value = false
   // 填充表单数据
   Object.assign(formData, {
     entryMode: row.transactionType === 'verification' ? 'association' : 'manual',
@@ -643,7 +620,8 @@ const handleEdit = (row) => {
     deadweight: row.deadweight,
     vesselAge: row.vesselAge,
     amount: row.amount,
-    transactionDate: new Date(row.transactionDate)
+    transactionDate: new Date(row.transactionDate),
+    verificationNo: row.verificationNo
   })
 }
 
@@ -714,64 +692,6 @@ const handleBack = () => {
 </script>
 
 <style scoped>
-/* 详情对话框样式 */
-.detail-content {
-  padding: 12px 0;
-}
-
-.detail-section {
-  margin-bottom: 28px;
-}
-
-.detail-section:last-child {
-  margin-bottom: 0;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0 0 16px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #0EA5E9;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px 24px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.detail-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748B;
-}
-
-.detail-value {
-  font-size: 15px;
-  font-weight: 500;
-  color: #0F172A;
-}
-
-.detail-value.price {
-  color: #EF4444;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.detail-value.highlight {
-  color: #0EA5E9;
-  font-weight: 600;
-}
-
-</style>
 .transaction-manage-container {
   padding: 24px;
   background: #F8FAFC;
