@@ -430,6 +430,91 @@
                 </div>
               </div>
             </template>
+
+            <!-- 卖方专属文件 -->
+            <template v-if="currentRole === 'seller'">
+              <h4 style="margin-top: 24px;">船舶相关文件</h4>
+              
+              <div class="file-item">
+                <label>船舶营业运输证<span class="optional-tip">（非营运船舶无需提供）</span></label>
+                <div class="file-upload-area" @click="triggerFileInput('transportCert')">
+                  <input type="file" ref="fileInputTransportCert" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'transportCert')">
+                  <div v-if="!uploadedFiles.transportCert" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.transportCert.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.transportCert.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('transportCert')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>所有权注销证明书<span class="optional-tip">（如船舶所有权登记已在主管机关注销）</span></label>
+                <div class="file-upload-area" @click="triggerFileInput('ownershipCancellation')">
+                  <input type="file" ref="fileInputOwnershipCancellation" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'ownershipCancellation')">
+                  <div v-if="!uploadedFiles.ownershipCancellation" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.ownershipCancellation.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.ownershipCancellation.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('ownershipCancellation')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>船舶买卖合同</label>
+                <div class="file-upload-area" @click="triggerFileInput('saleContract')">
+                  <input type="file" ref="fileInputSaleContract" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'saleContract')">
+                  <div v-if="!uploadedFiles.saleContract" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.saleContract.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.saleContract.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('saleContract')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>船舶交接协议</label>
+                <div class="file-upload-area" @click="triggerFileInput('deliveryAgreement')">
+                  <input type="file" ref="fileInputDeliveryAgreement" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'deliveryAgreement')">
+                  <div v-if="!uploadedFiles.deliveryAgreement" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.deliveryAgreement.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.deliveryAgreement.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('deliveryAgreement')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -465,7 +550,12 @@ const uploadedFiles = ref({
   legalIdCardBack: null,
   operatorIdCardFront: null,
   operatorIdCardBack: null,
-  authLetter: null
+  authLetter: null,
+  // 卖方专属
+  transportCert: null,
+  ownershipCancellation: null,
+  saleContract: null,
+  deliveryAgreement: null
 })
 
 const form = ref({
@@ -522,7 +612,11 @@ const triggerFileInput = (fileKey) => {
     'legalIdCardBack': 'fileInputLegalIdCardBack',
     'operatorIdCardFront': 'fileInputOperatorIdCardFront',
     'operatorIdCardBack': 'fileInputOperatorIdCardBack',
-    'authLetter': 'fileInputAuthLetter'
+    'authLetter': 'fileInputAuthLetter',
+    'transportCert': 'fileInputTransportCert',
+    'ownershipCancellation': 'fileInputOwnershipCancellation',
+    'saleContract': 'fileInputSaleContract',
+    'deliveryAgreement': 'fileInputDeliveryAgreement'
   }
   const refName = inputMap[fileKey]
   if (refName) {
@@ -973,10 +1067,17 @@ const submitFilling = () => {
 
 .file-item label {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #475569;
-  margin-bottom: 10px;
+  color: #0F172A;
+  margin-bottom: 8px;
+}
+
+.optional-tip {
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 4px;
 }
 
 .file-upload-area {
