@@ -133,6 +133,12 @@
                   </div>
                 </td>
               </tr>
+              <tr v-if="currentRole === 'seller'">
+                <td class="label">交付时间</td>
+                <td colspan="3">
+                  <input v-model="form.deliveryDate" type="date" class="form-input">
+                </td>
+              </tr>
               <tr>
                 <td class="label">备注</td>
                 <td colspan="3">
@@ -155,12 +161,6 @@
                 <td class="label">联系电话</td>
                 <td>
                   <input v-model="form.contactPhone" type="tel" class="form-input" placeholder="请输入手机号">
-                </td>
-              </tr>
-              <tr v-if="currentRole === 'seller'">
-                <td class="label">交付时间</td>
-                <td colspan="3">
-                  <input v-model="form.deliveryDate" type="date" class="form-input">
                 </td>
               </tr>
               </tbody>
