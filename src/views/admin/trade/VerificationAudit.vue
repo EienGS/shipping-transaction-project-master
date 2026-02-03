@@ -122,7 +122,22 @@
           返回列表
         </el-button>
         <h2>鉴证审核详情</h2>
-        <span />
+        <div class="header-actions">
+          <el-button 
+            type="danger" 
+            @click="handleReject"
+            v-if="selectedVerification.status === 'pending'"
+          >
+            驳回申请
+          </el-button>
+          <el-button 
+            type="success" 
+            @click="handleApprove"
+            v-if="selectedVerification.status === 'pending'"
+          >
+            审核通过并提交第三方
+          </el-button>
+        </div>
       </div>
 
       <el-card class="detail-card">
@@ -153,24 +168,6 @@
           </el-tab-pane>
         </el-tabs>
       </el-card>
-
-      <!-- 审核操作 -->
-      <div class="audit-actions">
-        <el-button 
-          type="danger" 
-          @click="handleReject"
-          v-if="selectedVerification.status === 'pending'"
-        >
-          驳回申请
-        </el-button>
-        <el-button 
-          type="success" 
-          @click="handleApprove"
-          v-if="selectedVerification.status === 'pending'"
-        >
-          审核通过并提交第三方
-        </el-button>
-      </div>
 
       <!-- 驳回原因对话框 -->
       <el-dialog v-model="rejectDialogVisible" title="驳回原因" width="500px">
@@ -683,24 +680,22 @@ onMounted(() => {
   font-size: 20px;
   font-weight: 700;
   margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-actions button {
+  min-width: 140px;
 }
 
 .detail-card {
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.audit-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
-
-.audit-actions button {
-  min-width: 120px;
 }
 </style>
