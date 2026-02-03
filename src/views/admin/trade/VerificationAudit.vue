@@ -137,8 +137,8 @@
             <VerificationPartyInfo :ticket="selectedVerification" />
           </el-tab-pane>
 
-          <!-- 资质文件 -->
-          <el-tab-pane label="资质文件">
+          <!-- 文件信息 -->
+          <el-tab-pane label="文件信息">
             <VerificationDocuments :ticket="selectedVerification" />
           </el-tab-pane>
 
