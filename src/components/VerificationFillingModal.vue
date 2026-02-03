@@ -27,6 +27,16 @@
       <div class="modal-body">
         <!-- Step 1: 基本信息 -->
         <div v-if="currentStep === 1" class="form-section">
+          <div v-if="currentRole === 'buyer'" class="buyer-review-notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h4>请审核卖方填报信息</h4>
+              <p>以下信息由卖方填报，请仔细核对确认信息的真实性和准确性</p>
+            </div>
+          </div>
+          
           <h3>船舶交易基本情况</h3>
           <div class="info-table-wrapper">
             <table class="info-table">
@@ -233,7 +243,7 @@
             <h4>{{ roleLabel }}需提交文件</h4>
             
             <div class="file-item">
-              <label>{{ currentRole === 'seller' ? '营业执照（加盖电子公章）' : '身份证正面' }}</label>
+              <label>{{ currentRole === 'seller' ? '营业执照（加盖电子公章）' : '营业执照' }}</label>
               <div class="file-upload-area" @click="triggerFileInput('file1')">
                 <input type="file" ref="fileInput1" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file1')">
                 <div v-if="!uploadedFiles.file1" class="upload-placeholder">
@@ -253,7 +263,7 @@
             </div>
 
             <div class="file-item">
-              <label>{{ currentRole === 'seller' ? '经办人身份证正反面' : '身份证背面' }}</label>
+              <label>经办人身份证正面</label>
               <div class="file-upload-area" @click="triggerFileInput('file2')">
                 <input type="file" ref="fileInput2" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file2')">
                 <div v-if="!uploadedFiles.file2" class="upload-placeholder">
@@ -268,6 +278,26 @@
                     <div class="file-size">{{ (uploadedFiles.file2.size / 1024 / 1024).toFixed(2) }} MB</div>
                   </div>
                   <button @click.stop="removeFile('file2')" class="btn-remove">删除</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="file-item">
+              <label>经办人身份证反面</label>
+              <div class="file-upload-area" @click="triggerFileInput('file3')">
+                <input type="file" ref="fileInput3" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file3')">
+                <div v-if="!uploadedFiles.file3" class="upload-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"></path>
+                  </svg>
+                  <p>点击上传文件</p>
+                </div>
+                <div v-else class="file-uploaded">
+                  <div class="file-info">
+                    <div class="file-name">{{ uploadedFiles.file3.name }}</div>
+                    <div class="file-size">{{ (uploadedFiles.file3.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  </div>
+                  <button @click.stop="removeFile('file3')" class="btn-remove">删除</button>
                 </div>
               </div>
             </div>
@@ -297,7 +327,8 @@ const emit = defineEmits(['close', 'submit'])
 const currentStep = ref(1)
 const uploadedFiles = ref({
   file1: null,
-  file2: null
+  file2: null,
+  file3: null
 })
 
 const form = ref({
@@ -348,8 +379,10 @@ const removeFile = (fileKey) => {
 const triggerFileInput = (fileKey) => {
   if (fileKey === 'file1') {
     document.querySelector('input[ref="fileInput1"]')?.click()
-  } else {
+  } else if (fileKey === 'file2') {
     document.querySelector('input[ref="fileInput2"]')?.click()
+  } else if (fileKey === 'file3') {
+    document.querySelector('input[ref="fileInput3"]')?.click()
   }
 }
 
@@ -429,6 +462,36 @@ const submitFilling = () => {
 .close-btn:hover {
   background: #E2E8F0;
   color: #0F172A;
+}
+
+.buyer-review-notice {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.buyer-review-notice svg {
+  width: 24px;
+  height: 24px;
+  color: #D97706;
+  flex-shrink: 0;
+}
+
+.buyer-review-notice h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400E;
+  margin: 0 0 4px 0;
+}
+
+.buyer-review-notice p {
+  font-size: 13px;
+  color: #78350F;
+  margin: 0;
 }
 
 .modal-body {

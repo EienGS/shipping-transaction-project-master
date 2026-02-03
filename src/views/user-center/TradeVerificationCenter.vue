@@ -23,7 +23,9 @@
               <label>鉴证状态</label>
               <select v-model="filterStatus" @change="applyFilters" class="modern-select">
                 <option value="">全部状态</option>
-                <option value="filling">填报中</option>
+                <option value="waiting_seller">等待卖方填报</option>
+                <option value="waiting_buyer">等待买方填报</option>
+                <option value="waiting_submit">等待提交审核</option>
                 <option value="waiting_review">待审核</option>
                 <option value="reviewing">审核中</option>
                 <option value="approved">已通过</option>
@@ -79,33 +81,59 @@
 
         <div class="card-footer">
           <div class="progress-bar">
-            <div class="progress-step" :class="{ completed: ['waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
-            <div class="progress-line" :class="{ completed: ['reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
+            <div class="progress-step" :class="{ completed: !['waiting_seller', 'waiting_buyer'].includes(verification.status) }"></div>
+            <div class="progress-line" :class="{ completed: ['waiting_submit', 'waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
+            <div class="progress-step" :class="{ completed: ['waiting_submit', 'waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
+            <div class="progress-line" :class="{ completed: ['waiting_review', 'reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
             <div class="progress-step" :class="{ completed: ['reviewing', 'approved', 'rejected'].includes(verification.status) }"></div>
             <div class="progress-line" :class="{ completed: ['approved', 'rejected'].includes(verification.status) }"></div>
             <div class="progress-step" :class="{ completed: ['approved', 'rejected'].includes(verification.status) }"></div>
           </div>
           <div class="progress-labels">
-            <span>填报中</span>
+            <span>卖方填报</span>
+            <span>买方填报</span>
             <span>待审核</span>
             <span>{{ verification.status === 'approved' ? '已通过' : '已驳回' }}</span>
           </div>
         </div>
 
         <div class="card-actions">
-          <button v-if="verification.status === 'filling'" class="btn-filling" @click="openFillingModal(verification)">
-            {{ verification.myStatus === 'unfilled' ? '开始填报' : '继续填报' }}
+          <!-- 等待卖方填报 -->
+          <button v-if="verification.status === 'waiting_seller' && currentRole === 'seller'" class="btn-filling" @click="openFillingModal(verification, 'seller')">
+            开始填报
           </button>
-          <button v-if="verification.status === 'waiting_review' || verification.status === 'reviewing'" class="btn-detail" @click="openDetailModal(verification)">
+          <div v-if="verification.status === 'waiting_seller' && currentRole === 'buyer'" class="waiting-tip">
+            等待卖方填报信息...
+          </div>
+          
+          <!-- 等待买方填报 -->
+          <button v-if="verification.status === 'waiting_buyer' && currentRole === 'buyer'" class="btn-filling" @click="openFillingModal(verification, 'buyer')">
+            开始填报
+          </button>
+          <div v-if="verification.status === 'waiting_buyer' && currentRole === 'seller'" class="waiting-tip">
+            等待买方填报信息...
+          </div>
+          
+          <!-- 等待提交审核 -->
+          <button v-if="verification.status === 'waiting_submit' && currentRole === 'seller'" class="btn-submit-review" @click="submitToReview(verification)">
+            提交审核
+          </button>
+          <button v-if="verification.status === 'waiting_submit'" class="btn-detail" @click="openDetailModal(verification)">
             查看详情
           </button>
-          <button v-if="verification.status === 'approved' && currentRole === 'buyer'" class="btn-download" @click="downloadCertificate(verification)">
+          
+          <!-- 审核中 -->
+          <button v-if="['waiting_review', 'reviewing'].includes(verification.status)" class="btn-detail" @click="openDetailModal(verification)">
+            查看详情
+          </button>
+          
+          <!-- 已通过 -->
+          <button v-if="verification.status === 'approved'" class="btn-download" @click="downloadCertificate(verification)">
             下载鉴证书
           </button>
-          <button v-if="verification.status === 'approved' && currentRole === 'seller'" class="btn-download" @click="downloadCertificate(verification)">
-            下载鉴证书
-          </button>
-          <button v-if="verification.status === 'rejected'" class="btn-retry" @click="openFillingModal(verification)">
+          
+          <!-- 未通过 -->
+          <button v-if="verification.status === 'rejected' && currentRole === 'seller'" class="btn-retry" @click="openFillingModal(verification, 'seller')">
             重新填报
           </button>
         </div>
@@ -165,8 +193,9 @@ const allVerifications = ref([
     seller: 'PACIFIC SHIPPING LTD.',
     buyer: 'SHANGHAI TRADING CO., LTD.',
     amount: '85,000,000',
-    status: 'filling',
-    myStatus: 'unfilled',
+    status: 'waiting_seller', // 等待卖方填报
+    sellerStatus: 'unfilled',
+    buyerStatus: 'unfilled',
     createdTime: '2026-02-10',
     intentionId: 101
   },
@@ -177,22 +206,37 @@ const allVerifications = ref([
     seller: 'HARMONY SHIPPING',
     buyer: 'CHINA TRADING',
     amount: '45,000,000',
-    status: 'waiting_review',
-    myStatus: 'filled',
+    status: 'waiting_buyer', // 等待买方填报
+    sellerStatus: 'filled',
+    buyerStatus: 'unfilled',
     createdTime: '2026-02-08',
     intentionId: 102
   },
   {
     id: 3,
     verificationNo: 'TRD-20231024-003',
+    vesselName: '油船 OCEAN STAR',
+    seller: 'SEA TRADE CO.',
+    buyer: '大连航运',
+    amount: '62,000,000',
+    status: 'waiting_submit', // 等待提交审核
+    sellerStatus: 'filled',
+    buyerStatus: 'filled',
+    createdTime: '2026-02-05',
+    intentionId: 103
+  },
+  {
+    id: 4,
+    verificationNo: 'TRD-20231024-004',
     vesselName: '散货船 STRENGTH',
     seller: 'GLOBAL SHIPS',
     buyer: '中海国际',
     amount: '32,000,000',
     status: 'approved',
-    myStatus: 'filled',
+    sellerStatus: 'filled',
+    buyerStatus: 'filled',
     createdTime: '2026-02-01',
-    intentionId: 103
+    intentionId: 104
   }
 ])
 
@@ -227,7 +271,9 @@ const filteredVerifications = computed(() => {
 // Methods
 const getStatusLabel = (status) => {
   const labels = {
-    'filling': '填报中',
+    'waiting_seller': '等待卖方填报',
+    'waiting_buyer': '等待买方填报',
+    'waiting_submit': '等待提交审核',
     'waiting_review': '待审核',
     'reviewing': '审核中',
     'approved': '已通过',
@@ -247,9 +293,11 @@ const resetFilters = () => {
   dateEnd.value = ''
 }
 
-const openFillingModal = (verification) => {
+const openFillingModal = (verification, role) => {
   selectedVerification.value = verification
+  currentRole.value = role
   fillingModalVisible.value = true
+  console.log('[v0] 打开填报模态框:', role)
 }
 
 const openDetailModal = (verification) => {
@@ -260,10 +308,27 @@ const openDetailModal = (verification) => {
 const handleFillingSubmit = (data) => {
   console.log('[v0] 提交填报数据:', data)
   fillingModalVisible.value = false
-  // Update verification status
+  
+  // Update verification status based on role
   if (selectedVerification.value) {
-    selectedVerification.value.myStatus = 'filled'
+    const verification = selectedVerification.value
+    
+    if (currentRole.value === 'seller') {
+      verification.sellerStatus = 'filled'
+      verification.status = 'waiting_buyer'
+      console.log('[v0] 卖方填报完成，等待买方填报')
+    } else if (currentRole.value === 'buyer') {
+      verification.buyerStatus = 'filled'
+      verification.status = 'waiting_submit'
+      console.log('[v0] 买方填报完成，等待提交审核')
+    }
   }
+}
+
+const submitToReview = (verification) => {
+  console.log('[v0] 提交审核:', verification.verificationNo)
+  verification.status = 'waiting_review'
+  console.log('[v0] 状态已更新为待审核')
 }
 
 const downloadCertificate = (verification) => {
@@ -491,9 +556,19 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.status-filling {
+.status-waiting_seller {
   background: #FEF3C7;
   color: #D97706;
+}
+
+.status-waiting_buyer {
+  background: #FBCFE8;
+  color: #BE185D;
+}
+
+.status-waiting_submit {
+  background: #E0E7FF;
+  color: #4F46E5;
 }
 
 .status-waiting_review {
@@ -656,6 +731,36 @@ onMounted(() => {
 .btn-retry:hover {
   background: #E2E8F0;
   border-color: #CBD5E1;
+}
+
+.btn-submit-review {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  background: #0EA5E9;
+  color: white;
+}
+
+.btn-submit-review:hover {
+  background: #0284C7;
+}
+
+.waiting-tip {
+  flex: 1;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748B;
+  background: #F1F5F9;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .empty-state {
