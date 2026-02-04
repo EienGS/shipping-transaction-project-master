@@ -138,7 +138,7 @@
 
         <!-- Company Gallery -->
         <section class="info-section">
-          <h2>公司实景</h2>
+          <h2>船坞/生产设备</h2>
           <div class="gallery-carousel">
             <div class="carousel-container">
               <button 
