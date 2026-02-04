@@ -130,23 +130,29 @@
                                     class="form-input" placeholder="如：5000万元" />
                             </div>
 
-                            <div class="form-item required">
+                            <div class="form-item required full-width">
                                 <label>生产资质</label>
                                 <div class="multi-select-wrapper">
-                                    <div class="multi-select-display" :class="{ disabled: !isEditing, open: qualificationDropdownOpen }" @click="isEditing && toggleQualificationDropdown()">
+                                    <div class="multi-select-display"
+                                        :class="{ disabled: !isEditing, open: qualificationDropdownOpen }"
+                                        @click="isEditing && toggleQualificationDropdown()">
                                         <div v-if="formData.qualifications.length === 0" class="placeholder">请选择生产资质</div>
                                         <div v-else class="selected-items">
-                                            <span v-for="qual in formData.qualifications" :key="qual" class="selected-tag">
+                                            <span v-for="qual in formData.qualifications" :key="qual"
+                                                class="selected-tag">
                                                 {{ qual }}
-                                                <button v-if="isEditing" type="button" class="remove-tag" @click.stop="removeQualification(qual)">✕</button>
+                                                <button v-if="isEditing" type="button" class="remove-tag"
+                                                    @click.stop="removeQualification(qual)">✕</button>
                                             </span>
                                         </div>
-                                        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <path d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
                                     <div v-if="qualificationDropdownOpen && isEditing" class="multi-select-dropdown">
-                                        <label v-for="option in qualificationOptions" :key="option" class="dropdown-option">
+                                        <label v-for="option in qualificationOptions" :key="option"
+                                            class="dropdown-option">
                                             <input type="checkbox" :value="option" v-model="formData.qualifications" />
                                             <span>{{ option }}</span>
                                         </label>
@@ -154,11 +160,34 @@
                                 </div>
                             </div>
 
+                            <!-- ✅ 是否支持上门（与上门覆盖范围同行） -->
                             <div class="form-item required">
+                                <label>是否支持上门</label>
+                                <div class="radio-group" :class="{ disabled: !isEditing }">
+                                    <label class="radio-item">
+                                        <input type="radio" :disabled="!isEditing" v-model="formData.supportOnsite"
+                                            :value="true" />
+                                        <span>支持</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" :disabled="!isEditing" v-model="formData.supportOnsite"
+                                            :value="false" />
+                                        <span>不支持</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- ✅ 改造：上门覆盖范围（仅支持上门时可填） -->
+                            <div class="form-item required"
+                                :class="{ 'field-disabled': !formData.supportOnsite }">
                                 <label>上门覆盖范围</label>
-                                <input v-model="formData.serviceRadius" :disabled="!isEditing" type="number"
-                                    class="form-input" placeholder="如：500" />
+                                <input v-model.number="formData.serviceRadius"
+                                    :disabled="!isEditing || !formData.supportOnsite" type="number" class="form-input"
+                                    placeholder="如：500" min="1" />
                                 <span class="input-suffix">km</span>
+                                <p v-if="isEditing && !formData.supportOnsite" class="field-hint">
+                                    已选择“不支持上门”，无需填写覆盖范围
+                                </p>
                             </div>
 
                             <div class="form-item required full-width">
@@ -417,7 +446,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -468,7 +497,13 @@ const formData = reactive({
     city: '上海市',
     registeredCapital: '5000万元',
     qualifications: ['CCS 船级社维修认证'],
+
+    // ✅ 新增字段：是否支持上门（先行选择）
+    supportOnsite: true,
+
+    // ✅ 上门覆盖范围：仅在 supportOnsite=true 时必填/可填
     serviceRadius: 500,
+
     repairScope: '散货船、油船、集装箱船、化学品船的主机、辅机、舵系、锚系、泵浦系统、管路系统、电气系统等维修保养',
     contactPerson: '李经理',
     contactPhone: '13800138000',
@@ -484,8 +519,23 @@ const formData = reactive({
     ],
     cases: [],
     certificates: [],
-    photos: []
+    photos: [],
+    businessLicense: null
 })
+
+// ✅ 关键逻辑：当选择“不支持上门”时，清空覆盖范围
+watch(
+    () => formData.supportOnsite,
+    (val) => {
+        if (!val) {
+            formData.serviceRadius = null
+        } else {
+            // 如果重新选择支持上门，给一个默认值（也可改成不自动填）
+            if (formData.serviceRadius == null) formData.serviceRadius = 500
+        }
+    },
+    { immediate: true }
+)
 
 // 开始注册
 const startRegistration = () => {
@@ -515,6 +565,14 @@ const cancelEdit = () => {
 
 // 保存信息
 const saveInfo = () => {
+    // ✅ 保存前可做基础校验（你也可以接入你自己的校验框架）
+    if (isEditing.value) {
+        if (formData.supportOnsite && (!formData.serviceRadius || Number(formData.serviceRadius) <= 0)) {
+            alert('请选择支持上门后，请填写有效的上门覆盖范围（km）')
+            return
+        }
+    }
+
     console.log('[v0] 保存修船厂信息:', formData)
     isEditing.value = false
     if (providerInfo.value.status === 'registering') {
@@ -1003,6 +1061,49 @@ const removeQualification = (qual) => {
     font-size: 14px;
     color: #64748B;
     font-weight: 500;
+}
+
+/* ✅ 新增：单选组样式（是否支持上门） */
+.radio-group {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    flex-wrap: wrap;
+}
+
+.radio-group.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.radio-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.radio-item input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.radio-item span {
+    font-size: 14px;
+    color: #475569;
+}
+
+/* ✅ 新增：上门范围禁用时的视觉提示 */
+.field-disabled .form-input {
+    background: #F8FAFC;
+}
+
+.field-hint {
+    margin: 0;
+    font-size: 12px;
+    color: #94a3b8;
 }
 
 /* 字符计数 */
