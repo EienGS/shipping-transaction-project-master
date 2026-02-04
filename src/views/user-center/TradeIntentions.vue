@@ -231,7 +231,7 @@
                 </div>
                 <div class="modal-body">
                     <p class="confirm-message">是否确认发起交易鉴证申请？</p>
-                    <p class="confirm-subtitle">申请提交后，将进入交易鉴证流程</p>
+                    <p class="confirm-subtitle">请确认交易交易是否完成。申请提交后，将进入交易鉴证流程，其余相关意向关闭。</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn-cancel" @click="verificationConfirmVisible = false">取消</button>

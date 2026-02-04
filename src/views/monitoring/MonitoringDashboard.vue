@@ -1,11 +1,9 @@
 <template>
   <div class="dashboard-container">
 
-    <!-- Map Container -->
     <div class="map-wrapper">
       <div id="tiandituMap" class="tianditu-map"></div>
 
-      <!-- Vessel List Panel -->
       <div class="vessel-list-panel" :class="{ collapsed: isPanelCollapsed }">
         <div class="panel-header">
           <h2>监测船舶列表</h2>
@@ -28,9 +26,22 @@
             <input v-model="vesselSearchKeyword" type="text" placeholder="搜索船舶名称..." class="search-input" />
           </div>
 
+          <div class="filter-tabs">
+            <button v-for="tab in filterTabs" :key="tab.value"
+              :class="['tab-item', { active: activeTab === tab.value }]" @click="activeTab = tab.value">
+              {{ tab.label }}
+              <span class="count">{{ getCount(tab.value) }}</span>
+            </button>
+          </div>
+
           <div class="vessel-list">
             <div v-for="vessel in filteredVessels" :key="vessel.id" class="vessel-item"
               :class="{ active: selectedVesselId === vessel.id }" @click="selectVessel(vessel)">
+
+              <div class="lease-badge" :class="vessel.leaseType">
+                {{ vessel.leaseType === 'owner' ? '出租' : '承租' }}
+              </div>
+
               <div class="vessel-status" :class="`status-${vessel.status}`"></div>
               <div class="vessel-info">
                 <h3 class="vessel-name">{{ vessel.name }}</h3>
@@ -63,7 +74,6 @@
         </div>
       </div>
 
-      <!-- Vessel Detail Card (appears when vessel is selected) -->
       <div v-if="selectedVessel" class="vessel-detail-card">
         <div class="detail-card-header">
           <h3>{{ selectedVessel.name }}</h3>
@@ -77,6 +87,10 @@
           <div class="detail-row">
             <span class="detail-label">船舶类型</span>
             <span class="detail-value">{{ selectedVessel.type }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">租赁类型</span>
+            <span class="detail-value">{{ selectedVessel.leaseType === 'owner' ? '出租' : '承租' }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">载重吨</span>
@@ -132,6 +146,13 @@ const vesselSearchKeyword = ref('')
 const selectedVesselId = ref(null)
 const map = ref(null)
 const markers = ref([])
+const activeTab = ref('all')
+
+const filterTabs = [
+  { label: '全部', value: 'all' },
+  { label: '出租', value: 'owner' },
+  { label: '承租', value: 'charterer' }
+]
 
 // Mock vessel data
 const vessels = ref([
@@ -139,6 +160,7 @@ const vessels = ref([
     id: 1,
     name: 'OCEAN STAR',
     type: '散货船',
+    leaseType: 'owner', // 出租
     dwt: 57000,
     currentLocation: '上海附近海域',
     coordinates: { lng: 121.5, lat: 31.2 },
@@ -151,6 +173,7 @@ const vessels = ref([
     id: 2,
     name: 'SEA DRAGON',
     type: '油船',
+    leaseType: 'charterer', // 承租
     dwt: 75000,
     currentLocation: '宁波港',
     coordinates: { lng: 121.8, lat: 29.9 },
@@ -163,6 +186,7 @@ const vessels = ref([
     id: 3,
     name: 'PACIFIC HERO',
     type: '集装箱船',
+    leaseType: 'owner',
     dwt: 32000,
     currentLocation: '青岛港',
     coordinates: { lng: 120.3, lat: 36.1 },
@@ -175,6 +199,7 @@ const vessels = ref([
     id: 4,
     name: 'GOLDEN WAVE',
     type: '散货船',
+    leaseType: 'charterer',
     dwt: 48000,
     currentLocation: '台湾海峡',
     coordinates: { lng: 119.5, lat: 24.5 },
@@ -187,12 +212,25 @@ const vessels = ref([
 
 // Computed
 const filteredVessels = computed(() => {
-  if (!vesselSearchKeyword.value) return vessels.value
+  let list = vessels.value
 
-  return vessels.value.filter(v =>
-    v.name.toLowerCase().includes(vesselSearchKeyword.value.toLowerCase())
-  )
+  // 1. Filter by Search
+  if (vesselSearchKeyword.value) {
+    list = list.filter(v => v.name.toLowerCase().includes(vesselSearchKeyword.value.toLowerCase()))
+  }
+
+  // 2. Filter by Tab
+  if (activeTab.value !== 'all') {
+    list = list.filter(v => v.leaseType === activeTab.value)
+  }
+
+  return list
 })
+
+const getCount = (type) => {
+  if (type === 'all') return vessels.value.length
+  return vessels.value.filter(v => v.leaseType === type).length
+}
 
 const selectedVessel = computed(() => {
   if (!selectedVesselId.value) return null
@@ -225,26 +263,16 @@ const getStatusLabel = (status) => {
   return labels[status] || status
 }
 
-const refreshData = () => {
-  console.log('[v0] 刷新数据')
-  // Simulate data refresh
-  vessels.value = [...vessels.value]
-}
-
 const viewTrackHistory = () => {
   console.log('[v0] 查看航行轨迹')
-  // Implement track history viewing
 }
 
 // Initialize Tianditu Map
 const initMap = () => {
-  // Load Tianditu API script
   if (!window.T) {
     const script = document.createElement('script')
     script.src = `http://api.tianditu.gov.cn/api?v=4.0&tk=2e23e92f7c9790018ab06498f1f55c1e`
-    script.onload = () => {
-      createMap()
-    }
+    script.onload = () => createMap()
     document.head.appendChild(script)
   } else {
     createMap()
@@ -252,11 +280,9 @@ const initMap = () => {
 }
 
 const createMap = () => {
-  // Initialize map centered on East China Sea
   map.value = new window.T.Map('tiandituMap')
   map.value.centerAndZoom(new window.T.LngLat(121, 31), 7)
 
-  // Add markers for each vessel
   vessels.value.forEach(vessel => {
     const icon = new window.T.Icon({
       iconUrl: getVesselIcon(vessel.status),
@@ -269,12 +295,8 @@ const createMap = () => {
       { icon }
     )
 
-    // Add click event
-    marker.addEventListener('click', () => {
-      selectVessel(vessel)
-    })
+    marker.addEventListener('click', () => selectVessel(vessel))
 
-    // Add label
     const label = new window.T.Label({
       text: vessel.name,
       position: new window.T.LngLat(vessel.coordinates.lng, vessel.coordinates.lat),
@@ -297,10 +319,8 @@ const createMap = () => {
 }
 
 const getVesselIcon = (status) => {
-  // Return different icons based on vessel status
   const baseUrl = 'data:image/svg+xml;base64,'
   let color = '#06B6D4'
-
   if (status === 'sailing') color = '#10B981'
   if (status === 'anchored') color = '#F59E0B'
   if (status === 'berthed') color = '#6B7280'
@@ -310,22 +330,16 @@ const getVesselIcon = (status) => {
     <circle cx="16" cy="16" r="10" fill="white"/>
     <circle cx="16" cy="16" r="6" fill="${color}"/>
   </svg>`
-
   return baseUrl + btoa(svg)
 }
 
 onMounted(() => {
   initMap()
-
-  // Check if vessel ID is in route query
   const vesselId = route.query.id
-  if (vesselId) {
-    selectedVesselId.value = parseInt(vesselId)
-  }
+  if (vesselId) selectedVesselId.value = parseInt(vesselId)
 })
 
 onBeforeUnmount(() => {
-  // Cleanup map
   if (map.value) {
     markers.value.forEach(({ marker, label }) => {
       map.value.removeOverLay(marker)
@@ -342,80 +356,6 @@ onBeforeUnmount(() => {
   flex-direction: column;
   background: #F8FAFC;
   overflow: hidden;
-}
-
-/* Header */
-.dashboard-header {
-  background: white;
-  border-bottom: 2px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.header-content {
-  max-width: 100%;
-  padding: 20px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-left {
-  flex: 1;
-}
-
-.header-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0 0 4px 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-title svg {
-  width: 28px;
-  height: 28px;
-  color: #06B6D4;
-}
-
-.header-subtitle {
-  font-size: 13px;
-  color: #64748B;
-  margin: 0;
-  font-weight: 500;
-}
-
-.header-right {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-refresh {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #06B6D4, #0891B2);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
-}
-
-.btn-refresh:hover {
-  background: linear-gradient(135deg, #0891B2, #0E7490);
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-  transform: translateY(-1px);
-}
-
-.btn-refresh svg {
-  width: 18px;
-  height: 18px;
 }
 
 /* Map Wrapper */
@@ -443,7 +383,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 9999;
 }
 
@@ -479,20 +419,9 @@ onBeforeUnmount(() => {
   color: #64748B;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.btn-collapse:hover {
-  background: #F1F5F9;
-  color: #06B6D4;
-}
-
-.btn-collapse svg {
-  width: 18px;
-  height: 18px;
 }
 
 .panel-body {
@@ -501,9 +430,10 @@ onBeforeUnmount(() => {
   padding: 16px;
 }
 
+/* Search Box */
 .search-box {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .search-icon {
@@ -514,7 +444,6 @@ onBeforeUnmount(() => {
   width: 16px;
   height: 16px;
   color: #64748B;
-  pointer-events: none;
 }
 
 .search-input {
@@ -523,13 +452,53 @@ onBeforeUnmount(() => {
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   font-size: 13px;
-  transition: all 0.3s;
+  background: #F8FAFC;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #06B6D4;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+/* Filter Tabs - New Design */
+.filter-tabs {
+  display: flex;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+
+.tab-item {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tab-item.active {
+  background: white;
+  color: #06B6D4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-item .count {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: #E2E8F0;
+  border-radius: 10px;
+  color: #475569;
+}
+
+.tab-item.active .count {
+  background: #CFFAFE;
+  color: #0891B2;
 }
 
 /* Vessel List */
@@ -540,34 +509,59 @@ onBeforeUnmount(() => {
 }
 
 .vessel-item {
-  padding: 14px;
+  position: relative;
+  padding: 16px;
   border: 1px solid #E2E8F0;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   gap: 12px;
-  align-items: flex-start;
   background: white;
 }
 
 .vessel-item:hover {
   border-color: #06B6D4;
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 .vessel-item.active {
   border-color: #06B6D4;
-  background: linear-gradient(135deg, #F0FDFA 0%, #ECFEFF 100%);
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+  background: #F0FDFA;
+}
+
+/* Lease Badge - New Design */
+.lease-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lease-badge.owner {
+  background: #EEF2FF;
+  color: #4F46E5;
+  border: 1px solid #C7D2FE;
+}
+
+.lease-badge.charterer {
+  background: #FFF7ED;
+  color: #EA580C;
+  border: 1px solid #FFEDD5;
 }
 
 .vessel-status {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 .vessel-status.status-sailing {
@@ -590,7 +584,7 @@ onBeforeUnmount(() => {
 }
 
 .vessel-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #0F172A;
   margin: 0 0 4px 0;
@@ -637,7 +631,7 @@ onBeforeUnmount(() => {
   color: #94A3B8;
 }
 
-/* Vessel Detail Card */
+/* Detail Card Styling */
 .vessel-detail-card {
   position: absolute;
   top: 20px;
@@ -662,6 +656,7 @@ onBeforeUnmount(() => {
 .detail-card-header h3 {
   font-size: 16px;
   font-weight: 700;
+  color: white;
   margin: 0;
 }
 
@@ -699,10 +694,6 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid #F1F5F9;
 }
 
-.detail-row:last-child {
-  border-bottom: none;
-}
-
 .detail-label {
   font-size: 13px;
   color: #64748B;
@@ -713,7 +704,6 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: #0F172A;
   font-weight: 600;
-  text-align: right;
 }
 
 .status-tag {
@@ -740,8 +730,8 @@ onBeforeUnmount(() => {
 
 .detail-card-footer {
   padding: 16px 20px;
-  border-top: 1px solid #E2E8F0;
   background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
 }
 
 .btn-track-history {

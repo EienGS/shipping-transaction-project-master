@@ -79,6 +79,14 @@
               <div class="detail-label">成交价格</div>
               <div class="detail-value highlight" colspan="3">¥ {{ verification?.amount }}</div>
             </div>
+            <div class="detail-row">
+              <div class="detail-label">交付日期</div>
+              <div class="detail-value" colspan="3">{{ verification?.deliveryDate || '2024-02-28' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">备注</div>
+              <div class="detail-value" colspan="3">{{ verification?.remarks || '无' }}</div>
+            </div>
           </div>
         </div>
 
@@ -96,12 +104,6 @@
                 <span class="party-label">联系电话:</span>
                 <span class="party-value">{{ verification?.sellerPhone || '138****8888' }}</span>
               </div>
-              <div class="party-detail-row">
-                <span class="party-label">填报状态:</span>
-                <span :class="['fill-status', verification?.sellerFilled ? 'filled' : 'unfilled']">
-                  {{ verification?.sellerFilled ? '已填报' : '待填报' }}
-                </span>
-              </div>
             </div>
 
             <div class="party-card">
@@ -113,12 +115,6 @@
               <div class="party-detail-row">
                 <span class="party-label">联系电话:</span>
                 <span class="party-value">{{ verification?.buyerPhone || '139****9999' }}</span>
-              </div>
-              <div class="party-detail-row">
-                <span class="party-label">填报状态:</span>
-                <span :class="['fill-status', verification?.buyerFilled ? 'filled' : 'unfilled']">
-                  {{ verification?.buyerFilled ? '已填报' : '待填报' }}
-                </span>
               </div>
             </div>
           </div>

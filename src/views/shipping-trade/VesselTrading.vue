@@ -6,7 +6,7 @@
           class="hero-bg" />
         <div class="hero-overlay">
           <div class="hero-content">
-            <h1 class="hero-title">航运交易</h1>
+            <h1 class="hero-title">船舶交易</h1>
             <p class="hero-subtitle">精准匹配船源供需，让船舶流转更高效、更安心</p>
 
             <div class="hero-search-container">

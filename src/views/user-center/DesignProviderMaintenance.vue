@@ -45,6 +45,25 @@
     <!-- Form Content -->
     <div class="form-container">
       <form @submit.prevent="saveInfo">
+        <!-- 公司简介 -->
+        <section class="form-section">
+          <div class="section-header">
+            <h2>公司简介</h2>
+            <span class="section-badge required">必填</span>
+          </div>
+          <div class="form-item full-width required">
+            <textarea 
+              v-model="formData.companyIntro" 
+              :disabled="!isEditing"
+              class="form-textarea"
+              placeholder="请简要介绍公司的历史、规模、主营业务等信息（300字以内）"
+              rows="5"
+              maxlength="300"
+            ></textarea>
+            <div class="char-count">{{ formData.companyIntro?.length || 0 }}/300</div>
+          </div>
+        </section>
+
         <!-- 基础信息（只读） -->
         <section class="form-section">
           <div class="section-header">
@@ -182,6 +201,19 @@
                 placeholder="请输入企业邮箱"
               />
             </div>
+
+            <div class="form-item required">
+              <label>成立年份</label>
+              <input 
+                v-model="formData.foundedYear" 
+                :disabled="!isEditing"
+                type="number" 
+                class="form-input" 
+                placeholder="如：2010"
+                min="1900"
+                max="2026"
+              />
+            </div>
           </div>
         </section>
 
@@ -216,22 +248,95 @@
             </div>
 
             <div class="form-item full-width">
-              <label>其他说明</label>
-              <textarea 
-                v-model="formData.otherInfo" 
-                :disabled="!isEditing"
-                class="form-textarea"
-                placeholder="补充其他重要信息"
-                rows="3"
-              ></textarea>
+              <label>服务范围</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="新建船设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>新建船设计</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="详细设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>详细设计</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="技术咨询"
+                    :disabled="!isEditing"
+                  />
+                  <span>技术咨询</span>
+                </label>
+                <label class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    v-model="formData.serviceTypes" 
+                    value="改装设计"
+                    :disabled="!isEditing"
+                  />
+                  <span>改装设计</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 核心能力编辑区 -->
+            <div class="form-item full-width">
+              <label>核心能力</label>
+              <div class="core-capabilities-list">
+                <div v-for="(capability, index) in formData.coreCapabilities" :key="index" class="capability-item">
+                  <div class="capability-form">
+                    <div class="form-item">
+                      <label>标题（20字以内）</label>
+                      <input 
+                        v-model="capability.title" 
+                        :disabled="!isEditing"
+                        type="text" 
+                        class="form-input" 
+                        placeholder="如：散货船设计"
+                        maxlength="20"
+                      />
+                      <div class="char-count">{{ capability.title?.length || 0 }}/20</div>
+                    </div>
+                    <div class="form-item">
+                      <label>描述（50字以内）</label>
+                      <textarea 
+                        v-model="capability.description" 
+                        :disabled="!isEditing"
+                        class="form-textarea" 
+                        placeholder="简要描述该能力"
+                        rows="2"
+                        maxlength="50"
+                      ></textarea>
+                      <div class="char-count">{{ capability.description?.length || 0 }}/50</div>
+                    </div>
+                    <button v-if="isEditing" type="button" class="btn-remove-capability" @click="removeCapability(index)">删除</button>
+                  </div>
+                </div>
+                <button v-if="isEditing" type="button" class="btn-add-capability" @click="addCapability">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  添加核心能力
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- 设计案例 -->
+        <!-- 成功案例 -->
         <section class="form-section">
           <div class="section-header">
-            <h2>设计案例</h2>
+            <h2>成功案例</h2>
             <span class="section-tips">最多上传3个案例</span>
           </div>
 
@@ -283,6 +388,26 @@
           </div>
 
           <div class="upload-section">
+            <h4>营业执照</h4>
+            <div class="file-list">
+              <div v-if="formData.businessLicense" class="file-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="file-icon">
+                  <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+                  <path d="M13 2v7h7"/>
+                </svg>
+                <span class="file-name">{{ formData.businessLicense.name }}</span>
+                <button v-if="isEditing" type="button" class="btn-remove-file" @click="removeBusinessLicense">删除</button>
+              </div>
+              <button v-if="isEditing && !formData.businessLicense" type="button" class="btn-upload-file" @click="uploadBusinessLicense">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                上传营业执照
+              </button>
+            </div>
+          </div>
+
+          <div class="upload-section">
             <h4>资质证书（最多8个）</h4>
             <div class="file-list">
               <div v-for="(cert, index) in formData.certificates" :key="index" class="file-item">
@@ -323,43 +448,7 @@
           </div>
         </section>
 
-        <!-- 自定义内容编辑器 -->
-        <section class="form-section">
-          <div class="section-header">
-            <h2>自定义内容</h2>
-            <span class="section-tips">支持富文本编辑，插入图片</span>
-          </div>
-          <div v-if="!isEditing" class="custom-content-display" v-html="formData.customContent"></div>
-          <div v-else class="editor-container">
-            <div class="editor-toolbar">
-              <button type="button" class="editor-btn" title="加粗">
-                <strong>B</strong>
-              </button>
-              <button type="button" class="editor-btn" title="斜体">
-                <em>I</em>
-              </button>
-              <button type="button" class="editor-btn" title="标题">
-                H
-              </button>
-              <select class="editor-select">
-                <option>字号</option>
-                <option>14px</option>
-                <option>16px</option>
-                <option>18px</option>
-                <option>20px</option>
-              </select>
-              <input type="color" class="editor-color" title="文字颜色" />
-              <button type="button" class="editor-btn" title="插入图片">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <path d="M21 15l-5-5L5 21"/>
-                </svg>
-              </button>
-            </div>
-            <textarea v-model="formData.customContent" class="editor-textarea" rows="10" placeholder="在此编辑自定义内容..."></textarea>
-          </div>
-        </section>
+
       </form>
     </div>
   </div>
@@ -397,6 +486,7 @@ const providerInfo = ref({
 
 // 表单数据
 const formData = reactive({
+  companyIntro: '上海船舶设计研究院成立于1985年，是国内领先的专业船舶设计机构，拥有甲级设计资质。多年来致力于散货船、油船、集装箱船等各类船型的设计研发，累计完成设计项目300余项，业务遍及全球20多个国家和地区。',
   coreDirection: '专注于散货船、油船、集装箱船的详细设计与优化设计',
   city: '上海市',
   registeredCapital: '5000万元',
@@ -407,9 +497,14 @@ const formData = reactive({
   contactPerson: '张工',
   contactPhone: '13800138000',
   email: 'contact@shshipdesign.com',
+  foundedYear: 1985,
   designPrice: '根据船舶类型和吨位，设计费用在50-200万元之间',
   designCycle: '5万吨散货船设计周期6-8个月，根据复杂程度调整',
-  otherInfo: '提供全流程设计服务，包括概念设计、基本设计、详细设计及技术支持',
+  serviceTypes: ['新建船设计', '详细设计', '技术咨询'],
+  coreCapabilities: [
+    { title: '散货船设计', description: '拥有5000-80000吨各类散货船详细设计经验，累计完成80余艘' },
+    { title: '油船优化设计', description: '精通油船流体力学优化，可有效降低油耗15%以上' }
+  ],
   cases: [
     {
       name: '5万吨散货船详细设计',
@@ -418,14 +513,13 @@ const formData = reactive({
       image: 'https://images.unsplash.com/photo-1494783367193-149034c05e41?w=400&h=300&fit=crop'
     }
   ],
+  businessLicense: { name: '营业执照.pdf', url: '/certificates/license.pdf' },
   certificates: [
-    { name: '营业执照.pdf', url: '/certificates/license.pdf' },
     { name: '甲级设计资质证书.pdf', url: '/certificates/qualification.pdf' }
   ],
   photos: [
     { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop' }
-  ],
-  customContent: '<h3>关于我们</h3><p>上海船舶设计研究院成立于1985年，是国内领先的船舶设计企业...</p>'
+  ]
 })
 
 // 开始编辑
@@ -475,6 +569,18 @@ const uploadCaseImage = (index) => {
   formData.cases[index].image = 'https://images.unsplash.com/photo-1567899378793-4a4c64a41b41?w=400&h=300&fit=crop'
 }
 
+// 营业执照管理
+const uploadBusinessLicense = () => {
+  formData.businessLicense = {
+    name: '营业执照.pdf',
+    url: '/certificates/license.pdf'
+  }
+}
+
+const removeBusinessLicense = () => {
+  formData.businessLicense = null
+}
+
 // 证书管理
 const uploadCertificate = () => {
   formData.certificates.push({
@@ -496,6 +602,18 @@ const uploadPhoto = () => {
 
 const removePhoto = (index) => {
   formData.photos.splice(index, 1)
+}
+
+// 核心能力管理
+const addCapability = () => {
+  formData.coreCapabilities.push({
+    title: '',
+    description: ''
+  })
+}
+
+const removeCapability = (index) => {
+  formData.coreCapabilities.splice(index, 1)
 }
 </script>
 
@@ -1029,79 +1147,111 @@ const removePhoto = (index) => {
 }
 
 .btn-upload-photo svg {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Custom Content Editor */
-.custom-content-display {
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
-  min-height: 200px;
-  line-height: 1.6;
+/* 字符计数 */
+.char-count {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: right;
+  margin-top: 4px;
 }
 
-.editor-container {
+/* 复选框组 */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.checkbox-item span {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* 核心能力列表 */
+.core-capabilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.capability-item {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  overflow: hidden;
-}
-
-.editor-toolbar {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
+  padding: 16px;
   background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.editor-btn, .editor-select, .editor-color {
-  padding: 6px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  background: white;
+.capability-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.btn-remove-capability {
+  padding: 10px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 28px;
+}
+
+.btn-remove-capability:hover {
+  background: #dc2626;
+}
+
+.btn-add-capability {
+  padding: 12px 24px;
+  background: white;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
   font-size: 14px;
+  font-weight: 600;
   transition: all 0.3s;
 }
 
-.editor-btn:hover {
-  background: #e2e8f0;
+.btn-add-capability:hover {
+  border-color: #0ea5e9;
+  color: #0ea5e9;
+  background: #f0f9ff;
 }
 
-.editor-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.editor-textarea {
-  width: 100%;
-  padding: 16px;
-  border: none;
-  resize: vertical;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.editor-textarea:focus {
-  outline: none;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .form-grid, .info-grid, .case-form {
-    grid-template-columns: 1fr;
-  }
-
-  .photo-grid {
-    grid-template-columns: 1fr;
-  }
+.btn-add-capability svg {
+  width: 20px;
+  height: 20px;
 }
 </style>

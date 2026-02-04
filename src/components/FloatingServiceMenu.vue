@@ -1,9 +1,14 @@
 <template>
-  <div class="floating-service-menu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
-    <div class="menu-wrapper" :class="{ 'button-expanded': isButtonExpanded, 'menu-expanded': isMenuExpanded }">
+  <div class="floating-service-menu">
+    <div class="menu-wrapper" :class="{ 'button-expanded': isButtonExpanded, 'menu-expanded': isMenuExpanded }"
+      @mouseleave="handleMouseLeave">
       <!-- 子菜单项 -->
       <div v-for="(item, index) in menuItems" :key="item.name" class="menu-item"
-        :style="{ transitionDelay: isMenuExpanded ? `${index * 80}ms` : '0ms' }" @click="handleMenuClick(item.name)">
+        :style="{ 
+          '--item-index': index,
+          '--stagger-delay': isMenuExpanded ? `${80 + index * 60}ms` : '0ms'
+        }" 
+        @click="handleMenuClick(item.name)">
         <div class="menu-icon">
           <svg v-html="item.icon" viewBox="0 0 24 24" fill="none"></svg>
         </div>
@@ -11,7 +16,7 @@
       </div>
 
       <!-- 主按钮 -->
-      <button class="main-button">
+      <button class="main-button" @mouseenter="handleMouseEnter">
         <svg class="main-icon" viewBox="0 0 24 24" fill="none">
           <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" />
@@ -62,12 +67,12 @@ const menuItems = [
   {
     name: 'demands',
     label: '需求管理',
-    icon: '<path d="M9 3H3V9M21 3V9H15M15 21H21V15M3 15V21H9M8 12H16M12 8V16M12 16L14 14L10 14M12 16L10 18L14 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    icon: '<path d="M9 3H3V9M21 9V3H15M15 21H21V15M3 15V21H9M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
   },
   {
     name: 'services',
     label: '服务管理',
-    icon: '<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11C11 10 13 9.5 13 7.5C13 6.12 12.11 5 11 5C9.89 5 9 5.9 9 7H7C7 4.67 8.91 3 11 3C13.21 3 15 4.79 15 7C15 9.5 13 10.5 13 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    icon: '<path d="M10 3H3V10H10V3ZM21 3H14V10H21V3ZM21 14H14V21H21V14ZM10 14H3V21H10V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
   },
   {
     name: 'verification',
@@ -77,7 +82,7 @@ const menuItems = [
   {
     name: 'monitoring',
     label: '租后监测',
-    icon: '<path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.2 15.9L17 14.5L12.5 11.8V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    icon: '<path d="M12 21C12 21 20 17 20 12V5L12 2L4 5V12C4 17 12 21 12 21ZM12 9V15M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
   },
   {
     name: 'favorites',
@@ -93,8 +98,8 @@ const handleMenuClick = (menuName) => {
     intentions: '/user-center/intentions/trade',
     verification: '/user-center/trade-verification',
     demands: '/user-center/demands/sale',
-    services: '/user-center/services',
-    monitoring: '/user-center/monitoring',
+    services: '/user-center/service/design',
+    monitoring: '/user-center/rental-monitoring',
     favorites: '/user-center/favorites/trade'
   }
 
@@ -108,8 +113,7 @@ const handleMenuClick = (menuName) => {
 .floating-service-menu {
   position: fixed;
   right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 20%;
   z-index: 9999;
 }
 
@@ -119,6 +123,7 @@ const handleMenuClick = (menuName) => {
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  width: fit-content;
 }
 
 /* 主按钮 - 初始为圆形 */
@@ -177,9 +182,9 @@ const handleMenuClick = (menuName) => {
   max-width: 100px;
 }
 
-/* 菜单项 - 初始隐藏 */
+/* 菜单项 - 初始隐藏，完全不占据空间 */
 .menu-item {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 10px;
   padding: 12px 18px;
@@ -188,19 +193,30 @@ const handleMenuClick = (menuName) => {
   border-radius: 24px;
   cursor: pointer;
   opacity: 0;
-  visibility: hidden;
-  transform: translateX(40px);
-  transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0.4s;
+  transform: translateX(20px) scale(0.85);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 130px;
+  pointer-events: none;
+  transition: none;
 }
 
-/* 菜单展开状态 */
+/* 菜单展开状态 - 级联渐入动画 */
 .menu-wrapper.menu-expanded .menu-item {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(0);
-  transition: opacity 0.4s ease, transform 0.5s ease, visibility 0s linear 0s;
+  display: flex;
+  animation: menuItemFadeIn 0.5s ease-out forwards;
+  animation-delay: var(--stagger-delay);
+  pointer-events: auto;
+}
+
+@keyframes menuItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .menu-item:hover {

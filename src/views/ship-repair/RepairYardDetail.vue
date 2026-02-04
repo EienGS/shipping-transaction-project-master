@@ -191,7 +191,7 @@
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ provider.stats.clients }}</span>
-              <span class="stat-label">服务客��</span>
+              <span class="stat-label">服务客户</span>
             </div>
             <div class="stat-item">
               <span class="stat-value">{{ provider.stats.experience }}</span>

@@ -27,9 +27,20 @@
       <div class="modal-body">
         <!-- Step 1: 基本信息 -->
         <div v-if="currentStep === 1" class="form-section">
+          <div v-if="currentRole === 'buyer'" class="buyer-review-notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h4>请审核卖方填报信息</h4>
+              <p>以下信息由卖方填报，请仔细核对确认信息的真实性和准确性</p>
+            </div>
+          </div>
+          
           <h3>船舶交易基本情况</h3>
           <div class="info-table-wrapper">
             <table class="info-table">
+              <tbody>
               <tr>
                 <td class="label">船名</td>
                 <td>{{ verification?.vesselName }}</td>
@@ -47,93 +58,101 @@
               <tr>
                 <td class="label">建造船厂</td>
                 <td colspan="3">
-                  <input v-model="form.shipyard" type="text" class="form-input" placeholder="大连中远海运川崎">
+                  <input v-model="form.shipyard" type="text" class="form-input" placeholder="大连中远海运川崎" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">建造日期</td>
                 <td>
-                  <input v-model="form.buildDate" type="date" class="form-input">
+                  <input v-model="form.buildDate" type="date" class="form-input" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">船籍港</td>
                 <td>
-                  <input v-model="form.port" type="text" class="form-input" placeholder="ZHOUSHAN">
+                  <input v-model="form.port" type="text" class="form-input" placeholder="ZHOUSHAN" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">总长(m)</td>
                 <td>
-                  <input v-model="form.length" type="text" class="form-input" placeholder="199.90">
+                  <input v-model="form.length" type="text" class="form-input" placeholder="199.90" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">型深(m)</td>
                 <td>
-                  <input v-model="form.depth" type="text" class="form-input" placeholder="18.50">
+                  <input v-model="form.depth" type="text" class="form-input" placeholder="18.50" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">总吨(t)</td>
                 <td>
-                  <input v-model="form.tonnage" type="text" class="form-input" placeholder="36000">
+                  <input v-model="form.tonnage" type="text" class="form-input" placeholder="36000" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">型宽(m)</td>
                 <td>
-                  <input v-model="form.width" type="text" class="form-input" placeholder="32.26">
+                  <input v-model="form.width" type="text" class="form-input" placeholder="32.26" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">载重(容)量</td>
                 <td>
-                  <input v-model="form.deadweight" type="text" class="form-input" placeholder="61000 DWT">
+                  <input v-model="form.deadweight" type="text" class="form-input" placeholder="61000 DWT" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">船级</td>
                 <td>
-                  <input v-model="form.classification" type="text" class="form-input" placeholder="CCS">
+                  <input v-model="form.classification" type="text" class="form-input" placeholder="CCS" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">主机功率(KW)</td>
                 <td>
-                  <input v-model="form.enginePower" type="text" class="form-input" placeholder="8600">
+                  <input v-model="form.enginePower" type="text" class="form-input" placeholder="8600" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">航区</td>
                 <td>
-                  <input v-model="form.navigationArea" type="text" class="form-input" placeholder="无限航区">
+                  <input v-model="form.navigationArea" type="text" class="form-input" placeholder="无限航区" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">船舶识别号</td>
                 <td>
-                  <input v-model="form.imo" type="text" class="form-input" placeholder="CN20181234567">
+                  <input v-model="form.imo" type="text" class="form-input" placeholder="CN20181234567" :readonly="currentRole === 'buyer'">
                 </td>
                 <td class="label">主机型号</td>
                 <td>
-                  <input v-model="form.engineModel" type="text" class="form-input" placeholder="MAN B&W 6550ME-B9">
+                  <input v-model="form.engineModel" type="text" class="form-input" placeholder="MAN B&W 6550ME-B9" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">成交价格(大写)</td>
                 <td colspan="2">
-                  <input v-model="form.priceText" type="text" class="form-input" placeholder="捌仟伍佰万元整">
+                  <input v-model="form.priceText" type="text" class="form-input" placeholder="捌仟伍佰万元整" :readonly="currentRole === 'buyer'">
                 </td>
                 <td>
                   <div class="price-input-cell">
                     <span>¥</span>
-                    <input v-model="form.price" type="number" class="form-input" placeholder="85000000">
+                    <input v-model="form.price" type="number" class="form-input" placeholder="85000000" :readonly="currentRole === 'buyer'">
                   </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="label">交付时间</td>
+                <td colspan="3">
+                  <input v-model="form.deliveryDate" type="date" class="form-input" :readonly="currentRole === 'buyer'">
                 </td>
               </tr>
               <tr>
                 <td class="label">备注</td>
                 <td colspan="3">
-                  <textarea v-model="form.remarks" class="form-textarea" placeholder="其他补充说明..."></textarea>
+                  <textarea v-model="form.remarks" class="form-textarea" placeholder="其他补充说明..." :readonly="currentRole === 'buyer'"></textarea>
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
 
           <h3 style="margin-top: 24px;">{{ roleLabel }}经办人信息</h3>
           <div class="info-table-wrapper">
             <table class="info-table">
+              <tbody>
               <tr>
                 <td class="label">经办人姓名</td>
                 <td>
@@ -144,12 +163,7 @@
                   <input v-model="form.contactPhone" type="tel" class="form-input" placeholder="请输入手机号">
                 </td>
               </tr>
-              <tr v-if="currentRole === 'seller'">
-                <td class="label">交付时间</td>
-                <td colspan="3">
-                  <input v-model="form.deliveryDate" type="date" class="form-input">
-                </td>
-              </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -214,13 +228,17 @@
           </div>
 
           <div class="confirmation-box">
-            <input v-model="form.certificateConfirmed" type="checkbox" id="certConfirm">
-            <label for="certConfirm">我确认上述表单信息与数据库同步的证书信息一致，且真实有效</label>
+            <input v-model="form.certificateConfirmed" type="checkbox" id="certConfirm" :disabled="currentRole === 'buyer'">
+            <label for="certConfirm">{{ currentRole === 'buyer' ? '卖方已确认上述表单信息与数据库同步的证书信息一致，且真实有效' : '我确认上述表单信息与数据库同步的证书信息一致，且真实有效' }}</label>
           </div>
 
-          <div v-if="!form.certificateConfirmed" class="upload-alert">
+          <div v-if="!form.certificateConfirmed && currentRole === 'seller'" class="upload-alert">
             <p>发现证书信息不一致？</p>
             <button class="btn-upload-supp">补充上传异常说明</button>
+          </div>
+          
+          <div v-if="currentRole === 'buyer'" class="buyer-cert-notice">
+            <p>以上证书信息由卖方确认，仅供查看参考</p>
           </div>
         </div>
 
@@ -229,48 +247,274 @@
           <h3>电子文件提交</h3>
           <p class="section-tips">支持 PDF、JPG 格式，单文件不超过 20MB</p>
 
+          <!-- 身份类型选择 -->
+          <div class="identity-type-selector">
+            <label class="type-label">身份类型：<span style="color: red;">*如果可以自动识别这行可以不要</span></label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" v-model="identityType" value="individual" name="identityType">
+                <span>个人</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" v-model="identityType" value="company" name="identityType">
+                <span>企业</span>
+              </label>
+            </div>
+          </div>
+
           <div class="file-upload-section">
             <h4>{{ roleLabel }}需提交文件</h4>
             
-            <div class="file-item">
-              <label>{{ currentRole === 'seller' ? '营业执照（加盖电子公章）' : '身份证正面' }}</label>
-              <div class="file-upload-area" @click="triggerFileInput('file1')">
-                <input type="file" ref="fileInput1" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file1')">
-                <div v-if="!uploadedFiles.file1" class="upload-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                  </svg>
-                  <p>点击上传文件</p>
-                </div>
-                <div v-else class="file-uploaded">
-                  <div class="file-info">
-                    <div class="file-name">{{ uploadedFiles.file1.name }}</div>
-                    <div class="file-size">{{ (uploadedFiles.file1.size / 1024 / 1024).toFixed(2) }} MB</div>
+            <!-- 个人身份证 -->
+            <template v-if="identityType === 'individual'">
+              <div class="file-item">
+                <label>身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('idCardFront')">
+                  <input type="file" ref="fileInputIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'idCardFront')">
+                  <div v-if="!uploadedFiles.idCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
                   </div>
-                  <button @click.stop="removeFile('file1')" class="btn-remove">删除</button>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.idCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.idCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('idCardFront')" class="btn-remove">删除</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="file-item">
-              <label>{{ currentRole === 'seller' ? '经办人身份证正反面' : '身份证背面' }}</label>
-              <div class="file-upload-area" @click="triggerFileInput('file2')">
-                <input type="file" ref="fileInput2" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'file2')">
-                <div v-if="!uploadedFiles.file2" class="upload-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"></path>
-                  </svg>
-                  <p>点击上传文件</p>
-                </div>
-                <div v-else class="file-uploaded">
-                  <div class="file-info">
-                    <div class="file-name">{{ uploadedFiles.file2.name }}</div>
-                    <div class="file-size">{{ (uploadedFiles.file2.size / 1024 / 1024).toFixed(2) }} MB</div>
+              <div class="file-item">
+                <label>身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('idCardBack')">
+                  <input type="file" ref="fileInputIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'idCardBack')">
+                  <div v-if="!uploadedFiles.idCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
                   </div>
-                  <button @click.stop="removeFile('file2')" class="btn-remove">删除</button>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.idCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.idCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('idCardBack')" class="btn-remove">删除</button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
+
+            <!-- 企业证件 -->
+            <template v-else-if="identityType === 'company'">
+              <div class="file-item">
+                <label>营业执照{{ currentRole === 'seller' ? '（加盖电子公章）' : '' }}</label>
+                <div class="file-upload-area" @click="triggerFileInput('businessLicense')">
+                  <input type="file" ref="fileInputBusinessLicense" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'businessLicense')">
+                  <div v-if="!uploadedFiles.businessLicense" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.businessLicense.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.businessLicense.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('businessLicense')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>法人身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('legalIdCardFront')">
+                  <input type="file" ref="fileInputLegalIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'legalIdCardFront')">
+                  <div v-if="!uploadedFiles.legalIdCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.legalIdCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.legalIdCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('legalIdCardFront')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>法人身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('legalIdCardBack')">
+                  <input type="file" ref="fileInputLegalIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'legalIdCardBack')">
+                  <div v-if="!uploadedFiles.legalIdCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.legalIdCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.legalIdCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('legalIdCardBack')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>经办人身份证正面</label>
+                <div class="file-upload-area" @click="triggerFileInput('operatorIdCardFront')">
+                  <input type="file" ref="fileInputOperatorIdCardFront" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'operatorIdCardFront')">
+                  <div v-if="!uploadedFiles.operatorIdCardFront" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.operatorIdCardFront.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.operatorIdCardFront.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('operatorIdCardFront')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>经办人身份证反面</label>
+                <div class="file-upload-area" @click="triggerFileInput('operatorIdCardBack')">
+                  <input type="file" ref="fileInputOperatorIdCardBack" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'operatorIdCardBack')">
+                  <div v-if="!uploadedFiles.operatorIdCardBack" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.operatorIdCardBack.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.operatorIdCardBack.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('operatorIdCardBack')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>授权委托书（加盖公章）</label>
+                <div class="file-upload-area" @click="triggerFileInput('authLetter')">
+                  <input type="file" ref="fileInputAuthLetter" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'authLetter')">
+                  <div v-if="!uploadedFiles.authLetter" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.authLetter.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.authLetter.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('authLetter')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- 卖方专属文件 -->
+            <template v-if="currentRole === 'seller'">
+              <h4 style="margin-top: 24px;">船舶相关文件</h4>
+              
+              <div class="file-item">
+                <label>船舶营业运输证<span class="optional-tip">（非营运船舶无需提供）</span></label>
+                <div class="file-upload-area" @click="triggerFileInput('transportCert')">
+                  <input type="file" ref="fileInputTransportCert" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'transportCert')">
+                  <div v-if="!uploadedFiles.transportCert" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.transportCert.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.transportCert.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('transportCert')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>所有权注销证明书<span class="optional-tip">（如船舶所有权登记已在主管机关注销）</span></label>
+                <div class="file-upload-area" @click="triggerFileInput('ownershipCancellation')">
+                  <input type="file" ref="fileInputOwnershipCancellation" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'ownershipCancellation')">
+                  <div v-if="!uploadedFiles.ownershipCancellation" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.ownershipCancellation.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.ownershipCancellation.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('ownershipCancellation')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>船舶买卖合同</label>
+                <div class="file-upload-area" @click="triggerFileInput('saleContract')">
+                  <input type="file" ref="fileInputSaleContract" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'saleContract')">
+                  <div v-if="!uploadedFiles.saleContract" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.saleContract.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.saleContract.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('saleContract')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-item">
+                <label>船舶交接协议</label>
+                <div class="file-upload-area" @click="triggerFileInput('deliveryAgreement')">
+                  <input type="file" ref="fileInputDeliveryAgreement" accept=".pdf,.jpg,.jpeg" style="display: none" @change="handleFileUpload($event, 'deliveryAgreement')">
+                  <div v-if="!uploadedFiles.deliveryAgreement" class="upload-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <p>点击上传文件</p>
+                  </div>
+                  <div v-else class="file-uploaded">
+                    <div class="file-info">
+                      <div class="file-name">{{ uploadedFiles.deliveryAgreement.name }}</div>
+                      <div class="file-size">{{ (uploadedFiles.deliveryAgreement.size / 1024 / 1024).toFixed(2) }} MB</div>
+                    </div>
+                    <button @click.stop="removeFile('deliveryAgreement')" class="btn-remove">删除</button>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -295,9 +539,23 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit'])
 
 const currentStep = ref(1)
+const identityType = ref('individual') // 'individual' or 'company'
 const uploadedFiles = ref({
-  file1: null,
-  file2: null
+  // 个人
+  idCardFront: null,
+  idCardBack: null,
+  // 企业
+  businessLicense: null,
+  legalIdCardFront: null,
+  legalIdCardBack: null,
+  operatorIdCardFront: null,
+  operatorIdCardBack: null,
+  authLetter: null,
+  // 卖方专属
+  transportCert: null,
+  ownershipCancellation: null,
+  saleContract: null,
+  deliveryAgreement: null
 })
 
 const form = ref({
@@ -346,10 +604,23 @@ const removeFile = (fileKey) => {
 }
 
 const triggerFileInput = (fileKey) => {
-  if (fileKey === 'file1') {
-    document.querySelector('input[ref="fileInput1"]')?.click()
-  } else {
-    document.querySelector('input[ref="fileInput2"]')?.click()
+  const inputMap = {
+    'idCardFront': 'fileInputIdCardFront',
+    'idCardBack': 'fileInputIdCardBack',
+    'businessLicense': 'fileInputBusinessLicense',
+    'legalIdCardFront': 'fileInputLegalIdCardFront',
+    'legalIdCardBack': 'fileInputLegalIdCardBack',
+    'operatorIdCardFront': 'fileInputOperatorIdCardFront',
+    'operatorIdCardBack': 'fileInputOperatorIdCardBack',
+    'authLetter': 'fileInputAuthLetter',
+    'transportCert': 'fileInputTransportCert',
+    'ownershipCancellation': 'fileInputOwnershipCancellation',
+    'saleContract': 'fileInputSaleContract',
+    'deliveryAgreement': 'fileInputDeliveryAgreement'
+  }
+  const refName = inputMap[fileKey]
+  if (refName) {
+    document.querySelector(`input[ref="${refName}"]`)?.click()
   }
 }
 
@@ -429,6 +700,94 @@ const submitFilling = () => {
 .close-btn:hover {
   background: #E2E8F0;
   color: #0F172A;
+}
+
+.buyer-review-notice {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.buyer-review-notice svg {
+  width: 24px;
+  height: 24px;
+  color: #D97706;
+  flex-shrink: 0;
+}
+
+.buyer-review-notice h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400E;
+  margin: 0 0 4px 0;
+}
+
+.buyer-review-notice p {
+  font-size: 13px;
+  color: #78350F;
+  margin: 0;
+}
+
+.buyer-cert-notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: #F1F5F9;
+  border-left: 3px solid #64748B;
+  border-radius: 4px;
+}
+
+.buyer-cert-notice p {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.identity-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.type-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.radio-group {
+  display: flex;
+  gap: 24px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #475569;
+}
+
+.radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.radio-item span {
+  user-select: none;
+}
+
+.modal-body {
+  padding: 24px;
 }
 
 .modal-body {
@@ -708,10 +1067,17 @@ const submitFilling = () => {
 
 .file-item label {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #475569;
-  margin-bottom: 10px;
+  color: #0F172A;
+  margin-bottom: 8px;
+}
+
+.optional-tip {
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 4px;
 }
 
 .file-upload-area {
