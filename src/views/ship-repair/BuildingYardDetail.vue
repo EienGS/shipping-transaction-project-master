@@ -136,6 +136,55 @@
           </div>
         </section>
 
+        <!-- Company Gallery -->
+        <section class="info-section">
+          <h2>船坞/生产设备</h2>
+          <div class="gallery-carousel">
+            <div class="carousel-container">
+              <button 
+                class="carousel-btn prev" 
+                @click="prevImage"
+                :disabled="currentImageIndex === 0"
+              >
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              
+              <div class="carousel-images">
+                <div 
+                  class="image-wrapper" 
+                  v-for="(image, index) in provider.promotionImages" 
+                  :key="index"
+                  :class="{ active: currentImageIndex === index }"
+                >
+                  <img :src="image" :alt="`公司实景 ${index + 1}`" class="gallery-image">
+                </div>
+              </div>
+
+              <button 
+                class="carousel-btn next" 
+                @click="nextImage"
+                :disabled="currentImageIndex === provider.promotionImages.length - 1"
+              >
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="carousel-indicators">
+              <button 
+                v-for="(image, index) in provider.promotionImages" 
+                :key="index"
+                class="indicator-dot"
+                :class="{ active: currentImageIndex === index }"
+                @click="goToImage(index)"
+              />
+            </div>
+          </div>
+        </section>
+
         <!-- Cases -->
         <section class="info-section">
           <h2>成功案例</h2>
@@ -233,6 +282,7 @@ const route = useRoute()
 const providerId = route.params.id
 
 const isFavorited = ref(false)
+const currentImageIndex = ref(0)
 
 // Mock provider data
 const provider = ref({
@@ -273,7 +323,7 @@ const provider = ref({
   cases: [
     { id: 1, title: '82000吨散货船建造', completionTime: '2023-06', description: '为国际知名船东建造的新型节能散货船，采用先进动力系统', image: 'https://picsum.photos/seed/buildcase1/400/250' },
     { id: 2, title: '5000TEU集装箱船建造', completionTime: '2023-09', description: '符合IMO 2030标准的环保型集装箱船', image: 'https://picsum.photos/seed/buildcase2/400/250' },
-    { id: 3, title: '300000DWT油轮建造', completionTime: '2023-12', description: '超大型原油轮，采用双船体设计和最新防污技术', image: 'https://picsum.photos/seed/buildcase3/400/250' },
+    { id: 3, title: '300000DWT油轮建造', completionTime: '2023-12', description: '超大型原油轮，采用双船体设计和���新防污技术', image: 'https://picsum.photos/seed/buildcase3/400/250' },
   ],
   promotionImages: [
     'https://picsum.photos/seed/building-promo1/600/400',
@@ -296,6 +346,22 @@ const toggleFavorite = () => {
 const handleContact = () => {
   console.log('[v0] 联系服务方:', providerId)
   alert('联系功能开发中')
+}
+
+const prevImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--
+  }
+}
+
+const nextImage = () => {
+  if (currentImageIndex.value < provider.value.promotionImages.length - 1) {
+    currentImageIndex.value++
+  }
+}
+
+const goToImage = (index) => {
+  currentImageIndex.value = index
 }
 </script>
 
@@ -731,5 +797,119 @@ const handleContact = () => {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+/* Gallery Carousel */
+.gallery-carousel {
+  position: relative;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #F8FAFC;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.carousel-images {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+
+.image-wrapper.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.carousel-btn:hover:not(:disabled) {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.carousel-btn.prev {
+  left: 16px;
+}
+
+.carousel-btn.next {
+  right: 16px;
+}
+
+.carousel-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #1A1A1A;
+}
+
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D1D5DB;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.indicator-dot:hover {
+  background: #9CA3AF;
+  transform: scale(1.2);
+}
+
+.indicator-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: #1890FF;
 }
 </style>

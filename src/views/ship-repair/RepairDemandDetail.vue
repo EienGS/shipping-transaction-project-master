@@ -105,6 +105,48 @@
               <p>{{ demandData.additionalRequirements }}</p>
             </div>
           </div>
+
+          <!-- 智能推荐区域 -->
+          <div class="recommended-section">
+            <h2 class="section-title">智能推荐优质修船厂</h2>
+            <div class="recommended-grid">
+              <div v-for="shipyard in recommendedShipyards" :key="shipyard.id" class="shipyard-card"
+                @click="viewShipyardDetail(shipyard.id)">
+                <div class="card-image-wrapper">
+                  <img :src="shipyard.cover" :alt="shipyard.name" class="shipyard-cover">
+                  <div class="verified-badge" v-if="shipyard.verified">Verified</div>
+                </div>
+                <div class="shipyard-info-body">
+                  <div class="shipyard-main">
+                    <h3 class="shipyard-name">{{ shipyard.name }}</h3>
+                    <p class="shipyard-capability">{{ shipyard.capability }}</p>
+                    <p class="shipyard-established">成立年限：{{ shipyard.established }}</p>
+                  </div>
+                  <div class="shipyard-meta-row">
+                    <span class="meta-location">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                        <path fill-rule="evenodd"
+                          d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
+                          clip-rule="evenodd" />
+                      </svg>
+                      {{ shipyard.location }}
+                    </span>
+                    <span class="meta-rating">⭐️ {{ shipyard.rating }}分</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-view-detail-outline" @click.stop="viewShipyardDetail(shipyard.id)">查看详情</button>
+                    <button class="btn-icon-favorite" @click.stop="toggleFavorite(shipyard.id)">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 右侧联系卡片 -->
@@ -200,6 +242,43 @@ const demandData = ref({
   status: 'active'
 })
 
+// 推荐修船厂数据
+const recommendedShipyards = ref([
+  {
+    id: 10,
+    name: 'XX船舶修理有限公司',
+    capability: '干船坞修理 | 海洋工程支持',
+    established: '成立15年',
+    rating: 4.6,
+    location: '浙江·舟山',
+    cases: 87,
+    verified: true,
+    cover: 'https://picsum.photos/seed/repair1/400/260'
+  },
+  {
+    id: 11,
+    name: '青岛海西湾修船厂',
+    capability: '大型船舶维修 | 海洋平台维护',
+    established: '成立12年',
+    rating: 4.7,
+    location: '山东·青岛',
+    cases: 105,
+    verified: true,
+    cover: 'https://picsum.photos/seed/repair2/400/260'
+  },
+  {
+    id: 12,
+    name: '广州文冲船厂',
+    capability: '液化气船修理 | 客轮翻新',
+    established: '成立10年',
+    rating: 4.5,
+    location: '广东·广州',
+    cases: 76,
+    verified: true,
+    cover: 'https://picsum.photos/seed/repair3/400/260'
+  }
+])
+
 const getShipTypeText = (type) => {
   const types = {
     bulk: '散货船',
@@ -255,6 +334,15 @@ const contactPublisher = () => {
 
 const sendIntention = () => {
   console.log('[v0] 发起意向对接')
+}
+
+const viewShipyardDetail = (id) => {
+  console.log('[v0] 查看修船厂详情:', id)
+  router.push(`/ship-repair/repair/${id}`)
+}
+
+const toggleFavorite = (id) => {
+  console.log('[v0] 收藏修船厂:', id)
 }
 
 onMounted(() => {
@@ -682,5 +770,187 @@ onMounted(() => {
   .vessel-details {
     grid-template-columns: 1fr;
   }
+
+  .recommended-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 推荐区域样式 */
+.recommended-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 2px solid #E2E8F0;
+}
+
+.recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.shipyard-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.shipyard-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: #0EA5E9;
+}
+
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #F1F5F9;
+}
+
+.shipyard-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.shipyard-card:hover .shipyard-cover {
+  transform: scale(1.05);
+}
+
+.verified-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(10, 31, 53, 0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.shipyard-info-body {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shipyard-main {
+  margin-bottom: 12px;
+}
+
+.shipyard-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shipyard-capability {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0 0 6px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shipyard-established {
+  font-size: 12px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.shipyard-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.meta-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748B;
+}
+
+.meta-location svg {
+  width: 14px;
+  height: 14px;
+}
+
+.meta-rating {
+  color: #F59E0B;
+  font-weight: 600;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-view-detail-outline {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #0EA5E9;
+  background: white;
+  color: #0EA5E9;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view-detail-outline:hover {
+  background: #F0F9FF;
+  border-color: #0284C7;
+}
+
+.btn-icon-favorite {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #E2E8F0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.btn-icon-favorite:hover {
+  border-color: #0EA5E9;
+  background: #F0F9FF;
+}
+
+.btn-icon-favorite svg {
+  width: 18px;
+  height: 18px;
+  color: #0EA5E9;
 }
 </style>
