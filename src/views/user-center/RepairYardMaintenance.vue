@@ -113,8 +113,9 @@
                         <div class="form-grid">
                             <div class="form-item required full-width">
                                 <label>核心维修能力</label>
-                                <textarea v-model="formData.coreRepairCapability" :disabled="!isEditing" class="form-textarea"
-                                    placeholder="请描述您的核心维修能力，如：主机维修、轴系维修、船体修补、电气系统维修等" rows="3"></textarea>
+                                <textarea v-model="formData.coreRepairCapability" :disabled="!isEditing"
+                                    class="form-textarea" placeholder="请描述您的核心维修能力，如：主机维修、轴系维修、船体修补、电气系统维修等"
+                                    rows="3"></textarea>
                             </div>
 
                             <div class="form-item required">
@@ -324,9 +325,30 @@
                             <h2>资料上传</h2>
                             <span class="section-tips">PDF格式，单文件≤20MB</span>
                         </div>
-
                         <div class="upload-section">
-                            <h4>资质证书（最多8��）</h4>
+                            <h4>营业执照</h4>
+                            <div class="file-list">
+                                <div v-if="formData.businessLicense" class="file-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        class="file-icon">
+                                        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z" />
+                                        <path d="M13 2v7h7" />
+                                    </svg>
+                                    <span class="file-name">{{ formData.businessLicense.name }}</span>
+                                    <button v-if="isEditing" type="button" class="btn-remove-file"
+                                        @click="removeBusinessLicense">删除</button>
+                                </div>
+                                <button v-if="isEditing && !formData.businessLicense" type="button"
+                                    class="btn-upload-file" @click="uploadBusinessLicense">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                                    </svg>
+                                    上传营业执照
+                                </button>
+                            </div>
+                        </div>
+                        <div class="upload-section">
+                            <h4>资质证书（最多8个）</h4>
                             <div class="file-list">
                                 <div v-for="(cert, index) in formData.certificates" :key="index" class="file-item">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -511,6 +533,18 @@ const uploadCaseImage = (index) => {
     formData.cases[index].image = 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=400&h=300&fit=crop'
 }
 
+// 营业执照管理
+const uploadBusinessLicense = () => {
+    formData.businessLicense = {
+        name: '营业执照.pdf',
+        url: '/certificates/license.pdf'
+    }
+}
+
+const removeBusinessLicense = () => {
+    formData.businessLicense = null
+}
+
 // 证书管理
 const uploadCertificate = () => {
     console.log('[v0] 上传证书')
@@ -547,74 +581,75 @@ const removePhoto = (index) => {
 
 /* 未注册状态 */
 .unregistered-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  text-align: center;
-  padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 48px 24px;
 }
 
 .empty-icon {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 24px;
-  color: #94a3b8;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
+    color: #94a3b8;
 }
 
 .empty-icon svg {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 .unregistered-state h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 12px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 12px 0;
 }
 
 .unregistered-state p {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0 0 32px 0;
-  max-width: 500px;
+    font-size: 16px;
+    color: #64748b;
+    margin: 0 0 32px 0;
+    max-width: 500px;
 }
 
 .btn-register {
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-  transition: all 0.3s;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    transition: all 0.3s;
 }
 
 .btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
 }
 
 .btn-skip-review {
-  margin-top: 16px;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: #f59e0b;
-  color: white;
-  transition: all 0.3s;
+    margin-top: 16px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    transition: all 0.3s;
 }
 
 .btn-skip-review:hover {
-  background: #d97706;
+    border-color: #cbd5e1;
+    background: #f8fafc;
 }
 
 /* Status Banner */
