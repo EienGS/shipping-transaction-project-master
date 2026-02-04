@@ -132,8 +132,26 @@
 
                             <div class="form-item required">
                                 <label>生产资质</label>
-                                <input v-model="formData.qualification" :disabled="!isEditing" type="text"
-                                    class="form-input" placeholder="如：CCS认证、ISO9001认证" />
+                                <div class="multi-select-wrapper">
+                                    <div class="multi-select-display" :class="{ disabled: !isEditing, open: qualificationDropdownOpen }" @click="isEditing && toggleQualificationDropdown()">
+                                        <div v-if="formData.qualifications.length === 0" class="placeholder">请选择生产资质</div>
+                                        <div v-else class="selected-items">
+                                            <span v-for="qual in formData.qualifications" :key="qual" class="selected-tag">
+                                                {{ qual }}
+                                                <button v-if="isEditing" type="button" class="remove-tag" @click.stop="removeQualification(qual)">✕</button>
+                                            </span>
+                                        </div>
+                                        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                    <div v-if="qualificationDropdownOpen && isEditing" class="multi-select-dropdown">
+                                        <label v-for="option in qualificationOptions" :key="option" class="dropdown-option">
+                                            <input type="checkbox" :value="option" v-model="formData.qualifications" />
+                                            <span>{{ option }}</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-item required">
@@ -431,6 +449,17 @@ const providerInfo = ref({
 
 // 编辑状态
 const isEditing = ref(false)
+const qualificationDropdownOpen = ref(false)
+
+const qualificationOptions = [
+    '船舶维修企业一级资质',
+    '船舶维修企业二级资质',
+    '船舶维修企业三级资质',
+    'CCS 船级社维修认证',
+    'ABS 船级社维修认证',
+    'LR 船级社维修认证',
+    'DNV 船级社维修认证'
+]
 
 // 表单数据
 const formData = reactive({
@@ -438,7 +467,7 @@ const formData = reactive({
     coreRepairCapability: '主机维修、辅机维修、船体修补、舵系维修、电气系统维修、管路系统维修',
     city: '上海市',
     registeredCapital: '5000万元',
-    qualification: 'CCS认证、ISO9001认证',
+    qualifications: ['CCS 船级社维修认证'],
     serviceRadius: 500,
     repairScope: '散货船、油船、集装箱船、化学品船的主机、辅机、舵系、锚系、泵浦系统、管路系统、电气系统等维修保养',
     contactPerson: '李经理',
@@ -568,6 +597,18 @@ const uploadPhoto = () => {
 
 const removePhoto = (index) => {
     formData.photos.splice(index, 1)
+}
+
+// 生产资质下拉框管理
+const toggleQualificationDropdown = () => {
+    qualificationDropdownOpen.value = !qualificationDropdownOpen.value
+}
+
+const removeQualification = (qual) => {
+    const index = formData.qualifications.indexOf(qual)
+    if (index > -1) {
+        formData.qualifications.splice(index, 1)
+    }
 }
 </script>
 
@@ -1332,5 +1373,132 @@ const removePhoto = (index) => {
 .btn-upload-photo svg {
     width: 20px;
     height: 20px;
+}
+
+/* Multi-Select Dropdown */
+.multi-select-wrapper {
+    position: relative;
+}
+
+.multi-select-display {
+    min-height: 42px;
+    padding: 8px 40px 8px 14px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    position: relative;
+}
+
+.multi-select-display.disabled {
+    background: #F8FAFC;
+    cursor: not-allowed;
+}
+
+.multi-select-display.open {
+    border-color: #0EA5E9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.multi-select-display .placeholder {
+    color: #94A3B8;
+    font-size: 14px;
+}
+
+.multi-select-display .dropdown-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #64748B;
+    transition: transform 0.3s;
+}
+
+.multi-select-display.open .dropdown-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+}
+
+.selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: #EFF6FF;
+    color: #1E40AF;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.selected-tag .remove-tag {
+    background: none;
+    border: none;
+    color: #1E40AF;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    transition: color 0.3s;
+}
+
+.selected-tag .remove-tag:hover {
+    color: #1E3A8A;
+}
+
+.multi-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 280px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 8px;
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.dropdown-option:hover {
+    background: #F8FAFC;
+}
+
+.dropdown-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.dropdown-option span {
+    font-size: 14px;
+    color: #0F172A;
+    flex: 1;
 }
 </style>
