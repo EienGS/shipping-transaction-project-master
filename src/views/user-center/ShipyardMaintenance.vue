@@ -364,7 +364,7 @@
                         </div>
 
                         <div class="upload-section">
-                            <h4>宣传图片（最多3张，JPG/PNG格式，单张≤5MB）</h4>
+                            <h4>船坞/生产设备图片（最多3张，JPG/PNG格式，单张≤5MB）</h4>
                             <div class="photo-grid">
                                 <div v-for="(photo, index) in formData.photos" :key="index" class="photo-item">
                                     <img :src="photo.url" alt="宣传图" />
