@@ -130,47 +130,10 @@
                                     class="form-input" placeholder="如：5000万元" />
                             </div>
 
-                            <div class="form-item required full-width">
+                            <div class="form-item required">
                                 <label>生产资质</label>
-                                <div class="qualification-select">
-                                    <div class="checkbox-group">
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="船舶维修企业一级资质"
-                                                :disabled="!isEditing" />
-                                            <span>船舶维修企业一级资质</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="船舶维修企业二级资质"
-                                                :disabled="!isEditing" />
-                                            <span>船舶维修企业二级资质</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="船舶维修企业三级资质"
-                                                :disabled="!isEditing" />
-                                            <span>船舶维修企业三级资质</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="CCS 船级社维修认证"
-                                                :disabled="!isEditing" />
-                                            <span>CCS 船级社维修认证</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="ABS 船级社维修认证"
-                                                :disabled="!isEditing" />
-                                            <span>ABS 船级社维修认证</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="LR 船级社维修认证"
-                                                :disabled="!isEditing" />
-                                            <span>LR 船级社维修认证</span>
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" v-model="formData.qualifications" value="DNV 船级社维修认证"
-                                                :disabled="!isEditing" />
-                                            <span>DNV 船级社维修认证</span>
-                                        </label>
-                                    </div>
-                                </div>
+                                <input v-model="formData.qualification" :disabled="!isEditing" type="text"
+                                    class="form-input" placeholder="如：CCS认证、ISO9001认证" />
                             </div>
 
                             <div class="form-item required">
@@ -470,13 +433,13 @@ const providerInfo = ref({
 const isEditing = ref(false)
 
 // 表单数据
-    const formData = reactive({
-        companyIntro: '上海船舶修理公司成立于1998年，是一家专业从事船舶维修、改装的综合性修船企业。拥有CCS认证和ISO9001质量体系认证，配备先进的维修设备和经验丰富的技术团队，年维修各类船舶80余艘，服务覆盖长三角及周边海域。',
-        coreRepairCapability: '主机维修、辅机维修、船体修补、舵系维修、电气系统维修、管路系统维修',
-        city: '上海市',
-        registeredCapital: '5000万元',
-        qualifications: ['CCS 船级社维修认证', '船舶维修企业二级资质'],
-        serviceRadius: 500,
+const formData = reactive({
+    companyIntro: '上海船舶修理公司成立于1998年，是一家专业从事船舶维修、改装的综合性修船企业。拥有CCS认证和ISO9001质量体系认证，配备先进的维修设备和经验丰富的技术团队，年维修各类船舶80余艘，服务覆盖长三角及周边海域。',
+    coreRepairCapability: '主机维修、辅机维修、船体修补、舵系维修、电气系统维修、管路系统维修',
+    city: '上海市',
+    registeredCapital: '5000万元',
+    qualification: 'CCS认证、ISO9001认证',
+    serviceRadius: 500,
     repairScope: '散货船、油船、集装箱船、化学品船的主机、辅机、舵系、锚系、泵浦系统、管路系统、电气系统等维修保养',
     contactPerson: '李经理',
     contactPhone: '13800138000',
