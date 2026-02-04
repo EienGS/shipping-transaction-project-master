@@ -343,17 +343,17 @@
                         <div class="upload-section">
                             <h4>营业执照</h4>
                             <div class="file-list">
-                                <div v-for="(license, index) in formData.businessLicense" :key="index" class="file-item">
+                                <div v-if="formData.businessLicense" class="file-item">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         class="file-icon">
                                         <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z" />
                                         <path d="M13 2v7h7" />
                                     </svg>
-                                    <span class="file-name">{{ license.name }}</span>
+                                    <span class="file-name">{{ formData.businessLicense.name }}</span>
                                     <button v-if="isEditing" type="button" class="btn-remove-file"
-                                        @click="removeBusinessLicense(index)">删除</button>
+                                        @click="removeBusinessLicense">删除</button>
                                 </div>
-                                <button v-if="isEditing && formData.businessLicense.length < 1" type="button"
+                                <button v-if="isEditing && !formData.businessLicense" type="button"
                                     class="btn-upload-file" @click="uploadBusinessLicense">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
@@ -468,7 +468,6 @@ const formData = reactive({
         { title: '油轮建造', description: '精通油轮建造工艺，可提供节能环保解决方案' }
     ],
     cases: [],
-    businessLicense: [],
     certificates: [],
     photos: []
 })
@@ -556,18 +555,18 @@ const uploadCaseImage = (index) => {
     formData.cases[index].image = 'https://images.unsplash.com/photo-1567899378793-4a4c64a41b41?w=400&h=300&fit=crop'
 }
 
-// 证书管理
+// 营业执照管理
 const uploadBusinessLicense = () => {
-    formData.businessLicense.push({
+    formData.businessLicense = {
         name: '营业执照.pdf',
-        url: '/licenses/business.pdf'
-    })
+        url: '/certificates/license.pdf'
+    }
 }
 
-const removeBusinessLicense = (index) => {
-    formData.businessLicense.splice(index, 1)
+const removeBusinessLicense = () => {
+    formData.businessLicense = null
 }
-
+// 证书管理
 const uploadCertificate = () => {
     formData.certificates.push({
         name: '新证书.pdf',
