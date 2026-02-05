@@ -61,125 +61,98 @@
           <button type="button" class="btn-back" @click="prevStep">返回上一步</button>
         </div>
 
-        <!-- 船舶基本信息（自动预填） -->
+        <!-- 船舶基本信息（系统读入，不可修改） -->
         <div class="form-section">
           <h3 class="section-title">船舶基本信息</h3>
           
           <div class="form-row">
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">船舶类型</label>
-              <select v-model="formData.vesselType" class="form-input" required>
-                <option value="">请选择船舶类型</option>
-                <option value="散货船">散货船</option>
-                <option value="集装箱船">集装箱船</option>
-                <option value="油船">油船</option>
-                <option value="液化气船">液化气船</option>
-              </select>
+              <input v-model="formData.vesselType" type="text" class="form-input" disabled />
             </div>
 
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">航区</label>
-              <select v-model="formData.navigationArea" class="form-input" required>
-                <option value="">请选择航区</option>
-                <option value="无限航区">无限航区</option>
-                <option value="近海航区">近海航区</option>
-                <option value="沿海航区">沿海航区</option>
-              </select>
+              <input v-model="formData.navigationArea" type="text" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-item">
               <label class="form-label">船名</label>
-              <input v-model="formData.vesselName" type="text" class="form-input" />
+              <input v-model="formData.vesselName" type="text" class="form-input" disabled />
             </div>
 
             <div class="form-item">
               <label class="form-label">船级</label>
-              <select v-model="formData.classificationSociety" class="form-input">
-                <option value="">请选择船级社</option>
-                <option value="CCS">CCS (中国船级社)</option>
-                <option value="ABS">ABS (美国船级社)</option>
-                <option value="LR">LR (英国劳氏船级社)</option>
-                <option value="DNV">DNV (挪威船级社)</option>
-              </select>
+              <input v-model="formData.classificationSociety" type="text" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-item">
               <label class="form-label">建造厂</label>
-              <input v-model="formData.buildPlace" type="text" class="form-input" />
+              <input v-model="formData.buildPlace" type="text" class="form-input" disabled />
             </div>
 
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">建造日期</label>
-              <input v-model="formData.buildDate" type="date" class="form-input" required />
+              <input v-model="formData.buildDate" type="text" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">船旗</label>
-              <select v-model="formData.flag" class="form-input" required>
-                <option value="">请选择船旗</option>
-                <option value="中国">中国</option>
-                <option value="巴拿马">巴拿马</option>
-                <option value="利比里亚">利比里亚</option>
-              </select>
+              <input v-model="formData.flag" type="text" class="form-input" disabled />
             </div>
 
             <div class="form-item">
               <label class="form-label">船籍港</label>
-              <input v-model="formData.portOfRegistry" type="text" class="form-input" />
+              <input v-model="formData.portOfRegistry" type="text" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">总吨（吨）</label>
-              <input v-model.number="formData.grossTonnage" type="number" class="form-input" required />
+              <input v-model.number="formData.grossTonnage" type="number" class="form-input" disabled />
             </div>
 
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">净吨（吨）</label>
-              <input v-model.number="formData.netTonnage" type="number" class="form-input" required />
+              <input v-model.number="formData.netTonnage" type="number" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">总长（米）</label>
-              <input v-model.number="formData.length" type="number" step="0.01" class="form-input" required />
+              <input v-model.number="formData.length" type="number" step="0.01" class="form-input" disabled />
             </div>
 
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">型宽（米）</label>
-              <input v-model.number="formData.width" type="number" step="0.01" class="form-input" required />
+              <input v-model.number="formData.width" type="number" step="0.01" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">型深（米）</label>
-              <input v-model.number="formData.depth" type="number" step="0.01" class="form-input" required />
+              <input v-model.number="formData.depth" type="number" step="0.01" class="form-input" disabled />
             </div>
 
-            <div class="form-item required">
+            <div class="form-item">
               <label class="form-label">载重（吨）</label>
-              <input v-model.number="formData.deadweight" type="number" class="form-input" required />
+              <input v-model.number="formData.deadweight" type="number" class="form-input" disabled />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-item">
               <label class="form-label">主机功率（kw）</label>
-              <input v-model.number="formData.mainEnginePower" type="number" class="form-input" />
-            </div>
-
-            <div class="form-item">
-              <label class="form-label">主机型号</label>
-              <input v-model="formData.mainEngineModel" type="text" class="form-input" />
+              <input v-model.number="formData.mainEnginePower" type="number" class="form-input" disabled />
             </div>
           </div>
         </div>
@@ -351,7 +324,7 @@ const currentStep = ref(1)
 // 搜索关键词
 const searchKeyword = ref('')
 
-// 模拟的船舶列表
+// 模拟的船舶列表（包含完整船舶信息）
 const vessels = ref([
   {
     id: 1,
@@ -359,7 +332,20 @@ const vessels = ref([
     identificationNumber: 'CN2024001',
     mmsi: '412345678',
     type: '散货船',
-    buildYear: 2015
+    buildYear: 2015,
+    navigationArea: '无限航区',
+    classificationSociety: 'CCS',
+    buildPlace: '上海江南造船厂',
+    buildDate: '2015-06-15',
+    flag: '中国',
+    portOfRegistry: '上海',
+    grossTonnage: 25000,
+    netTonnage: 15000,
+    length: 180.5,
+    width: 28.6,
+    depth: 14.2,
+    deadweight: 35000,
+    mainEnginePower: 8500
   },
   {
     id: 2,
@@ -367,7 +353,20 @@ const vessels = ref([
     identificationNumber: 'CN2024002',
     mmsi: '412345679',
     type: '集装箱船',
-    buildYear: 2018
+    buildYear: 2018,
+    navigationArea: '无限航区',
+    classificationSociety: 'ABS',
+    buildPlace: '大连造船厂',
+    buildDate: '2018-03-20',
+    flag: '中国',
+    portOfRegistry: '大连',
+    grossTonnage: 32000,
+    netTonnage: 19000,
+    length: 210.8,
+    width: 32.2,
+    depth: 16.5,
+    deadweight: 45000,
+    mainEnginePower: 12000
   },
   {
     id: 3,
@@ -375,7 +374,20 @@ const vessels = ref([
     identificationNumber: 'CN2024003',
     mmsi: '412345680',
     type: '油船',
-    buildYear: 2012
+    buildYear: 2012,
+    navigationArea: '近海航区',
+    classificationSociety: 'DNV',
+    buildPlace: '广州造船厂',
+    buildDate: '2012-09-10',
+    flag: '中国',
+    portOfRegistry: '广州',
+    grossTonnage: 18000,
+    netTonnage: 10800,
+    length: 156.3,
+    width: 24.5,
+    depth: 12.8,
+    deadweight: 28000,
+    mainEnginePower: 6800
   }
 ])
 
@@ -411,7 +423,6 @@ const formData = ref({
   depth: null,
   deadweight: null,
   mainEnginePower: null,
-  mainEngineModel: '',
   expectedPrice: null,
   inService: '',
   currentRoute: '',
@@ -457,9 +468,22 @@ const nextStep = () => {
     return
   }
   
-  // 预填船舶信息
+  // 预填船舶信息（从系统读取，不可修改）
   formData.value.vesselName = selectedVessel.value.name
   formData.value.vesselType = selectedVessel.value.type
+  formData.value.navigationArea = selectedVessel.value.navigationArea
+  formData.value.classificationSociety = selectedVessel.value.classificationSociety
+  formData.value.buildPlace = selectedVessel.value.buildPlace
+  formData.value.buildDate = selectedVessel.value.buildDate
+  formData.value.flag = selectedVessel.value.flag
+  formData.value.portOfRegistry = selectedVessel.value.portOfRegistry
+  formData.value.grossTonnage = selectedVessel.value.grossTonnage
+  formData.value.netTonnage = selectedVessel.value.netTonnage
+  formData.value.length = selectedVessel.value.length
+  formData.value.width = selectedVessel.value.width
+  formData.value.depth = selectedVessel.value.depth
+  formData.value.deadweight = selectedVessel.value.deadweight
+  formData.value.mainEnginePower = selectedVessel.value.mainEnginePower
   
   currentStep.value = 2
 }
