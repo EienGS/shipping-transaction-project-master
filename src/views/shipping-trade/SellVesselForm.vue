@@ -587,26 +587,6 @@ const nextStep = () => {
   
   currentStep.value = 2
 }
-  
-  // 预填船��信息（从系统读取，不可修改）
-  formData.value.vesselName = selectedVessel.value.name
-  formData.value.vesselType = selectedVessel.value.type
-  formData.value.navigationArea = selectedVessel.value.navigationArea
-  formData.value.classificationSociety = selectedVessel.value.classificationSociety
-  formData.value.buildPlace = selectedVessel.value.buildPlace
-  formData.value.buildDate = selectedVessel.value.buildDate
-  formData.value.flag = selectedVessel.value.flag
-  formData.value.portOfRegistry = selectedVessel.value.portOfRegistry
-  formData.value.grossTonnage = selectedVessel.value.grossTonnage
-  formData.value.netTonnage = selectedVessel.value.netTonnage
-  formData.value.length = selectedVessel.value.length
-  formData.value.width = selectedVessel.value.width
-  formData.value.depth = selectedVessel.value.depth
-  formData.value.deadweight = selectedVessel.value.deadweight
-  formData.value.mainEnginePower = selectedVessel.value.mainEnginePower
-  
-  currentStep.value = 2
-}
 
 // 上一步
 const prevStep = () => {
