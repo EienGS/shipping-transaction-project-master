@@ -179,7 +179,7 @@
             </div>
           </div>
 
-          <!-- 报港信息 - 系统数据，使用卡片样式展示 -->
+          <!-- 报港信息 - 系统数据，使用卡片样式��示 -->
           <div class="info-card-row">
             <div class="info-card">
               <div class="info-card-label">最近报港日期</div>
@@ -625,7 +625,7 @@ const handlePhotoUpload = (e, category) => {
   
   // 验证文件数量
   if (uploadedPhotos.value[category].length + files.length > 5) {
-    alert('每类最多上传5张照片')
+    alert('���类最多上传5张照片')
     return
   }
   
@@ -1270,7 +1270,7 @@ const handleCancel = () => {
   font-weight: 500;
 }
 
-/* 安全统计卡片 */
+/* 安全统计卡片 - 简约设计 */
 .safety-section {
   margin-bottom: 24px;
 }
@@ -1278,71 +1278,86 @@ const handleCancel = () => {
 .safety-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 1px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .stat-card {
   background: white;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  padding: 16px;
+  padding: 24px 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  transition: all 0.3s;
+  justify-content: center;
+  text-align: center;
+  transition: background 0.2s;
+  position: relative;
 }
 
 .stat-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  background: #f9fafb;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--stat-color);
+}
+
+.stat-card:nth-child(1) {
+  --stat-color: #3b82f6;
+}
+
+.stat-card:nth-child(2) {
+  --stat-color: #8b5cf6;
+}
+
+.stat-card:nth-child(3) {
+  --stat-color: #f59e0b;
+}
+
+.stat-card:nth-child(4) {
+  --stat-color: #ef4444;
 }
 
 .stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: white;
-  flex-shrink: 0;
+  margin-bottom: 12px;
   letter-spacing: 0.5px;
-}
-
-.stat-icon.psc {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.stat-icon.fsc {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.stat-icon.penalty {
-  background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
-}
-
-.stat-icon.accident {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  background: var(--stat-color);
 }
 
 .stat-content {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #8c8c8c;
-  margin-bottom: 4px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 700;
-  color: #2c3e50;
-  letter-spacing: -0.5px;
+  color: #111827;
+  letter-spacing: -1px;
+  line-height: 1;
 }
 
 /* 响应式设计 */
@@ -1361,6 +1376,14 @@ const handleCancel = () => {
 
   .safety-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    padding: 20px 16px;
+  }
+
+  .stat-value {
+    font-size: 24px;
   }
 }
 
