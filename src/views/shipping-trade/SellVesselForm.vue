@@ -84,7 +84,7 @@
             </div>
 
             <div class="form-item">
-              <label class="form-label">船级</label>
+              <label class="form-label">船检机构</label>
               <input v-model="formData.classificationSociety" type="text" class="form-input" disabled />
             </div>
           </div>
@@ -157,42 +157,14 @@
           </div>
         </div>
 
-        <!-- 出售信息 -->
+        <!-- 附加信息 -->
         <div class="form-section">
-          <h3 class="section-title">出售信息</h3>
+          <h3 class="section-title">附加信息</h3>
           
           <div class="form-row">
             <div class="form-item required">
               <label class="form-label">期望售价（万元）</label>
               <input v-model.number="formData.expectedPrice" type="number" step="0.01" class="form-input" placeholder="请输入期望售价" required />
-            </div>
-
-            <div class="form-item required">
-              <label class="form-label">是否在航</label>
-              <select v-model="formData.inService" class="form-input" required>
-                <option value="">请选择</option>
-                <option value="是">是</option>
-                <option value="否">否</option>
-              </select>
-            </div>
-          </div>
-
-          <div v-if="formData.inService === '是'" class="form-row">
-            <div class="form-item">
-              <label class="form-label">当前航线信息</label>
-              <input v-model="formData.currentRoute" type="text" class="form-input" placeholder="例如：上海-新加坡" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-item required">
-              <label class="form-label">日常保养状况</label>
-              <select v-model="formData.maintenanceStatus" class="form-input" required>
-                <option value="">请选择</option>
-                <option value="一般">一般</option>
-                <option value="良好">良好</option>
-                <option value="非常好">非常好</option>
-              </select>
             </div>
 
             <div class="form-item required">
@@ -204,6 +176,85 @@
                 <option value="六个月内">六个月内</option>
                 <option value="一年内">一年内</option>
               </select>
+            </div>
+          </div>
+
+          <!-- 报港信息 - 系统数据，使用卡片样式展示 -->
+          <div class="info-card-row">
+            <div class="info-card">
+              <div class="info-card-label">最近报港日期</div>
+              <div class="info-card-value">{{ formData.lastPortReportDate || '-' }}</div>
+            </div>
+            <div class="info-card">
+              <div class="info-card-label">近三个月报港数量</div>
+              <div class="info-card-value">{{ formData.recentPortReports || 0 }} 次</div>
+            </div>
+          </div>
+
+          <!-- 是否重点跟踪 - 使用标签样式 -->
+          <div class="tracking-status">
+            <span class="tracking-label">是否重点跟踪：</span>
+            <span :class="['tracking-badge', formData.isKeyTracking ? 'tracking-yes' : 'tracking-no']">
+              {{ formData.isKeyTracking ? '是' : '否' }}
+            </span>
+          </div>
+
+          <!-- 海事协查状态及明细 -->
+          <div v-if="formData.maritimeInvestigations && formData.maritimeInvestigations.length > 0" class="investigation-section">
+            <h4 class="subsection-title">海事协查状态及明细</h4>
+            <div class="investigation-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>列入时间</th>
+                    <th>明细</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in formData.maritimeInvestigations" :key="index">
+                    <td>{{ item.listedTime }}</td>
+                    <td>{{ item.details }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div v-else class="no-investigation">
+            <span class="no-investigation-text">✓ 无海事协查记录</span>
+          </div>
+
+          <!-- 近五年安全状态 - 使用统计卡片 -->
+          <div class="safety-section">
+            <h4 class="subsection-title">近五年安全状态</h4>
+            <div class="safety-stats">
+              <div class="stat-card">
+                <div class="stat-icon psc">PSC</div>
+                <div class="stat-content">
+                  <div class="stat-label">PSC滞留</div>
+                  <div class="stat-value">{{ formData.safetyStats.pscDetention || 0 }} 次</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon fsc">FSC</div>
+                <div class="stat-content">
+                  <div class="stat-label">FSC滞留</div>
+                  <div class="stat-value">{{ formData.safetyStats.fscDetention || 0 }} 次</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon penalty">处罚</div>
+                <div class="stat-content">
+                  <div class="stat-label">行政处罚</div>
+                  <div class="stat-value">{{ formData.safetyStats.administrativePenalty || 0 }} 次</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon accident">事故</div>
+                <div class="stat-content">
+                  <div class="stat-label">事故数量</div>
+                  <div class="stat-value">{{ formData.safetyStats.accidents || 0 }} 次</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -345,7 +396,17 @@ const vessels = ref([
     width: 28.6,
     depth: 14.2,
     deadweight: 35000,
-    mainEnginePower: 8500
+    mainEnginePower: 8500,
+    lastPortReportDate: '2024-02-01',
+    recentPortReports: 8,
+    isKeyTracking: false,
+    maritimeInvestigations: [],
+    safetyStats: {
+      pscDetention: 0,
+      fscDetention: 1,
+      administrativePenalty: 0,
+      accidents: 0
+    }
   },
   {
     id: 2,
@@ -366,7 +427,17 @@ const vessels = ref([
     width: 32.2,
     depth: 16.5,
     deadweight: 45000,
-    mainEnginePower: 12000
+    mainEnginePower: 12000,
+    lastPortReportDate: '2024-01-28',
+    recentPortReports: 12,
+    isKeyTracking: false,
+    maritimeInvestigations: [],
+    safetyStats: {
+      pscDetention: 0,
+      fscDetention: 0,
+      administrativePenalty: 0,
+      accidents: 0
+    }
   },
   {
     id: 3,
@@ -387,7 +458,22 @@ const vessels = ref([
     width: 24.5,
     depth: 12.8,
     deadweight: 28000,
-    mainEnginePower: 6800
+    mainEnginePower: 6800,
+    lastPortReportDate: '2024-01-15',
+    recentPortReports: 6,
+    isKeyTracking: true,
+    maritimeInvestigations: [
+      {
+        listedTime: '2023-06-15',
+        details: '涉嫌违规排放，已配合调查完结'
+      }
+    ],
+    safetyStats: {
+      pscDetention: 1,
+      fscDetention: 0,
+      administrativePenalty: 1,
+      accidents: 0
+    }
   }
 ])
 
@@ -424,10 +510,17 @@ const formData = ref({
   deadweight: null,
   mainEnginePower: null,
   expectedPrice: null,
-  inService: '',
-  currentRoute: '',
-  maintenanceStatus: '',
   dockInspection: '',
+  lastPortReportDate: '', // 最近报港日期
+  recentPortReports: 0, // 近三个月报港数量
+  isKeyTracking: false, // 是否重点跟踪
+  maritimeInvestigations: [], // 海事协查状态及明细
+  safetyStats: { // 近五年安全状态
+    pscDetention: 0,
+    fscDetention: 0,
+    administrativePenalty: 0,
+    accidents: 0
+  },
   contactPerson: '',
   contactPhone: '',
   remarks: ''
@@ -469,6 +562,33 @@ const nextStep = () => {
   }
   
   // 预填船舶信息（从系统读取，不可修改）
+  formData.value.vesselName = selectedVessel.value.name
+  formData.value.vesselType = selectedVessel.value.type
+  formData.value.navigationArea = selectedVessel.value.navigationArea
+  formData.value.classificationSociety = selectedVessel.value.classificationSociety
+  formData.value.buildPlace = selectedVessel.value.buildPlace
+  formData.value.buildDate = selectedVessel.value.buildDate
+  formData.value.flag = selectedVessel.value.flag
+  formData.value.portOfRegistry = selectedVessel.value.portOfRegistry
+  formData.value.grossTonnage = selectedVessel.value.grossTonnage
+  formData.value.netTonnage = selectedVessel.value.netTonnage
+  formData.value.length = selectedVessel.value.length
+  formData.value.width = selectedVessel.value.width
+  formData.value.depth = selectedVessel.value.depth
+  formData.value.deadweight = selectedVessel.value.deadweight
+  formData.value.mainEnginePower = selectedVessel.value.mainEnginePower
+  
+  // 填充新增的系统数据
+  formData.value.lastPortReportDate = selectedVessel.value.lastPortReportDate
+  formData.value.recentPortReports = selectedVessel.value.recentPortReports
+  formData.value.isKeyTracking = selectedVessel.value.isKeyTracking
+  formData.value.maritimeInvestigations = selectedVessel.value.maritimeInvestigations
+  formData.value.safetyStats = selectedVessel.value.safetyStats
+  
+  currentStep.value = 2
+}
+  
+  // 预填船��信息（从系统读取，不可修改）
   formData.value.vesselName = selectedVessel.value.name
   formData.value.vesselType = selectedVessel.value.type
   formData.value.navigationArea = selectedVessel.value.navigationArea
@@ -1036,6 +1156,215 @@ const handleCancel = () => {
   transform: none;
 }
 
+/* 信息卡片样式 */
+.info-card-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.info-card-label {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.info-card-value {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* 跟踪状态样式 */
+.tracking-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.tracking-label {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.tracking-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.tracking-yes {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.tracking-no {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #28a745;
+}
+
+/* 海事协查表格样式 */
+.investigation-section {
+  margin-bottom: 24px;
+}
+
+.subsection-title {
+  font-size: 15px;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-left: 12px;
+  border-left: 3px solid #1890ff;
+}
+
+.investigation-table {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.investigation-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.investigation-table thead {
+  background: #fafafa;
+}
+
+.investigation-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.investigation-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #595959;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.investigation-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.investigation-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.no-investigation {
+  padding: 16px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border: 1px solid #bae7ff;
+  margin-bottom: 24px;
+}
+
+.no-investigation-text {
+  color: #0c5f8a;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 安全统计卡片 */
+.safety-section {
+  margin-bottom: 24px;
+}
+
+.safety-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.stat-icon.psc {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.fsc {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-icon.penalty {
+  background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+}
+
+.stat-icon.accident {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: -0.5px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .form-row {
@@ -1044,6 +1373,20 @@ const handleCancel = () => {
 
   .photo-preview-list {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .info-card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .safety-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .safety-stats {
+    grid-template-columns: 1fr;
   }
 }
 </style>
