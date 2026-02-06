@@ -60,14 +60,34 @@
           </div>
         </section>
 
+        <!-- Reference Vessel (仅设计和建造需求显示) -->
+        <section v-if="(demand.type === 'design' || demand.type === 'build') && demand.referenceVessel" class="reference-section">
+          <h2>设计参考</h2>
+          <div class="reference-vessel-card">
+            <div class="reference-image">
+              <img :src="demand.referenceVessel.image" :alt="demand.referenceVessel.name">
+            </div>
+            <div class="reference-info">
+              <h3>{{ demand.referenceVessel.name }}</h3>
+              <div class="reference-specs">
+                <span class="spec-tag">{{ demand.referenceVessel.tonnage.toLocaleString() }} DWT</span>
+                <span v-if="demand.referenceVessel.length" class="spec-tag">总长 {{ demand.referenceVessel.length }}m</span>
+                <span v-if="demand.referenceVessel.width" class="spec-tag">型宽 {{ demand.referenceVessel.width }}m</span>
+                <span v-if="demand.referenceVessel.depth" class="spec-tag">型深 {{ demand.referenceVessel.depth }}m</span>
+              </div>
+              <p class="reference-description">{{ demand.referenceVessel.description }}</p>
+            </div>
+          </div>
+        </section>
+
         <!-- Description -->
         <section class="description-section">
-          <h2>详细描述</h2>
+          <h2>补充说明</h2>
           <div class="description-content">{{ demand.description }}</div>
         </section>
 
-        <!-- Attachments -->
-        <section class="attachments-section" v-if="demand.attachments && demand.attachments.length > 0">
+        <!-- Attachments (设计需求不显示附件) -->
+        <section class="attachments-section" v-if="demand.type !== 'design' && demand.attachments && demand.attachments.length > 0">
           <h2>附件资料</h2>
           <div class="attachments-list">
             <div v-for="file in demand.attachments" :key="file.name" class="attachment-item">
@@ -100,8 +120,21 @@
               </div>
             </div>
           </div>
-          <button class="contact-publisher-btn" @click="contactPublisher">
-            意向对接
+          
+          <!-- 联系信息 -->
+          <div class="contact-info">
+            <div class="contact-item">
+              <span class="contact-label">联系人：</span>
+              <span class="contact-value">{{ demand.isContacted ? demand.publisher.contact : demand.publisher.contactMasked }}</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-label">联系电话：</span>
+              <span class="contact-value">{{ demand.isContacted ? demand.publisher.phone : demand.publisher.phoneMasked }}</span>
+            </div>
+          </div>
+          
+          <button class="contact-publisher-btn" :class="{ 'contacted': demand.isContacted }" @click="contactPublisher">
+            {{ demand.isContacted ? '已对接' : '意向对接' }}
           </button>
         </div>
 
@@ -151,20 +184,30 @@ const getDemandData = (id) => {
         designTonnage: '5000',
         navigationArea: '无限航区',
         budgetRange: '200-300万元',
-        contact: '张经理',
-        phone: '138****8888',
       },
-      attachments: [
-        { name: '设计需求说明书.pdf', size: '2.3MB' },
-        { name: '技术规格书.docx', size: '1.5MB' },
-      ],
+      // 设计参考船舶
+      referenceVessel: {
+        id: 'bulk-carrier-3900',
+        name: '80米LNG ECO自卸式散货船',
+        tonnage: 3900,
+        image: '/images/vessels/bulk-carrier-3900.png',
+        length: 79.5,
+        width: 16.5,
+        depth: 7.1,
+        description: '该船总长79.5m, 型宽16.5m, 型深7.1m, 载重量（设计吃水）3900吨，满足极地Polar C要求，是一艘单机单浆混合动力推进的散杂货船。',
+      },
       publisher: {
         name: '上海远洋运输有限公司',
         avatar: 'https://picsum.photos/seed/pub1/80/80',
         rating: 4.7,
         verified: true,
+        contact: '张经理',
+        phone: '138****8888',
+        contactMasked: '张**',
+        phoneMasked: '138****8888',
       },
       proposals: 8,
+      isContacted: false, // 是否已意向对接
     },
     '2': {
       id: '2',
@@ -179,8 +222,17 @@ const getDemandData = (id) => {
         buildTonnage: '50000',
         powerSystem: '采用MAN B&W低速柴油机，配备SCR脱硝系统和节能装置，满足IMO Tier III排放标准',
         budgetRange: '5000-8000万元',
-        contact: '李总',
-        phone: '139****6666',
+      },
+      // 建造需求也可以有参考船舶
+      referenceVessel: {
+        id: 'bulk-carrier-49900',
+        name: '49900吨散货船',
+        tonnage: 49900,
+        image: '/images/vessels/bulk-carrier-49900.png',
+        length: 199.9,
+        width: 32.26,
+        depth: 16.5,
+        description: '49900吨级散货船为一艘单螺旋桨柴油驱动散货船，总长199.9米，型宽32.26米，型深16.5米，设计吃水10.65米，在静水、深海中的服务航速不小于13节。',
       },
       attachments: [
         { name: '建造需求书.pdf', size: '3.1MB' },
@@ -190,8 +242,13 @@ const getDemandData = (id) => {
         avatar: 'https://picsum.photos/seed/pub2/80/80',
         rating: 4.9,
         verified: true,
+        contact: '李总',
+        phone: '139****6666',
+        contactMasked: '李*',
+        phoneMasked: '139****6666',
       },
       proposals: 12,
+      isContacted: false,
     },
     '3': {
       id: '3',
@@ -210,8 +267,6 @@ const getDemandData = (id) => {
         faultPart: '主机需要维护保养，更换部分磨损部件，进行坞检',
         repairLocation: '船厂维修',
         budgetRange: '50-100万元',
-        contact: '王船长',
-        phone: '137****5555',
       },
       attachments: [],
       publisher: {
@@ -219,8 +274,13 @@ const getDemandData = (id) => {
         avatar: 'https://picsum.photos/seed/pub3/80/80',
         rating: 4.6,
         verified: true,
+        contact: '王船长',
+        phone: '137****5555',
+        contactMasked: '王**',
+        phoneMasked: '137****5555',
       },
       proposals: 5,
+      isContacted: false,
     },
   }
 
@@ -239,7 +299,7 @@ const displayParams = computed(() => {
   const params = demand.value.params
   let fieldsToDisplay = []
 
-  // 根据需求类型选择要显示的字段
+  // 根据需求类型选择要显示的字段（不包含联系人和电话）
   if (demand.value.type === 'design') {
     // 设计需求字段
     fieldsToDisplay = [
@@ -247,8 +307,6 @@ const displayParams = computed(() => {
       'designTonnage',
       'navigationArea',
       'budgetRange',
-      'contact',
-      'phone',
     ]
   } else if (demand.value.type === 'build') {
     // 建造需求字段
@@ -257,8 +315,6 @@ const displayParams = computed(() => {
       'buildTonnage',
       'powerSystem',
       'budgetRange',
-      'contact',
-      'phone',
     ]
   } else if (demand.value.type === 'repair') {
     // 维修需求字段
@@ -271,8 +327,6 @@ const displayParams = computed(() => {
       'faultPart',
       'repairLocation',
       'budgetRange',
-      'contact',
-      'phone',
     ]
   }
 
@@ -340,8 +394,15 @@ const viewDemand = (id) => {
 }
 
 const contactPublisher = () => {
-  console.log('联系发布者')
-  alert('联系发布者功能开发中')
+  if (!demand.value.isContacted) {
+    // 模拟意向对接确认
+    if (confirm('确认要与发布者进行意向对接吗？对接成功后将显示完整联系方式。')) {
+      demand.value.isContacted = true
+      alert('对接成功！现在可以查看完整联系方式')
+    }
+  } else {
+    alert('您已经对接过该需求')
+  }
 }
 
 const submitProposal = () => {
@@ -520,328 +581,19 @@ const reportDemand = () => {
   transition: all 0.3s;
 }
 
-.print-btn svg {
-  width: 16px;
-  height: 16px;
-}
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .detail-container {
+    flex-direction: column;
+  }
 
-.print-btn:hover {
-  background: #E2E8F0;
-}
+  .reference-vessel-card {
+    flex-direction: column;
+  }
 
-.params-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.param-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.param-label {
-  font-size: 13px;
-  color: #8C8C8C;
-}
-
-.param-value {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1A1A1A;
-}
-
-/* Description */
-.description-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.description-section h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 16px;
-}
-
-.description-content {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #475569;
-}
-
-/* Attachments */
-.attachments-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.attachments-section h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 16px;
-}
-
-.attachments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.attachment-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: #F8FAFC;
-  border-radius: 8px;
-}
-
-.attachment-item svg {
-  width: 24px;
-  height: 24px;
-  color: #64748B;
-}
-
-.file-name {
-  flex: 1;
-  font-size: 14px;
-  color: #1A1A1A;
-  font-weight: 500;
-}
-
-.file-size {
-  font-size: 13px;
-  color: #94A3B8;
-}
-
-.download-btn {
-  padding: 6px 16px;
-  background: #1890FF;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.download-btn:hover {
-  background: #0EA5E9;
-}
-
-/* Similar Demands */
-.similar-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.similar-section h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 16px;
-}
-
-.similar-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.similar-card {
-  padding: 16px;
-  border: 1.5px solid #E5E7EB;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.similar-card:hover {
-  border-color: #1890FF;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.1);
-}
-
-.similar-type {
-  display: inline-block;
-  padding: 2px 8px;
-  background: #EFF6FF;
-  color: #1890FF;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.similar-card h3 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 8px;
-}
-
-.similar-meta {
-  display: flex;
-  gap: 12px;
-  font-size: 13px;
-  color: #64748B;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 340px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.sidebar-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.sidebar-card h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 16px;
-}
-
-/* Publisher Info */
-.publisher-info {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.publisher-avatar img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.publisher-details {
-  flex: 1;
-}
-
-.publisher-details h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 6px;
-}
-
-.publisher-meta {
-  display: flex;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.rating {
-  color: #F59E0B;
-}
-
-.verified {
-  color: #10B981;
-}
-
-.contact-publisher-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  background: linear-gradient(135deg, #1890FF, #0EA5E9);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.contact-publisher-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.contact-publisher-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
-}
-
-/* Quick Actions */
-.actions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.action-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.action-btn:hover {
-  background: #EFF6FF;
-  border-color: #1890FF;
-  color: #1890FF;
-}
-
-/* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.stat-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  background: #F8FAFC;
-  border-radius: 8px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1890FF;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #64748B;
+  .reference-image {
+    width: 100%;
+    height: 200px;
+  }
 }
 </style>
