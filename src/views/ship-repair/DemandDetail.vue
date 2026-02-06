@@ -80,6 +80,14 @@
           </div>
         </section>
 
+        <!-- Power System (仅建造需求显示) -->
+        <section v-if="demand.type === 'build' && demand.params.powerSystem" class="power-system-section">
+          <h2>动力系统配置要求</h2>
+          <div class="power-system-content">
+            {{ demand.params.powerSystem }}
+          </div>
+        </section>
+
         <!-- Description -->
         <section class="description-section">
           <h2>补充说明</h2>
@@ -136,21 +144,6 @@
           <button class="contact-publisher-btn" :class="{ 'contacted': demand.isContacted }" @click="contactPublisher">
             {{ demand.isContacted ? '已对接' : '意向对接' }}
           </button>
-        </div>
-
-        <!-- Demand Stats -->
-        <div class="sidebar-card">
-          <h3>需求统计</h3>
-          <div class="stats-grid">
-            <div class="stat-box">
-              <span class="stat-value">{{ demand.proposals || 0 }}</span>
-              <span class="stat-label">方案数</span>
-            </div>
-            <div class="stat-box">
-              <span class="stat-value">{{ demand.views }}</span>
-              <span class="stat-label">浏览量</span>
-            </div>
-          </div>
         </div>
       </aside>
     </div>
@@ -309,11 +302,10 @@ const displayParams = computed(() => {
       'budgetRange',
     ]
   } else if (demand.value.type === 'build') {
-    // 建造需求字段
+    // 建造需求字段（powerSystem单独显示）
     fieldsToDisplay = [
       'shipType',
       'buildTonnage',
-      'powerSystem',
       'budgetRange',
     ]
   } else if (demand.value.type === 'repair') {
@@ -691,6 +683,31 @@ const reportDemand = () => {
   font-size: 13px;
   color: #64748B;
   line-height: 1.6;
+}
+
+/* Power System Section */
+.power-system-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.power-system-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16px;
+}
+
+.power-system-content {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #475569;
+  padding: 20px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border-left: 4px solid #3B82F6;
 }
 
 /* Description Section */
