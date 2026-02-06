@@ -292,7 +292,7 @@
 
             <!-- 未输入船型和吨���时的提示 -->
             <div v-else class="empty-state">
-              <p class="empty-text">请先选择船舶类型并输入吨位，系统将为您推荐相似船舶作为设计参考</p>
+              <p class="empty-text">请先选择船舶类型并输入吨位，系统将为您推荐相似船舶作为参考</p>
             </div>
           </section>
 
@@ -453,8 +453,14 @@ const formData = ref({
 
 // 选择参考船舶
 const selectVessel = (vesselId) => {
-  formData.value.selectedReferenceVessel = vesselId
-  console.log('[v0] 选择参考船舶:', vesselId)
+  // 如果点击的是已选中的船舶，则取消选择
+  if (formData.value.selectedReferenceVessel === vesselId) {
+    formData.value.selectedReferenceVessel = null
+    console.log('[v0] 取消选择参考船舶')
+  } else {
+    formData.value.selectedReferenceVessel = vesselId
+    console.log('[v0] 选择参考船舶:', vesselId)
+  }
 }
 
 const vesselInfo = ref({
@@ -504,12 +510,6 @@ const handlePreview = () => {
 }
 
 const handleSubmit = () => {
-  // 如果有相似船舶推荐，必须选择一个
-  if (similarVessels.value.length > 0 && !formData.value.selectedReferenceVessel) {
-    alert('请从推荐的参考船型中选择一个')
-    return
-  }
-
   // 使用自动生成的标题
   const submissionData = {
     ...formData.value,
