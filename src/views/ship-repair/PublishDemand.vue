@@ -153,27 +153,6 @@
             <h2 class="section-title">维修需求</h2>
             
             <div class="form-row">
-              <div class="form-item">
-                <label class="form-label required">船舶类型</label>
-                <select v-model="formData.shipType" class="form-select" required>
-                  <option value="">请选择</option>
-                  <option value="散货船">散货船</option>
-                  <option value="油船">油船</option>
-                  <option value="集装箱船">集装箱船</option>
-                  <option value="冷藏船">冷藏船</option>
-                </select>
-              </div>
-
-              <div class="form-item">
-                <label class="form-label required">吨位</label>
-                <div class="input-group">
-                  <input v-model.number="formData.repairTonnage" type="number" class="form-input" placeholder="请输入数值" required>
-                  <span class="input-suffix">DWT</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row">
               <div class="form-item full-width">
                 <label class="form-label required">关联自有船舶</label>
                 <select v-model="formData.vesselId" class="form-select" required @change="loadVesselInfo">
@@ -190,6 +169,14 @@
                 <div class="info-item">
                   <span class="info-label">船名:</span>
                   <span class="info-value">{{ vesselInfo.name }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">船舶类型:</span>
+                  <span class="info-value">{{ vesselInfo.shipType }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">吨位:</span>
+                  <span class="info-value">{{ vesselInfo.tonnage }}DWT</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">识别号:</span>
@@ -384,6 +371,8 @@ const formData = ref({
 
 const vesselInfo = ref({
   name: '',
+  shipType: '',
+  tonnage: 0,
   imo: '',
   age: 0,
   location: ''
@@ -393,17 +382,27 @@ const loadVesselInfo = () => {
   if (formData.value.vesselId === '1') {
     vesselInfo.value = {
       name: 'OCEAN STAR',
+      shipType: '散货船',
+      tonnage: 5000,
       imo: 'IMO1234567',
       age: 8,
       location: '上海港'
     }
+    // 自动填充船舶类型和吨位到表单
+    formData.value.shipType = '散货船'
+    formData.value.repairTonnage = 5000
   } else if (formData.value.vesselId === '2') {
     vesselInfo.value = {
       name: 'SEA DRAGON',
+      shipType: '油船',
+      tonnage: 8000,
       imo: 'IMO7654321',
       age: 12,
       location: '宁波港'
     }
+    // 自动填充船舶类型和吨位到表单
+    formData.value.shipType = '油船'
+    formData.value.repairTonnage = 8000
   }
 }
 
