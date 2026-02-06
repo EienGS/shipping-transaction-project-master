@@ -21,10 +21,6 @@
           <div class="info-section">
             <h2 class="section-title">关联船舶信息</h2>
             <div class="vessel-info-card">
-              <div class="vessel-header">
-                <h3 class="vessel-name">{{ demandData.vessel.name }}</h3>
-                <span class="vessel-imo">IMO {{ demandData.vessel.imo }}</span>
-              </div>
               <div class="vessel-details">
                 <div class="vessel-item">
                   <span class="vessel-label">船舶类型</span>
@@ -64,10 +60,6 @@
               <div class="info-item">
                 <span class="info-label">维修预算范围</span>
                 <span class="info-value highlight">¥{{ demandData.budgetMin }}-{{ demandData.budgetMax }}万元</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">期望对接时间</span>
-                <span class="info-value">{{ demandData.expectDate }}</span>
               </div>
             </div>
           </div>
