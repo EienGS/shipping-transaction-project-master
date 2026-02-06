@@ -5,26 +5,28 @@
       <div class="main-content">
         <!-- Header -->
         <section class="header-section">
-          <div class="detail-header">
-            <div class="header-left">
-              <button class="back-btn" @click="goBack">
+          <div class="title-row">
+            <h1 class="demand-title">
+              <span class="type-badge" :class="`type-${demand.type}`">{{ demandTypeLabel }}</span>
+              {{ demand.title }}
+            </h1>
+            <div class="actions">
+              <button class="icon-btn" :class="{ favorited: isFavorited }" @click="toggleFavorite">
                 <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.998 16.95 2.998C16.2275 2.998 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.452 9.22248 22.452 8.5C22.452 7.77752 22.3095 7.06211 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z" :stroke="isFavorited ? '#1890FF' : 'currentColor'" :fill="isFavorited ? '#1890FF' : 'none'" stroke-width="2"/>
                 </svg>
-                返回列表
               </button>
-              
-              <!-- 需求类型切换 (测试用) -->
-              <div class="type-switcher">
-                <button @click="switchDemandType('1')" :class="{ active: demandId === '1' }">设计需求</button>
-                <button @click="switchDemandType('2')" :class="{ active: demandId === '2' }">建造需求</button>
-                <button @click="switchDemandType('3')" :class="{ active: demandId === '3' }">维修需求</button>
-              </div>
+              <button class="icon-btn" @click="handleShare">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8.59 13.51L15.42 17.49M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
             </div>
           </div>
-
-          <h1 class="demand-title">{{ demand.title }}</h1>
-              
+          
           <div class="meta-info">
             <span class="meta-item">编号: {{ demand.id }}</span>
             <span class="meta-item">{{ demand.publishDate }}</span>
@@ -75,14 +77,6 @@
               </div>
               <p class="reference-description">{{ demand.referenceVessel.description }}</p>
             </div>
-          </div>
-        </section>
-
-        <!-- Power System (仅建造需求显示) -->
-        <section v-if="demand.type === 'build' && demand.params.powerSystem" class="power-system-section">
-          <h2>动力系统配置要求</h2>
-          <div class="power-system-content">
-            {{ demand.params.powerSystem }}
           </div>
         </section>
 
@@ -143,6 +137,8 @@
             {{ demand.isContacted ? '已对接' : '意向对接' }}
           </button>
         </div>
+
+
       </aside>
     </div>
   </div>
@@ -202,6 +198,44 @@ const getDemandData = (id) => {
     },
     '2': {
       id: '2',
+      type: 'design',
+      title: '5000DWT油船设计需求',
+      publishDate: '2024-01-20',
+      views: 203,
+      budget: '200-300万元',
+      description: '我司计划建造一艘5000载重吨绿色节能油船，现寻求有资质的设计院提供详细设计服务。船舶需满足最新国际海事组织规范和环保要求，具备良好的节能性能。',
+      params: {
+        shipType: '油船',
+        designTonnage: '5000',
+        navigationArea: '无限航区',
+        budgetRange: '200-300万元',
+      },
+      // 设计参考船舶
+      referenceVessel: {
+        id: 'bulk-carrier-3900',
+        name: '80米LNG ECO自卸式散货船',
+        tonnage: 3900,
+        image: '/images/vessels/bulk-carrier-3900.png',
+        length: 79.5,
+        width: 16.5,
+        depth: 7.1,
+        description: '该船总长79.5m, 型宽16.5m, 型深7.1m, 载重量（设计吃水）3900吨，满足极地Polar C要求，是一艘单机单浆混合动力推进的散杂货船。',
+      },
+      publisher: {
+        name: '大连海运集团',
+        avatar: 'https://picsum.photos/seed/pub2/80/80',
+        rating: 4.9,
+        verified: true,
+        contact: '李总',
+        phone: '139****6666',
+        contactMasked: '李*',
+        phoneMasked: '139****6666',
+      },
+      proposals: 8,
+      isContacted: false,
+    },
+    '3': {
+      id: '3',
       type: 'build',
       title: '50000DWT散货船建造需求',
       publishDate: '2024-01-20',
@@ -229,35 +263,35 @@ const getDemandData = (id) => {
         { name: '建造需求书.pdf', size: '3.1MB' },
       ],
       publisher: {
-        name: '大连海运集团',
-        avatar: 'https://picsum.photos/seed/pub2/80/80',
-        rating: 4.9,
+        name: '上海船运公司',
+        avatar: 'https://picsum.photos/seed/pub3/80/80',
+        rating: 4.8,
         verified: true,
-        contact: '李总',
-        phone: '139****6666',
-        contactMasked: '李*',
-        phoneMasked: '139****6666',
+        contact: '王经理',
+        phone: '137****5555',
+        contactMasked: '王**',
+        phoneMasked: '137****5555',
       },
       proposals: 12,
       isContacted: false,
     },
-    '3': {
-      id: '3',
+    '8': {
+      id: '8',
       type: 'repair',
-      title: '5000DWT散货船维修需求',
+      title: '14000TEU集装箱船维修需求',
       publishDate: '2024-01-25',
       views: 89,
-      budget: '50-100万元',
-      description: '我司旗下散货船OCEAN STAR需要进行常规保养和主机维修，希望寻找专业的修船厂进行维修作业。',
+      budget: '约3000万',
+      description: '我司旗下集装箱船需要进行主机大修，希望寻找专业的修船厂进行维修作业。',
       params: {
         vesselName: 'OCEAN STAR',
-        vesselType: '散货船',
-        vesselTonnage: '5000',
-        repairType: '常规保养',
-        urgency: '普通',
-        faultPart: '主机需要维护保养，更换部分磨损部件，进行坞检',
+        vesselType: '集装箱船',
+        vesselTonnage: '14000TEU',
+        repairType: '主机大修',
+        urgency: '紧急',
+        faultPart: '主机需要大修，更换部分磨损部件',
         repairLocation: '船厂维修',
-        budgetRange: '50-100万元',
+        budgetRange: '约3000万',
       },
       attachments: [],
       publisher: {
@@ -281,16 +315,6 @@ const getDemandData = (id) => {
 // Mock demand data - 根据需求类型显示不同字段
 const demand = ref(getDemandData(demandId))
 
-console.log('[v0] Current demand ID:', demandId)
-console.log('[v0] Demand type:', demand.value.type)
-console.log('[v0] Demand params:', demand.value.params)
-console.log('[v0] Has referenceVessel:', !!demand.value.referenceVessel)
-console.log('[v0] Reference vessel data:', demand.value.referenceVessel)
-
-console.log('[v0] 当前需求ID:', demandId)
-console.log('[v0] 需求类型:', demand.value.type)
-console.log('[v0] 需求数据:', demand.value)
-
 const demandTypeLabel = computed(() => {
   const labels = { design: '设计需求', build: '建造需求', repair: '维修需求' }
   return labels[demand.value.type] || '需求'
@@ -310,10 +334,11 @@ const displayParams = computed(() => {
       'budgetRange',
     ]
   } else if (demand.value.type === 'build') {
-    // 建造需求字段（powerSystem单独显示）
+    // 建造需求字段
     fieldsToDisplay = [
       'shipType',
       'buildTonnage',
+      'powerSystem',
       'budgetRange',
     ]
   } else if (demand.value.type === 'repair') {
@@ -330,15 +355,12 @@ const displayParams = computed(() => {
     ]
   }
 
-  const result = fieldsToDisplay
+  return fieldsToDisplay
     .filter(key => params[key] !== undefined)
     .map(key => ({
       label: getParamLabel(key),
       value: params[key] || '未填写',
     }))
-  
-  console.log('[v0] Display params for type:', demand.value.type, result)
-  return result
 })
 
 const getParamLabel = (key) => {
@@ -394,15 +416,6 @@ const downloadFile = (file) => {
 const viewDemand = (id) => {
   console.log('查看需求:', id)
   router.push(`/ship-repair/demand/${id}`)
-}
-
-const switchDemandType = (id) => {
-  demand.value = getDemandData(id)
-  console.log('[v0] 切换到需求类型:', demand.value.type, '需求ID:', id)
-}
-
-const goBack = () => {
-  router.back()
 }
 
 const contactPublisher = () => {
@@ -703,31 +716,6 @@ const reportDemand = () => {
   font-size: 13px;
   color: #64748B;
   line-height: 1.6;
-}
-
-/* Power System Section */
-.power-system-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.power-system-section h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1A1A1A;
-  margin-bottom: 16px;
-}
-
-.power-system-content {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #475569;
-  padding: 20px;
-  background: #F8FAFC;
-  border-radius: 8px;
-  border-left: 4px solid #3B82F6;
 }
 
 /* Description Section */
@@ -1050,38 +1038,6 @@ const reportDemand = () => {
 .recommendation-meta {
   font-size: 12px;
   color: #64748B;
-}
-
-/* Type Switcher */
-.type-switcher {
-  display: flex;
-  gap: 8px;
-  padding: 4px;
-  background: #F1F5F9;
-  border-radius: 8px;
-}
-
-.type-switcher button {
-  padding: 6px 12px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.type-switcher button:hover {
-  background: #E2E8F0;
-  color: #1E293B;
-}
-
-.type-switcher button.active {
-  background: white;
-  color: #3B82F6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式设计 */

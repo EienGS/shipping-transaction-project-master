@@ -89,7 +89,7 @@
               </span>
             </div>
           </div>
-          
+
           <!-- 状态标识 -->
           <div class="status-indicators">
             <div class="status-indicator-item">
@@ -198,22 +198,22 @@
               <div class="contact-item">
                 <span class="contact-label">联系人:</span>
                 <span class="contact-value">{{ (intentionStatus === 'accepted' || showContact) ? publisherData.contact :
-                  '***'}}</span>
+                  '***' }}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">电话:</span>
                 <span class="contact-value">{{ (intentionStatus === 'accepted' || showContact) ? publisherData.phone :
-                  '***'}}</span>
+                  '***' }}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">微信:</span>
                 <span class="contact-value">{{ (intentionStatus === 'accepted' || showContact) ? publisherData.wechat :
-                  '***'}}</span>
+                  '***' }}</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">邮箱:</span>
                 <span class="contact-value">{{ (intentionStatus === 'accepted' || showContact) ? publisherData.email :
-                  '***'}}</span>
+                  '***' }}</span>
               </div>
             </div>
             <div v-if="!isOwnVessel">
@@ -784,9 +784,11 @@ const nextRecommendation = () => {
 }
 
 /* 近五年安全状态 */
+.safety-stats {
   font-weight: 500;
   display: block;
   text-align: center;
+  
 }
 
 /* 近五年安全状态 */

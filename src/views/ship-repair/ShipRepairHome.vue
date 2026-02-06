@@ -130,13 +130,13 @@
 
               <!-- 卡片主体 -->
               <div class="card-body">
-                <div class="info-item" v-if="demand.capacity">
+                <div class="info-item" v-if="demand.shipType">
                   <span class="info-label">船舶类型：</span>
-                  <span class="info-value">{{ demand.capacity }}</span>
+                  <span class="info-value">{{ demand.shipType }}</span>
                 </div>
-                <div class="info-item" v-if="demand.deliverTime">
-                  <span class="info-label">交付时间：</span>
-                  <span class="info-value">{{ demand.deliverTime }}</span>
+                <div class="info-item" v-if="demand.tonnage">
+                  <span class="info-label">船舶吨位：</span>
+                  <span class="info-value">{{ demand.tonnage }}</span>
                 </div>
                 <div class="info-item" v-if="demand.location">
                   <span class="info-label">地区：</span>
@@ -302,12 +302,11 @@ const demands = ref([
     id: 1,
     type: 'design',
     code: 'D2023102401',
-    // 将标题拆分，以便在中间插入高亮标签
     titlePrefix: '需设计',
     titleSuffix: '大型集装箱船',
-    capacity: '24000TEU', // 这个将显示为蓝色标签
-    budget: '约8000万',
-    deliverTime: '2025年Q2',
+    shipType: '集装箱船',
+    tonnage: '24000TEU',
+    budget: '200-300万元',
     location: '上海',
     timeAgo: '30分钟前',
     urgency: 'normal',
@@ -318,9 +317,9 @@ const demands = ref([
     code: 'D2023102402',
     titlePrefix: '需设计',
     titleSuffix: '绿色节能油船',
-    capacity: '300000DWT',
-    budget: '约1.2亿',
-    deliverTime: '2025年Q4',
+    shipType: '油船',
+    tonnage: '5000DWT',
+    budget: '200-300万元',
     location: '大连',
     timeAgo: '2小时前',
     urgency: 'urgent',
@@ -329,12 +328,11 @@ const demands = ref([
     id: 3,
     type: 'build',
     code: 'B2023102401',
-    // 将标题拆分，以便在中间插入高亮标签
     titlePrefix: '需建造',
     titleSuffix: '卡尔萨姆型散货船',
-    capacity: '82000DWT', // 这个将显示为蓝色标签
-    budget: '约2.5亿',
-    deliverTime: '2025年Q3',
+    shipType: '散货船',
+    tonnage: '50000DWT',
+    budget: '5000-8000万元',
     location: '上海',
     timeAgo: '1小时前',
     urgency: 'normal',
@@ -344,8 +342,9 @@ const demands = ref([
     type: 'build',
     code: 'B2023102402',
     titlePrefix: '需建造',
-    titleSuffix: '卡尔萨姆型散货船',
-    capacity: '82000DWT',
+    titleSuffix: '大型散货船',
+    shipType: '散货船',
+    tonnage: '82000DWT',
     budget: '约2.5亿',
     deliverTime: '2025年Q3',
     location: '', // 设计图中有的没有地区
@@ -358,9 +357,9 @@ const demands = ref([
     code: 'B2023102403',
     titlePrefix: '需建造',
     titleSuffix: '卡尔萨姆型散货船',
-    capacity: '82000DWT',
+    shipType: '散货船',
+    tonnage: '82000DWT',
     budget: '约2.5亿',
-    deliverTime: '2025年Q3',
     location: '',
     timeAgo: '1小时前',
     urgency: 'normal',
@@ -371,9 +370,9 @@ const demands = ref([
     code: 'B2023102404',
     titlePrefix: '需建造',
     titleSuffix: '超大型油轮',
-    capacity: '400000DWT',
+    shipType: '油船',
+    tonnage: '400000DWT',
     budget: '约5亿',
-    deliverTime: '2025年Q2',
     location: '天津',
     timeAgo: '3小时前',
     urgency: 'normal',
@@ -384,9 +383,9 @@ const demands = ref([
     code: 'B2023102405',
     titlePrefix: '需建造',
     titleSuffix: '液化天然气运输船',
-    capacity: '174000m³',
+    shipType: 'LNG船',
+    tonnage: '174000m³',
     budget: '约4亿',
-    deliverTime: '2025年Q4',
     location: '福建',
     timeAgo: '5小时前',
     urgency: 'urgent',
@@ -397,9 +396,9 @@ const demands = ref([
     code: 'R2023102401',
     titlePrefix: '需维修',
     titleSuffix: '集装箱船主机大修',
-    capacity: '14000TEU',
+    shipType: '集装箱船',
+    tonnage: '14000TEU',
     budget: '约3000万',
-    deliverTime: '1个月内',
     location: '舟山',
     timeAgo: '15分钟前',
     urgency: 'urgent',
@@ -410,9 +409,9 @@ const demands = ref([
     code: 'R2023102402',
     titlePrefix: '需维修',
     titleSuffix: '油轮定期检验',
-    capacity: '300000DWT',
+    shipType: '油船',
+    tonnage: '300000DWT',
     budget: '约5000万',
-    deliverTime: '2周内',
     location: '青岛',
     timeAgo: '1小时前',
     urgency: 'normal',
@@ -423,9 +422,9 @@ const demands = ref([
     code: 'R2023102403',
     titlePrefix: '需维修',
     titleSuffix: '散货船进坞修理',
-    capacity: '200000DWT',
+    shipType: '散货船',
+    tonnage: '200000DWT',
     budget: '约2000万',
-    deliverTime: '3周内',
     location: '广州',
     timeAgo: '2小时前',
     urgency: 'normal',
@@ -466,7 +465,7 @@ const viewProviderDetail = (id) => {
   const provider = providers.value.find(p => p.id === id)
   console.log('查看服务方详情:', id, '类型:', provider?.type)
   
-  // 根据服务方类型跳转到不同的详情页
+  // 根据服务方类型���转到不同的详情页
   if (provider?.type === 'design') {
     router.push(`/ship-repair/design/${id}`)
   } else if (provider?.type === 'build') {
@@ -477,17 +476,8 @@ const viewProviderDetail = (id) => {
 }
 const viewDemandDetail = (id) => {
   console.log('[v0] 查看需求详情:', id)
-  const demand = demands.value.find(d => d.id === id)
-  if (demand) {
-    if (demand.type === 'build') {
-      router.push(`/ship-repair/build-demand/${id}`)
-    } else if (demand.type === 'repair') {
-      router.push(`/ship-repair/repair-demand/${id}`)
-    } else {
-      // 设计需求使用通用详情页
-      router.push(`/ship-repair/demand/${id}`)
-    }
-  }
+  // 所有需求类型都使用统一的详情页
+  router.push(`/ship-repair/demand/${id}`)
 }
 const contactDemand = (id) => { console.log('对接意向:', id) }
 const toggleFavorite = (id) => { console.log('收藏:', id) }
