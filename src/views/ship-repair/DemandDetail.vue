@@ -134,41 +134,101 @@ const demandId = route.params.id
 
 const isFavorited = ref(false)
 
-// Mock demand data
-const demand = ref({
-  id: demandId,
-  type: 'design',
-  title: '82000吨散货船详细设计需求',
-  publishDate: '2024-01-15',
-  views: 156,
-  budget: '面议',
-  description: '我司计划建造一艘82000载重吨散货船，现寻求有资质的设计院提供详细设计服务。船舶需满足最新国际海事组织规范，具备良好的节能性能和经济性。希望设计院具有丰富的散货船设计经验，并能提供完整的技术支持服务。',
-  params: {
-    shipType: '散货船',
-    deadweight: '82000吨',
-    length: '229米',
-    breadth: '32.26米',
-    depth: '18.2米',
-    draft: '12.5米',
-    speed: '14.5节',
-    mainEngine: 'MAN B&W 6S50ME-C9.5',
-    classification: 'CCS',
-    navigationArea: '无限航区',
-    buildLocation: '江苏省南通市',
-    deliveryDate: '2025年12月',
-  },
-  attachments: [
-    { name: '需求说明书.pdf', size: '2.3MB' },
-    { name: '技术规格书.docx', size: '1.5MB' },
-  ],
-  publisher: {
-    name: '上海远洋运输有限公司',
-    avatar: 'https://picsum.photos/seed/pub1/80/80',
-    rating: 4.7,
-    verified: true,
-  },
-  proposals: 8,
-})
+// 根据URL参数或需求ID模拟不同类型的需求数据
+const getDemandData = (id) => {
+  // 模拟数据库查询，这里根据ID返回不同类型的需求
+  const demands = {
+    '1': {
+      id: '1',
+      type: 'design',
+      title: '5000DWT散货船设计需求',
+      publishDate: '2024-01-15',
+      views: 156,
+      budget: '200-300万元',
+      description: '我司计划建造一艘5000载重吨散货船，现寻求有资质的设计院提供详细设计服务。船舶需满足最新国际海事组织规范，具备良好的节能性能和经济性。希望设计院具有丰富的散货船设计经验，并能提供完整的技术支持服务。',
+      params: {
+        shipType: '散货船',
+        designTonnage: '5000',
+        navigationArea: '无限航区',
+        budgetRange: '200-300万元',
+        contact: '张经理',
+        phone: '138****8888',
+      },
+      attachments: [
+        { name: '设计需求说明书.pdf', size: '2.3MB' },
+        { name: '技术规格书.docx', size: '1.5MB' },
+      ],
+      publisher: {
+        name: '上海远洋运输有限公司',
+        avatar: 'https://picsum.photos/seed/pub1/80/80',
+        rating: 4.7,
+        verified: true,
+      },
+      proposals: 8,
+    },
+    '2': {
+      id: '2',
+      type: 'build',
+      title: '50000DWT散货船建造需求',
+      publishDate: '2024-01-20',
+      views: 203,
+      budget: '5000-8000万元',
+      description: '我司需要建造一艘50000吨散货船，希望寻找有资质的船厂进行合作。船舶需要满足最新的环保标准和安全要求，具备良好的经济性和可靠性。',
+      params: {
+        shipType: '散货船',
+        buildTonnage: '50000',
+        powerSystem: '采用MAN B&W低速柴油机，配备SCR脱硝系统和节能装置，满足IMO Tier III排放标准',
+        budgetRange: '5000-8000万元',
+        contact: '李总',
+        phone: '139****6666',
+      },
+      attachments: [
+        { name: '建造需求书.pdf', size: '3.1MB' },
+      ],
+      publisher: {
+        name: '大连海运集团',
+        avatar: 'https://picsum.photos/seed/pub2/80/80',
+        rating: 4.9,
+        verified: true,
+      },
+      proposals: 12,
+    },
+    '3': {
+      id: '3',
+      type: 'repair',
+      title: '5000DWT散货船维修需求',
+      publishDate: '2024-01-25',
+      views: 89,
+      budget: '50-100万元',
+      description: '我司旗下散货船OCEAN STAR需要进行常规保养和主机维修，希望寻找专业的修船厂进行维修作业。',
+      params: {
+        vesselName: 'OCEAN STAR',
+        vesselType: '散货船',
+        vesselTonnage: '5000',
+        repairType: '常规保养',
+        urgency: '普通',
+        faultPart: '主机需要维护保养，更换部分磨损部件，进行坞检',
+        repairLocation: '船厂维修',
+        budgetRange: '50-100万元',
+        contact: '王船长',
+        phone: '137****5555',
+      },
+      attachments: [],
+      publisher: {
+        name: '宁波航运有限公司',
+        avatar: 'https://picsum.photos/seed/pub3/80/80',
+        rating: 4.6,
+        verified: true,
+      },
+      proposals: 5,
+    },
+  }
+
+  return demands[id] || demands['1']
+}
+
+// Mock demand data - 根据需求类型显示不同字段
+const demand = ref(getDemandData(demandId))
 
 const demandTypeLabel = computed(() => {
   const labels = { design: '设计需求', build: '建造需求', repair: '维修需求' }
@@ -176,26 +236,75 @@ const demandTypeLabel = computed(() => {
 })
 
 const displayParams = computed(() => {
-  return Object.entries(demand.value.params).map(([key, value]) => ({
-    label: getParamLabel(key),
-    value: value || '未填写',
-  }))
+  const params = demand.value.params
+  let fieldsToDisplay = []
+
+  // 根据需求类型选择要显示的字段
+  if (demand.value.type === 'design') {
+    // 设计需求字段
+    fieldsToDisplay = [
+      'shipType',
+      'designTonnage',
+      'navigationArea',
+      'budgetRange',
+      'contact',
+      'phone',
+    ]
+  } else if (demand.value.type === 'build') {
+    // 建造需求字段
+    fieldsToDisplay = [
+      'shipType',
+      'buildTonnage',
+      'powerSystem',
+      'budgetRange',
+      'contact',
+      'phone',
+    ]
+  } else if (demand.value.type === 'repair') {
+    // 维修需求字段
+    fieldsToDisplay = [
+      'vesselName',
+      'vesselType',
+      'vesselTonnage',
+      'repairType',
+      'urgency',
+      'faultPart',
+      'repairLocation',
+      'budgetRange',
+      'contact',
+      'phone',
+    ]
+  }
+
+  return fieldsToDisplay
+    .filter(key => params[key] !== undefined)
+    .map(key => ({
+      label: getParamLabel(key),
+      value: params[key] || '未填写',
+    }))
 })
 
 const getParamLabel = (key) => {
   const labels = {
+    // 设计需求
     shipType: '船舶类型',
-    deadweight: '载重吨',
-    length: '船长',
-    breadth: '型宽',
-    depth: '型深',
-    draft: '设计吃水',
-    speed: '航速',
-    mainEngine: '主机型号',
-    classification: '船级',
-    navigationArea: '航区',
-    buildLocation: '建造地点',
-    deliveryDate: '交船日期',
+    designTonnage: '设计吨位（DWT）',
+    navigationArea: '航区要求',
+    // 建造需求
+    buildTonnage: '建造吨位（DWT）',
+    powerSystem: '动力系统配置要求',
+    // 维修需求
+    vesselName: '船舶名称',
+    vesselType: '船舶类型',
+    vesselTonnage: '吨位（DWT）',
+    repairType: '维修内容',
+    urgency: '维修紧急程度',
+    faultPart: '故障/维修部位',
+    repairLocation: '维修地点偏好',
+    // 通用
+    budgetRange: '预算范围',
+    contact: '联系人',
+    phone: '联系电话',
   }
   return labels[key] || key
 }

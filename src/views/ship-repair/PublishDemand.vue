@@ -401,7 +401,7 @@ const similarVessels = computed(() => {
   }
 
   console.log('[v0] 查询相似船舶:', { shipType, tonnage })
-  const results = findSimilarVessels(shipType, tonnage, 500)
+  const results = findSimilarVessels(shipType, tonnage, 1000)
   console.log('[v0] 找到相似船舶:', results.length, '艘')
   
   return results
