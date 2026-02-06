@@ -220,9 +220,14 @@ const routes = [
     component: () => import('../views/monitoring/MonitoringDashboard.vue')
   },
   {
+    path: '/ship-repair/design-demand/:id',
+    name: 'DesignDemandDetail',
+    component: () => import('../views/ship-repair/DesignDemandDetail.vue')
+  },
+  {
     path: '/ship-repair/build-demand/:id',
-    name: 'ShipbuildingDemandDetail',
-    component: () => import('../views/ship-repair/ShipbuildingDemandDetail.vue')
+    name: 'BuildDemandDetail',
+    component: () => import('../views/ship-repair/BuildDemandDetail.vue')
   },
   {
     path: '/ship-repair/repair-demand/:id',
