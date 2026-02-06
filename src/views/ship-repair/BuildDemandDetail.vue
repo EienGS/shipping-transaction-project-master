@@ -62,6 +62,10 @@
               <span class="param-value">{{ demand.buildTonnage }}</span>
             </div>
             <div class="param-item">
+              <span class="param-label">需求所在地</span>
+              <span class="param-value">{{ demand.location || '未填写' }}</span>
+            </div>
+            <div class="param-item">
               <span class="param-label">预算范围</span>
               <span class="param-value">{{ demand.budgetRange }}</span>
             </div>
@@ -161,6 +165,7 @@ const getBuildDemand = (id) => {
       description: '我司需要建造一艘50000吨散货船，希望寻找有资质的船厂进行合作。船舶需要满足最新的环保标准和安全要求，具备良好的经济性和可靠性。',
       shipType: '散货船',
       buildTonnage: '50000',
+      location: '上海',
       powerSystem: '采用MAN B&W低速柴油机，配备SCR脱硝系统和节能装置，满足IMO Tier III排放标准',
       budgetRange: '5000-8000万元',
       referenceVessel: {

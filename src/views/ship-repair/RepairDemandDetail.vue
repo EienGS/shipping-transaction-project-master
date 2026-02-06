@@ -58,6 +58,10 @@
                 <span class="info-value">{{ getRepairLocationText(demandData.repairLocation) }}</span>
               </div>
               <div class="info-item">
+                <span class="info-label">需求所在地</span>
+                <span class="info-value">{{ demandData.location || '未填写' }}</span>
+              </div>
+              <div class="info-item">
                 <span class="info-label">维修预算范围</span>
                 <span class="info-value highlight">¥{{ demandData.budgetMin }}-{{ demandData.budgetMax }}万元</span>
               </div>
@@ -211,6 +215,7 @@ const demandData = ref({
   urgency: 'urgent',
   faultPart: '主机第3缸出现异响，功率下降明显。初步判断可能是活塞环磨损或气缸套损伤。需要专业维修团队进行详细检查和维修。船舶目前停靠在上海港，希望尽快安排维修，减少停泊时间和经济损失。',
   repairLocation: 'port',
+  location: '上海',
   budgetMin: 50,
   budgetMax: 100,
   expectDate: '2026-01-20',

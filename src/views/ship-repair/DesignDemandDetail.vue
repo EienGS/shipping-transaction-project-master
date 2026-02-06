@@ -66,6 +66,10 @@
               <span class="param-value">{{ demand.navigationArea }}</span>
             </div>
             <div class="param-item">
+              <span class="param-label">需求所在地</span>
+              <span class="param-value">{{ demand.location || '未填写' }}</span>
+            </div>
+            <div class="param-item">
               <span class="param-label">预算范围</span>
               <span class="param-value">{{ demand.budgetRange }}</span>
             </div>
@@ -160,6 +164,7 @@ const getDesignDemand = (id) => {
       shipType: '散货船',
       designTonnage: '5000',
       navigationArea: '无限航区',
+      location: '上海',
       budgetRange: '200-300万元',
       referenceVessel: {
         id: 'bulk-carrier-3900',
@@ -193,6 +198,7 @@ const getDesignDemand = (id) => {
       shipType: '油船',
       designTonnage: '5000',
       navigationArea: '无限航区',
+      location: '大连',
       budgetRange: '200-300万元',
       referenceVessel: {
         id: 'bulk-carrier-3900',
