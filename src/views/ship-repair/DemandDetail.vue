@@ -86,8 +86,8 @@
           <div class="description-content">{{ demand.description }}</div>
         </section>
 
-        <!-- Attachments (设计需求不显示附件) -->
-        <section class="attachments-section" v-if="demand.type !== 'design' && demand.attachments && demand.attachments.length > 0">
+        <!-- Attachments (设计需求和建造需求不显示附件) -->
+        <section class="attachments-section" v-if="demand.type === 'repair' && demand.attachments && demand.attachments.length > 0">
           <h2>附件资料</h2>
           <div class="attachments-list">
             <div v-for="file in demand.attachments" :key="file.name" class="attachment-item">
