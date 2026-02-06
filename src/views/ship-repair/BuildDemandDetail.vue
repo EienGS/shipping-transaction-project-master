@@ -70,7 +70,7 @@
 
         <!-- Reference Vessel -->
         <section v-if="demand.referenceVessel" class="reference-section">
-          <h2>设计参考</h2>
+          <h2>建造参考</h2>
           <div class="reference-vessel-card">
             <div class="reference-image">
               <img :src="demand.referenceVessel.image" :alt="demand.referenceVessel.name">
