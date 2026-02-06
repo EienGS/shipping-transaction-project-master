@@ -476,8 +476,17 @@ const viewProviderDetail = (id) => {
 }
 const viewDemandDetail = (id) => {
   console.log('[v0] 查看需求详情:', id)
-  // 所有需求类型都使用统一的详情页
-  router.push(`/ship-repair/demand/${id}`)
+  const demand = demands.value.find(d => d.id === id)
+  if (demand) {
+    // 根据需求类型跳转到对应的详情页
+    if (demand.type === 'design') {
+      router.push(`/ship-repair/design-demand/${id}`)
+    } else if (demand.type === 'build') {
+      router.push(`/ship-repair/build-demand/${id}`)
+    } else if (demand.type === 'repair') {
+      router.push(`/ship-repair/repair-demand/${id}`)
+    }
+  }
 }
 const contactDemand = (id) => { console.log('对接意向:', id) }
 const toggleFavorite = (id) => { console.log('收藏:', id) }
