@@ -281,6 +281,12 @@ const getDemandData = (id) => {
 // Mock demand data - 根据需求类型显示不同字段
 const demand = ref(getDemandData(demandId))
 
+console.log('[v0] Current demand ID:', demandId)
+console.log('[v0] Demand type:', demand.value.type)
+console.log('[v0] Demand params:', demand.value.params)
+console.log('[v0] Has referenceVessel:', !!demand.value.referenceVessel)
+console.log('[v0] Reference vessel data:', demand.value.referenceVessel)
+
 console.log('[v0] 当前需求ID:', demandId)
 console.log('[v0] 需求类型:', demand.value.type)
 console.log('[v0] 需求数据:', demand.value)
@@ -324,12 +330,15 @@ const displayParams = computed(() => {
     ]
   }
 
-  return fieldsToDisplay
+  const result = fieldsToDisplay
     .filter(key => params[key] !== undefined)
     .map(key => ({
       label: getParamLabel(key),
       value: params[key] || '未填写',
     }))
+  
+  console.log('[v0] Display params for type:', demand.value.type, result)
+  return result
 })
 
 const getParamLabel = (key) => {
