@@ -223,37 +223,25 @@
             <span class="no-investigation-text">✓ 无海事协查记录</span>
           </div>
 
-          <!-- 近五年安全状态 - 使用统计卡片 -->
+          <!-- 近五年安全状态 - 简约设计 -->
           <div class="safety-section">
             <h4 class="subsection-title">近五年安全状态</h4>
             <div class="safety-stats">
               <div class="stat-card">
-                <div class="stat-icon psc">PSC</div>
-                <div class="stat-content">
-                  <div class="stat-label">PSC滞留</div>
-                  <div class="stat-value">{{ formData.safetyStats.pscDetention || 0 }} 次</div>
-                </div>
+                <div class="stat-label">PSC滞留</div>
+                <div class="stat-value">{{ formData.safetyStats.pscDetention || 0 }}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon fsc">FSC</div>
-                <div class="stat-content">
-                  <div class="stat-label">FSC滞留</div>
-                  <div class="stat-value">{{ formData.safetyStats.fscDetention || 0 }} 次</div>
-                </div>
+                <div class="stat-label">FSC滞留</div>
+                <div class="stat-value">{{ formData.safetyStats.fscDetention || 0 }}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon penalty">处罚</div>
-                <div class="stat-content">
-                  <div class="stat-label">行政处罚</div>
-                  <div class="stat-value">{{ formData.safetyStats.administrativePenalty || 0 }} 次</div>
-                </div>
+                <div class="stat-label">行政处罚</div>
+                <div class="stat-value">{{ formData.safetyStats.administrativePenalty || 0 }}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon accident">事故</div>
-                <div class="stat-content">
-                  <div class="stat-label">事故数量</div>
-                  <div class="stat-value">{{ formData.safetyStats.accidents || 0 }} 次</div>
-                </div>
+                <div class="stat-label">事故数量</div>
+                <div class="stat-value">{{ formData.safetyStats.accidents || 0 }}</div>
               </div>
             </div>
           </div>
@@ -375,7 +363,7 @@ const currentStep = ref(1)
 // 搜索关键词
 const searchKeyword = ref('')
 
-// 模拟的船舶列表（包含完整船舶信息）
+// 模拟的船舶列表（包��完整船舶信息）
 const vessels = ref([
   {
     id: 1,
@@ -1270,7 +1258,7 @@ const handleCancel = () => {
   font-weight: 500;
 }
 
-/* 安全统计卡片 - 简约设计 */
+/* 安全统计卡片 - 极简设计 */
 .safety-section {
   margin-bottom: 24px;
 }
@@ -1278,86 +1266,39 @@ const handleCancel = () => {
 .safety-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 12px;
 }
 
 .stat-card {
-  background: white;
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background: #fafafa;
+  padding: 28px 20px;
+  border-radius: 6px;
   text-align: center;
-  transition: background 0.2s;
-  position: relative;
+  transition: all 0.2s ease;
+  border: 1px solid #f0f0f0;
 }
 
 .stat-card:hover {
-  background: #f9fafb;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--stat-color);
-}
-
-.stat-card:nth-child(1) {
-  --stat-color: #3b82f6;
-}
-
-.stat-card:nth-child(2) {
-  --stat-color: #8b5cf6;
-}
-
-.stat-card:nth-child(3) {
-  --stat-color: #f59e0b;
-}
-
-.stat-card:nth-child(4) {
-  --stat-color: #ef4444;
-}
-
-.stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 12px;
-  letter-spacing: 0.5px;
-  background: var(--stat-color);
-}
-
-.stat-content {
-  width: 100%;
+  background: white;
+  border-color: #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .stat-label {
   font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 6px;
-  font-weight: 500;
+  color: #8c8c8c;
+  margin-bottom: 10px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
-  letter-spacing: -1px;
+  font-size: 36px;
+  font-weight: 600;
+  color: #262626;
+  letter-spacing: -1.5px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 响应式设计 */
