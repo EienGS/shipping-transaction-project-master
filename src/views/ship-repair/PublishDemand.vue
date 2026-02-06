@@ -11,41 +11,22 @@
           <!-- 通用基础信息 -->
           <section class="form-section">
             <h2 class="section-title">基础信息</h2>
-            
-            <div class="form-row">
-              <div class="form-item">
-                <label class="form-label required">需求标题</label>
-                <input v-model="formData.title" type="text" class="form-input" placeholder="请输入需求标题（不超过30字）" maxlength="30" required>
-              </div>
+
+            <!-- 自动生成的标题预览 -->
+            <div v-if="generateTitle" class="title-preview">
+              <span class="preview-label">需求标题（自动生成）：</span>
+              <span class="preview-value">{{ generateTitle }}</span>
             </div>
 
             <div class="form-row">
-              <div class="form-item">
-                <label class="form-label required">船舶类型</label>
-                <select v-model="formData.shipType" class="form-select" required>
-                  <option value="">请选择</option>
-                  <option value="bulk">散货船</option>
-                  <option value="tanker">油船</option>
-                  <option value="container">集装箱船</option>
-                  <option value="reefer">冷藏船</option>
-                </select>
-              </div>
-
               <div class="form-item">
                 <label class="form-label required">联系人</label>
                 <input v-model="formData.contact" type="text" class="form-input" placeholder="请输入联系人" required>
               </div>
-            </div>
 
-            <div class="form-row">
               <div class="form-item">
                 <label class="form-label required">联系电话</label>
                 <input v-model="formData.phone" type="tel" class="form-input" placeholder="请输入联系电话" required>
-              </div>
-
-              <div class="form-item">
-                <label class="form-label required">期望对接时间</label>
-                <input v-model="formData.expectDate" type="date" class="form-input" required>
               </div>
             </div>
           </section>
@@ -56,13 +37,26 @@
             
             <div class="form-row">
               <div class="form-item">
+                <label class="form-label required">船舶类型</label>
+                <select v-model="formData.shipType" class="form-select" required>
+                  <option value="">请选择</option>
+                  <option value="散货船">散货船</option>
+                  <option value="油船">油船</option>
+                  <option value="集装箱船">集装箱船</option>
+                  <option value="冷藏船">冷藏船</option>
+                </select>
+              </div>
+
+              <div class="form-item">
                 <label class="form-label required">设计吨位</label>
                 <div class="input-group">
                   <input v-model.number="formData.designTonnage" type="number" class="form-input" placeholder="请输入数值" required>
                   <span class="input-suffix">DWT</span>
                 </div>
               </div>
+            </div>
 
+            <div class="form-row">
               <div class="form-item">
                 <label class="form-label required">航区要求</label>
                 <select v-model="formData.navigationArea" class="form-select" required>
@@ -72,14 +66,14 @@
                   <option value="river">内河航区</option>
                 </select>
               </div>
-            </div>
 
-            <div class="form-row">
               <div class="form-item">
                 <label class="form-label required">设计交付周期要求</label>
                 <input v-model="formData.deliveryCycle" type="text" class="form-input" placeholder="例如：3-6个月" required>
               </div>
+            </div>
 
+            <div class="form-row">
               <div class="form-item">
                 <label class="form-label">设计预算范围</label>
                 <div class="input-group">
@@ -98,13 +92,26 @@
             
             <div class="form-row">
               <div class="form-item">
+                <label class="form-label required">船舶类型</label>
+                <select v-model="formData.shipType" class="form-select" required>
+                  <option value="">请选择</option>
+                  <option value="散货船">散货船</option>
+                  <option value="油船">油船</option>
+                  <option value="集装箱船">集装箱船</option>
+                  <option value="冷藏船">冷藏船</option>
+                </select>
+              </div>
+
+              <div class="form-item">
                 <label class="form-label required">建造吨位</label>
                 <div class="input-group">
                   <input v-model.number="formData.buildTonnage" type="number" class="form-input" placeholder="请输入数值" required>
                   <span class="input-suffix">DWT</span>
                 </div>
               </div>
+            </div>
 
+            <div class="form-row">
               <div class="form-item">
                 <label class="form-label required">船体材质要求</label>
                 <select v-model="formData.hullMaterial" class="form-select" required>
@@ -113,6 +120,11 @@
                   <option value="aluminum">铝合金</option>
                   <option value="frp">玻璃钢</option>
                 </select>
+              </div>
+
+              <div class="form-item">
+                <label class="form-label required">建造交付周期</label>
+                <input v-model="formData.buildCycle" type="text" class="form-input" placeholder="例如：12-18个月" required>
               </div>
             </div>
 
@@ -124,11 +136,6 @@
             </div>
 
             <div class="form-row">
-              <div class="form-item">
-                <label class="form-label required">建造交付周期</label>
-                <input v-model="formData.buildCycle" type="text" class="form-input" placeholder="例如：12-18个月" required>
-              </div>
-
               <div class="form-item">
                 <label class="form-label required">预算范围</label>
                 <div class="input-group">
@@ -145,6 +152,27 @@
           <section v-if="demandType === 'repair'" class="form-section">
             <h2 class="section-title">维修需求</h2>
             
+            <div class="form-row">
+              <div class="form-item">
+                <label class="form-label required">船舶类型</label>
+                <select v-model="formData.shipType" class="form-select" required>
+                  <option value="">请选择</option>
+                  <option value="散货船">散货船</option>
+                  <option value="油船">油船</option>
+                  <option value="集装箱船">集装箱船</option>
+                  <option value="冷藏船">冷藏船</option>
+                </select>
+              </div>
+
+              <div class="form-item">
+                <label class="form-label required">吨位</label>
+                <div class="input-group">
+                  <input v-model.number="formData.repairTonnage" type="number" class="form-input" placeholder="请输入数值" required>
+                  <span class="input-suffix">DWT</span>
+                </div>
+              </div>
+            </div>
+
             <div class="form-row">
               <div class="form-item full-width">
                 <label class="form-label required">关联自有船舶</label>
@@ -298,12 +326,40 @@ const pageDescription = computed(() => {
   return descs[demandType.value] || ''
 })
 
+// 自动生成需求标题：吨位 + 船舶类型 + 需求类型
+const generateTitle = computed(() => {
+  let tonnage = ''
+  let shipType = formData.value.shipType || ''
+  let demandTypeText = ''
+
+  // 获取吨位
+  if (demandType.value === 'design' && formData.value.designTonnage) {
+    tonnage = `${formData.value.designTonnage}DWT`
+  } else if (demandType.value === 'build' && formData.value.buildTonnage) {
+    tonnage = `${formData.value.buildTonnage}DWT`
+  } else if (demandType.value === 'repair' && formData.value.repairTonnage) {
+    tonnage = `${formData.value.repairTonnage}DWT`
+  }
+
+  // 获取需求类型
+  const demandTypeMap = {
+    design: '设计需求',
+    build: '建造需求',
+    repair: '维修需求'
+  }
+  demandTypeText = demandTypeMap[demandType.value] || ''
+
+  // 组合标题
+  if (tonnage && shipType && demandTypeText) {
+    return `${tonnage}${shipType}${demandTypeText}`
+  }
+  return ''
+})
+
 const formData = ref({
-  title: '',
   shipType: '',
   contact: '',
   phone: '',
-  expectDate: '',
   notes: '',
   // 设计专属
   designTonnage: null,
@@ -315,6 +371,7 @@ const formData = ref({
   powerSystem: '',
   buildCycle: '',
   // 维修专属
+  repairTonnage: null,
   vesselId: '',
   repairType: '',
   urgency: '',
@@ -360,8 +417,14 @@ const handlePreview = () => {
 }
 
 const handleSubmit = () => {
-  console.log('提交需求:', formData.value)
-  alert('提交成功，等待审核')
+  // 使用自动生成的标题
+  const submissionData = {
+    ...formData.value,
+    title: generateTitle.value
+  }
+  console.log('提交需求:', submissionData)
+  console.log('[v0] 自动生成的标题:', generateTitle.value)
+  alert(`提交成功，等待审核\n标题: ${generateTitle.value}`)
   router.push('/ship-repair')
 }
 </script>
@@ -418,6 +481,30 @@ const handleSubmit = () => {
   font-weight: 700;
   color: #1E293B;
   margin-bottom: 20px;
+}
+
+.title-preview {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border: 1px solid #93C5FD;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preview-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E40AF;
+}
+
+.preview-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E3A8A;
+  letter-spacing: 0.5px;
 }
 
 .form-row {
