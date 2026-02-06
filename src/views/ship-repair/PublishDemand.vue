@@ -105,23 +105,6 @@
             </div>
 
             <div class="form-row">
-              <div class="form-item">
-                <label class="form-label required">船体材质要求</label>
-                <select v-model="formData.hullMaterial" class="form-select" required>
-                  <option value="">请选择</option>
-                  <option value="steel">钢质</option>
-                  <option value="aluminum">铝合金</option>
-                  <option value="frp">玻璃钢</option>
-                </select>
-              </div>
-
-              <div class="form-item">
-                <label class="form-label required">建造交付周期</label>
-                <input v-model="formData.buildCycle" type="text" class="form-input" placeholder="例如：12-18个月" required>
-              </div>
-            </div>
-
-            <div class="form-row">
               <div class="form-item full-width">
                 <label class="form-label required">动力系统配置要求</label>
                 <textarea v-model="formData.powerSystem" class="form-textarea" placeholder="请描述动力系统配置要求" rows="3" required></textarea>
@@ -307,7 +290,7 @@
               <p class="no-results-hint">当前船型暂无参考船舶数据，您可以继续填写需求信息</p>
             </div>
 
-            <!-- 未输入船型和吨位时的提示 -->
+            <!-- 未输入船型和吨���时的提示 -->
             <div v-else class="empty-state">
               <p class="empty-text">请先选择船舶类型并输入吨位，系统将为您推荐相似船舶作为设计参考</p>
             </div>
@@ -455,9 +438,7 @@ const formData = ref({
   navigationArea: '',
   // 造船专属
   buildTonnage: null,
-  hullMaterial: '',
   powerSystem: '',
-  buildCycle: '',
   // 维修专属
   repairTonnage: null,
   vesselId: '',
