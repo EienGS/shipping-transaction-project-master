@@ -68,6 +68,24 @@
 
             <div class="form-row">
               <div class="form-item">
+                <label class="form-label required">需求所在地</label>
+                <div class="location-select">
+                  <select v-model="formData.province" class="form-select" @change="onProvinceChange" required>
+                    <option value="">请选择省份</option>
+                    <option v-for="province in provinces" :key="province.code" :value="province.code">
+                      {{ province.name }}
+                    </option>
+                  </select>
+                  <select v-model="formData.city" class="form-select" :disabled="!formData.province" required>
+                    <option value="">请选择城市</option>
+                    <option v-for="city in cities" :key="city.code" :value="city.name">
+                      {{ city.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-item">
                 <label class="form-label">设计预算范围</label>
                 <div class="input-group">
                   <input v-model="formData.budgetMin" type="number" class="form-input" placeholder="最小">
@@ -112,6 +130,24 @@
             </div>
 
             <div class="form-row">
+              <div class="form-item">
+                <label class="form-label required">需求所在地</label>
+                <div class="location-select">
+                  <select v-model="formData.province" class="form-select" @change="onProvinceChange" required>
+                    <option value="">请选择省份</option>
+                    <option v-for="province in provinces" :key="province.code" :value="province.code">
+                      {{ province.name }}
+                    </option>
+                  </select>
+                  <select v-model="formData.city" class="form-select" :disabled="!formData.province" required>
+                    <option value="">请选择城市</option>
+                    <option v-for="city in cities" :key="city.code" :value="city.name">
+                      {{ city.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
               <div class="form-item">
                 <label class="form-label required">预算范围</label>
                 <div class="input-group">
@@ -208,6 +244,26 @@
                   <option value="onsite">上门维修</option>
                   <option value="port">港口就近维修</option>
                 </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-item">
+                <label class="form-label required">需求所在地</label>
+                <div class="location-select">
+                  <select v-model="formData.province" class="form-select" @change="onProvinceChange" required>
+                    <option value="">请选择省份</option>
+                    <option v-for="province in provinces" :key="province.code" :value="province.code">
+                      {{ province.name }}
+                    </option>
+                  </select>
+                  <select v-model="formData.city" class="form-select" :disabled="!formData.province" required>
+                    <option value="">请选择城市</option>
+                    <option v-for="city in cities" :key="city.code" :value="city.name">
+                      {{ city.name }}
+                    </option>
+                  </select>
+                </div>
               </div>
 
               <div class="form-item">
@@ -447,9 +503,71 @@ const formData = ref({
   faultPart: '',
   repairLocation: '',
   // 通用
+  province: '',
+  city: '',
   budgetMin: null,
   budgetMax: null,
 })
+
+// 省市数据
+const provinces = ref([
+  { code: 'shanghai', name: '上海' },
+  { code: 'beijing', name: '北京' },
+  { code: 'guangdong', name: '广东省' },
+  { code: 'zhejiang', name: '浙江省' },
+  { code: 'jiangsu', name: '江苏省' },
+  { code: 'fujian', name: '福建省' },
+  { code: 'shandong', name: '山东省' },
+  { code: 'liaoning', name: '辽宁省' },
+  { code: 'tianjin', name: '天津' },
+])
+
+const cityData = {
+  shanghai: [{ code: 'shanghai', name: '上海市' }],
+  beijing: [{ code: 'beijing', name: '北京市' }],
+  guangdong: [
+    { code: 'guangzhou', name: '广州市' },
+    { code: 'shenzhen', name: '深圳市' },
+    { code: 'zhuhai', name: '珠海市' },
+    { code: 'dongguan', name: '东莞市' },
+  ],
+  zhejiang: [
+    { code: 'hangzhou', name: '杭州市' },
+    { code: 'ningbo', name: '宁波市' },
+    { code: 'wenzhou', name: '温州市' },
+    { code: 'zhoushan', name: '舟山市' },
+  ],
+  jiangsu: [
+    { code: 'nanjing', name: '南京市' },
+    { code: 'suzhou', name: '苏州市' },
+    { code: 'nantong', name: '南通市' },
+    { code: 'yangzhou', name: '扬州市' },
+  ],
+  fujian: [
+    { code: 'fuzhou', name: '福州市' },
+    { code: 'xiamen', name: '厦门市' },
+    { code: 'quanzhou', name: '泉州市' },
+  ],
+  shandong: [
+    { code: 'jinan', name: '济南市' },
+    { code: 'qingdao', name: '青岛市' },
+    { code: 'yantai', name: '烟台市' },
+    { code: 'weihai', name: '威海市' },
+  ],
+  liaoning: [
+    { code: 'shenyang', name: '沈阳市' },
+    { code: 'dalian', name: '大连市' },
+    { code: 'yingkou', name: '营口市' },
+  ],
+  tianjin: [{ code: 'tianjin', name: '天津市' }],
+}
+
+const cities = ref([])
+
+const onProvinceChange = () => {
+  formData.value.city = ''
+  cities.value = cityData[formData.value.province] || []
+}
 
 // 选择参考船舶
 const selectVessel = (vesselId) => {
@@ -627,6 +745,15 @@ const handleSubmit = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.location-select {
+  display: flex;
+  gap: 12px;
+}
+
+.location-select .form-select {
+  flex: 1;
 }
 
 .form-item.full-width {
