@@ -91,7 +91,54 @@
           </div>
         </section>
 
-        <!-- 3. 证书图纸模块 -->
+        <!-- 3. 海事协查状态及明细 -->
+        <section v-if="maritimeInvestigations.length > 0" class="investigation-detail-section">
+          <h2>海事协查状态及明细</h2>
+          <div class="investigation-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>列入时间</th>
+                  <th>明细</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in maritimeInvestigations" :key="index">
+                  <td>{{ item.listedTime }}</td>
+                  <td>{{ item.details }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section v-else class="no-investigation-section">
+          <span class="no-investigation-text">✓ 无海事协查记录</span>
+        </section>
+
+        <!-- 4. 近五年安全状态 -->
+        <section class="safety-detail-section">
+          <h2>近五年安全状态</h2>
+          <div class="safety-stats">
+            <div class="stat-card">
+              <div class="stat-label">PSC滞留</div>
+              <div class="stat-value">{{ safetyStats.pscDetention || 0 }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">FSC滞留</div>
+              <div class="stat-value">{{ safetyStats.fscDetention || 0 }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">行政处罚</div>
+              <div class="stat-value">{{ safetyStats.administrativePenalty || 0 }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">事故数量</div>
+              <div class="stat-value">{{ safetyStats.accidents || 0 }}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. 证书图纸模块 -->
         <section class="certificates-section">
           <h2>证书图纸</h2>
           <div class="certificates-list">
@@ -103,7 +150,7 @@
           </div>
         </section>
 
-        <!-- 4. 照片展示模块 -->
+        <!-- 6. 照片展示模块 -->
         <section class="photos-section">
           <h2>照片</h2>
           <div class="photo-carousel">
@@ -129,7 +176,7 @@
           </div>
         </section>
 
-        <!-- 5. 备注信息模块 -->
+        <!-- 7. 备注信息模块 -->
         <section class="remarks-section">
           <h2>备注信息</h2>
           <div class="remarks-content">
@@ -140,7 +187,7 @@
 
       <!-- 右侧栏 -->
       <aside class="sidebar">
-        <!-- 6. 发布者信息模块 -->
+        <!-- 8. 发布者信息模块 -->
         <section class="publisher-section">
           <h3>发布者信息</h3>
           <div class="publisher-card">
@@ -198,7 +245,7 @@
           </div>
         </section>
 
-        <!-- 7. 该发布人其他出售船舶 -->
+        <!-- 9. 该发布人其他出售船舶 -->
         <section class="other-vessels-section">
           <div class="section-header">
             <h3>该发布人其他出售船舶</h3>
@@ -274,7 +321,7 @@ const platformServices = ref([
 const vesselParameters = ref([
   { key: 'vesselType', label: '船舶类型', value: '集装箱船', linkable: true },
   { key: 'navigationArea', label: '航区', value: '无限航区', linkable: false },
-  { key: 'classificationSociety', label: '船级', value: 'DNV', linkable: true },
+  { key: 'classificationSociety', label: '船检机构', value: 'DNV', linkable: true },
   { key: 'flag', label: '船旗', value: '中国', linkable: true },
   { key: 'buildPlace', label: '建造厂', value: '中国', linkable: true },
   { key: 'buildDate', label: '建造日期', value: '2015年6月', linkable: false },
@@ -286,13 +333,22 @@ const vesselParameters = ref([
   { key: 'depth', label: '型深（米）', value: '15米', linkable: false },
   { key: 'deadweight', label: '载重（吨）', value: '32,000吨', linkable: false },
   { key: 'mainEnginePower', label: '主机功率（kW）', value: '9,480', linkable: false },
-  { key: 'mainEngineModel', label: '主机型号', value: '6S50MC', linkable: false },
-  { key: 'expectedPrice', label: '期望售价（万元）', value: '6800', linkable: false },
-  { key: 'inService', label: '是否在航', value: '是', linkable: false },
-  { key: 'maintenanceStatus', label: '日常保养状况', value: '良好', linkable: false },
   { key: 'dockInspection', label: '坞检/特检情况', value: '一年内已做过', linkable: false },
-  { key: 'updateDate', label: '更新日期', value: '2024-01-26', linkable: false }
+  { key: 'lastPortReportDate', label: '最近报港日期', value: '2024-02-01', linkable: false },
+  { key: 'recentPortReports', label: '近三个月报港数量', value: '12次', linkable: false },
+  { key: 'isKeyTracking', label: '是否重点跟踪', value: '否', linkable: false }
 ])
+
+// 海事协查状态
+const maritimeInvestigations = ref([])
+
+// 近五年安全状态
+const safetyStats = ref({
+  pscDetention: 0,
+  fscDetention: 0,
+  administrativePenalty: 0,
+  accidents: 0
+})
 
 // 证书图纸 - 与SellVesselForm中上传的证书对应
 const certificates = ref([
@@ -629,6 +685,9 @@ const nextRecommendation = () => {
 
 /* 特征参数模块 */
 .parameters-section,
+.investigation-detail-section,
+.no-investigation-section,
+.safety-detail-section,
 .certificates-section,
 .photos-section,
 .remarks-section {
@@ -687,6 +746,101 @@ const nextRecommendation = () => {
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
+}
+
+/* 海事协查状态 */
+.investigation-table {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  margin-top: 16px;
+}
+
+.investigation-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.investigation-table thead {
+  background: #fafafa;
+}
+
+.investigation-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.investigation-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #595959;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.investigation-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.investigation-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.no-investigation-section {
+  background: #f0f9ff;
+  border: 1px solid #bae7ff;
+}
+
+.no-investigation-text {
+  color: #0c5f8a;
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  text-align: center;
+}
+
+/* 近五年安全状态 */
+.safety-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stat-card {
+  background: #fafafa;
+  padding: 28px 20px;
+  border-radius: 6px;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.stat-card:hover {
+  background: white;
+  border-color: #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #8c8c8c;
+  margin-bottom: 10px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 600;
+  color: #262626;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 证书图纸 */
@@ -1045,8 +1199,26 @@ const nextRecommendation = () => {
     grid-template-columns: 1fr;
   }
 
+  .safety-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .recommendations-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .safety-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 20px 16px;
+  }
+
+  .stat-value {
+    font-size: 28px;
   }
 }
 </style>
