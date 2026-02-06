@@ -89,30 +89,22 @@
               </span>
             </div>
           </div>
-        </section>
-
-        <!-- 3. 海事协查状态及明细 -->
-        <section v-if="maritimeInvestigations.length > 0" class="investigation-detail-section">
-          <h2>海事协查状态及明细</h2>
-          <div class="investigation-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>列入时间</th>
-                  <th>明细</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in maritimeInvestigations" :key="index">
-                  <td>{{ item.listedTime }}</td>
-                  <td>{{ item.details }}</td>
-                </tr>
-              </tbody>
-            </table>
+          
+          <!-- 状态标识 -->
+          <div class="status-indicators">
+            <div class="status-indicator-item">
+              <span class="indicator-label">是否重点跟踪：</span>
+              <span :class="['indicator-badge', vesselData.isKeyTracking ? 'badge-yes' : 'badge-no']">
+                {{ vesselData.isKeyTracking ? '是' : '否' }}
+              </span>
+            </div>
+            <div class="status-indicator-item">
+              <span class="indicator-label">是否海事协查：</span>
+              <span :class="['indicator-badge', vesselData.hasMaritimeInvestigation ? 'badge-yes' : 'badge-no']">
+                {{ vesselData.hasMaritimeInvestigation ? '是' : '否' }}
+              </span>
+            </div>
           </div>
-        </section>
-        <section v-else class="no-investigation-section">
-          <span class="no-investigation-text">✓ 无海事协查记录</span>
         </section>
 
         <!-- 4. 近五年安全状态 -->
@@ -297,6 +289,8 @@ const vesselData = ref({
   updateTime: '1小时前',
   viewCount: 1681,
   operatingStatus: '在航',
+  isKeyTracking: false,
+  hasMaritimeInvestigation: false,
   maintenanceStatus: '日常保养一般',
   inspectionStatus: '一年内已做过坞检',
   mainImage: 'https://picsum.photos/seed/vessel1/600/400',
@@ -335,12 +329,8 @@ const vesselParameters = ref([
   { key: 'mainEnginePower', label: '主机功率（kW）', value: '9,480', linkable: false },
   { key: 'dockInspection', label: '坞检/特检情况', value: '一年内已做过', linkable: false },
   { key: 'lastPortReportDate', label: '最近报港日期', value: '2024-02-01', linkable: false },
-  { key: 'recentPortReports', label: '近三个月报港数量', value: '12次', linkable: false },
-  { key: 'isKeyTracking', label: '是否重点跟踪', value: '否', linkable: false }
+  { key: 'recentPortReports', label: '近三个月报港数量', value: '12次', linkable: false }
 ])
-
-// 海事协查状态
-const maritimeInvestigations = ref([])
 
 // 近五年安全状态
 const safetyStats = ref({
@@ -748,56 +738,52 @@ const nextRecommendation = () => {
   font-size: 12px;
 }
 
-/* 海事协查状态 */
-.investigation-table {
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
-  margin-top: 16px;
+/* 状态标识 */
+.status-indicators {
+  display: flex;
+  gap: 32px;
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
-.investigation-table table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
+.status-indicator-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.investigation-table thead {
-  background: #fafafa;
+.indicator-label {
+  font-size: 14px;
+  color: #64748B;
+  font-weight: 500;
 }
 
-.investigation-table th {
-  padding: 12px 16px;
-  text-align: left;
+.indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  color: #2c3e50;
-  border-bottom: 2px solid #e8e8e8;
+  transition: all 0.3s;
 }
 
-.investigation-table td {
-  padding: 12px 16px;
-  font-size: 13px;
-  color: #595959;
-  border-bottom: 1px solid #f0f0f0;
+.badge-yes {
+  background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
 }
 
-.investigation-table tbody tr:last-child td {
-  border-bottom: none;
+.badge-no {
+  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+  color: #059669;
+  border: 1px solid #6EE7B7;
 }
 
-.investigation-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.no-investigation-section {
-  background: #f0f9ff;
-  border: 1px solid #bae7ff;
-}
-
-.no-investigation-text {
-  color: #0c5f8a;
-  font-size: 14px;
+/* 近五年安全状态 */
   font-weight: 500;
   display: block;
   text-align: center;
