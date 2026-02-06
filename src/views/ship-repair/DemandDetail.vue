@@ -581,6 +581,440 @@ const reportDemand = () => {
   transition: all 0.3s;
 }
 
+.print-btn:hover {
+  background: #E2E8F0;
+}
+
+.print-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.params-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.param-item {
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+}
+
+.param-label {
+  font-size: 13px;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+
+.param-value {
+  font-size: 15px;
+  color: #1E293B;
+  font-weight: 600;
+}
+
+/* Reference Vessel Section */
+.reference-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.reference-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16px;
+}
+
+.reference-vessel-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background: #F8FAFC;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+}
+
+.reference-image {
+  width: 240px;
+  height: 160px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.reference-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+}
+
+.reference-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reference-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 12px;
+}
+
+.reference-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.spec-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: white;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+}
+
+.reference-description {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.6;
+}
+
+/* Description Section */
+.description-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.description-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16px;
+}
+
+.description-content {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #475569;
+}
+
+/* Attachments Section */
+.attachments-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.attachments-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16px;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.attachment-item:hover {
+  background: #F1F5F9;
+}
+
+.attachment-item svg {
+  width: 24px;
+  height: 24px;
+  color: #3B82F6;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 14px;
+  color: #1E293B;
+  font-weight: 500;
+}
+
+.file-size {
+  font-size: 13px;
+  color: #64748B;
+}
+
+.download-btn {
+  padding: 6px 16px;
+  background: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.download-btn:hover {
+  background: #2563EB;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.sidebar-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16px;
+}
+
+/* Publisher Info */
+.publisher-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.publisher-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.publisher-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.publisher-details {
+  flex: 1;
+}
+
+.publisher-details h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+}
+
+.publisher-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.rating {
+  color: #F59E0B;
+}
+
+.verified {
+  color: #10B981;
+}
+
+/* 联系信息 */
+.contact-info {
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-label {
+  color: #64748B;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.contact-value {
+  color: #1E293B;
+  font-weight: 600;
+}
+
+.contact-publisher-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: linear-gradient(135deg, #1890FF, #0EA5E9);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.contact-publisher-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+}
+
+.contact-publisher-btn.contacted {
+  background: #E5E7EB;
+  color: #6B7280;
+  cursor: default;
+}
+
+.contact-publisher-btn.contacted:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Proposals Section */
+.proposals-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #F0F9FF;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.proposals-count span {
+  font-size: 14px;
+  color: #0369A1;
+}
+
+.proposals-count strong {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0369A1;
+}
+
+.submit-proposal-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submit-proposal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Recommendations */
+.recommendations-section h3 {
+  margin-bottom: 16px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recommendation-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.recommendation-card:hover {
+  background: #F1F5F9;
+  transform: translateX(4px);
+}
+
+.recommendation-image {
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+}
+
+.recommendation-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recommendation-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.recommendation-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recommendation-meta {
+  font-size: 12px;
+  color: #64748B;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .detail-container {
