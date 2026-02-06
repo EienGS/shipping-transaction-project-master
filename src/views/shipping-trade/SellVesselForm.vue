@@ -199,28 +199,12 @@
             </span>
           </div>
 
-          <!-- 海事协查状态及明细 -->
-          <div v-if="formData.maritimeInvestigations && formData.maritimeInvestigations.length > 0" class="investigation-section">
-            <h4 class="subsection-title">海事协查状态及明细</h4>
-            <div class="investigation-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>列入时间</th>
-                    <th>明细</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in formData.maritimeInvestigations" :key="index">
-                    <td>{{ item.listedTime }}</td>
-                    <td>{{ item.details }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div v-else class="no-investigation">
-            <span class="no-investigation-text">✓ 无海事协查记录</span>
+          <!-- 是否海事协查 - 使用标签样式 -->
+          <div class="tracking-status">
+            <span class="tracking-label">是否海事协查：</span>
+            <span :class="['tracking-badge', formData.hasMaritimeInvestigation ? 'tracking-yes' : 'tracking-no']">
+              {{ formData.hasMaritimeInvestigation ? '是' : '否' }}
+            </span>
           </div>
 
           <!-- 近五年安全状态 - 简约设计 -->
@@ -388,7 +372,7 @@ const vessels = ref([
     lastPortReportDate: '2024-02-01',
     recentPortReports: 8,
     isKeyTracking: false,
-    maritimeInvestigations: [],
+    hasMaritimeInvestigation: false,
     safetyStats: {
       pscDetention: 0,
       fscDetention: 1,
@@ -419,7 +403,7 @@ const vessels = ref([
     lastPortReportDate: '2024-01-28',
     recentPortReports: 12,
     isKeyTracking: false,
-    maritimeInvestigations: [],
+    hasMaritimeInvestigation: false,
     safetyStats: {
       pscDetention: 0,
       fscDetention: 0,
@@ -450,12 +434,7 @@ const vessels = ref([
     lastPortReportDate: '2024-01-15',
     recentPortReports: 6,
     isKeyTracking: true,
-    maritimeInvestigations: [
-      {
-        listedTime: '2023-06-15',
-        details: '涉嫌违规排放，已配合调查完结'
-      }
-    ],
+    hasMaritimeInvestigation: true,
     safetyStats: {
       pscDetention: 1,
       fscDetention: 0,
@@ -502,7 +481,7 @@ const formData = ref({
   lastPortReportDate: '', // 最近报港日期
   recentPortReports: 0, // 近三个月报港数量
   isKeyTracking: false, // 是否重点跟踪
-  maritimeInvestigations: [], // 海事协查状态及明细
+  hasMaritimeInvestigation: false, // 是否海事协查
   safetyStats: { // 近五年安全状态
     pscDetention: 0,
     fscDetention: 0,
@@ -570,7 +549,7 @@ const nextStep = () => {
   formData.value.lastPortReportDate = selectedVessel.value.lastPortReportDate
   formData.value.recentPortReports = selectedVessel.value.recentPortReports
   formData.value.isKeyTracking = selectedVessel.value.isKeyTracking
-  formData.value.maritimeInvestigations = selectedVessel.value.maritimeInvestigations
+  formData.value.hasMaritimeInvestigation = selectedVessel.value.hasMaritimeInvestigation
   formData.value.safetyStats = selectedVessel.value.safetyStats
   
   currentStep.value = 2
@@ -1191,10 +1170,7 @@ const handleCancel = () => {
 }
 
 /* 海事协查表格样式 */
-.investigation-section {
-  margin-bottom: 24px;
-}
-
+/* 保留subsection-title，安全状态部分仍在使用 */
 .subsection-title {
   font-size: 15px;
   color: #2c3e50;
@@ -1202,60 +1178,6 @@ const handleCancel = () => {
   margin-bottom: 12px;
   padding-left: 12px;
   border-left: 3px solid #1890ff;
-}
-
-.investigation-table {
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
-}
-
-.investigation-table table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-}
-
-.investigation-table thead {
-  background: #fafafa;
-}
-
-.investigation-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 600;
-  color: #2c3e50;
-  border-bottom: 2px solid #e8e8e8;
-}
-
-.investigation-table td {
-  padding: 12px 16px;
-  font-size: 13px;
-  color: #595959;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.investigation-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.investigation-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.no-investigation {
-  padding: 16px;
-  background: #f0f9ff;
-  border-radius: 8px;
-  border: 1px solid #bae7ff;
-  margin-bottom: 24px;
-}
-
-.no-investigation-text {
-  color: #0c5f8a;
-  font-size: 14px;
-  font-weight: 500;
 }
 
 /* 安全统计卡片 - 极简设计 */
