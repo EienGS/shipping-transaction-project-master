@@ -3,31 +3,26 @@
     <div class="detail-container">
       <!-- Main Content -->
       <div class="main-content">
-        <!-- Header -->
-        <section class="header-section">
-          <div class="title-row">
-            <h1 class="demand-title">
-              <span class="type-badge" :class="`type-${demand.type}`">{{ demandTypeLabel }}</span>
-              {{ demand.title }}
-            </h1>
-            <div class="actions">
-              <button class="icon-btn" :class="{ favorited: isFavorited }" @click="toggleFavorite">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.998 16.95 2.998C16.2275 2.998 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.452 9.22248 22.452 8.5C22.452 7.77752 22.3095 7.06211 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z" :stroke="isFavorited ? '#1890FF' : 'currentColor'" :fill="isFavorited ? '#1890FF' : 'none'" stroke-width="2"/>
-                </svg>
-              </button>
-              <button class="icon-btn" @click="handleShare">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M8.59 13.51L15.42 17.49M15.41 6.51L8.59 10.49" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </button>
-            </div>
-          </div>
+      <!-- Header -->
+      <div class="detail-header">
+        <div class="header-left">
+          <button class="back-btn" @click="goBack">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            返回列表
+          </button>
           
-          <div class="meta-info">
+          <!-- 需求类型切换 (测试用) -->
+          <div class="type-switcher">
+            <button @click="switchDemandType('1')" :class="{ active: demandId === '1' }">设计需求</button>
+            <button @click="switchDemandType('2')" :class="{ active: demandId === '2' }">建造需求</button>
+            <button @click="switchDemandType('3')" :class="{ active: demandId === '3' }">维修需求</button>
+          </div>
+        </div>
+      </div>
+          
+      <div class="meta-info">
             <span class="meta-item">编号: {{ demand.id }}</span>
             <span class="meta-item">{{ demand.publishDate }}</span>
             <span class="meta-item">浏览 {{ demand.views }}</span>
@@ -283,6 +278,10 @@ const getDemandData = (id) => {
 // Mock demand data - 根据需求类型显示不同字段
 const demand = ref(getDemandData(demandId))
 
+console.log('[v0] 当前需求ID:', demandId)
+console.log('[v0] 需求类型:', demand.value.type)
+console.log('[v0] 需求数据:', demand.value)
+
 const demandTypeLabel = computed(() => {
   const labels = { design: '设计需求', build: '建造需求', repair: '维修需求' }
   return labels[demand.value.type] || '需求'
@@ -383,6 +382,15 @@ const downloadFile = (file) => {
 const viewDemand = (id) => {
   console.log('查看需求:', id)
   router.push(`/ship-repair/demand/${id}`)
+}
+
+const switchDemandType = (id) => {
+  demand.value = getDemandData(id)
+  console.log('[v0] 切换到需求类型:', demand.value.type, '需求ID:', id)
+}
+
+const goBack = () => {
+  router.back()
 }
 
 const contactPublisher = () => {
@@ -1030,6 +1038,38 @@ const reportDemand = () => {
 .recommendation-meta {
   font-size: 12px;
   color: #64748B;
+}
+
+/* Type Switcher */
+.type-switcher {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: #F1F5F9;
+  border-radius: 8px;
+}
+
+.type-switcher button {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.type-switcher button:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+}
+
+.type-switcher button.active {
+  background: white;
+  color: #3B82F6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式设计 */
