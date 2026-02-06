@@ -262,6 +262,66 @@
             </div>
           </section>
 
+          <!-- 相似船舶推荐（仅设计和建造需求） -->
+          <section v-if="demandType !== 'repair'" class="form-section recommendations-section">
+            <h2 class="section-title">设计参考</h2>
+            
+            <!-- 有相似船舶时显示推荐 -->
+            <div v-if="similarVessels.length > 0" class="vessels-recommendations">
+              <p class="recommendation-tip">根据您输入的船舶类型和吨位，为您推荐以下相似船舶供设计参考：</p>
+              
+              <div class="vessels-grid">
+                <div v-for="vessel in similarVessels" :key="vessel.id" class="vessel-card">
+                  <div class="vessel-image-container">
+                    <img :src="vessel.image" :alt="vessel.name" class="vessel-image">
+                  </div>
+                  <div class="vessel-info">
+                    <h3 class="vessel-name">{{ vessel.name }}</h3>
+                    <div class="vessel-specs">
+                      <div class="spec-item">
+                        <span class="spec-label">吨位：</span>
+                        <span class="spec-value">{{ vessel.tonnage.toLocaleString() }} DWT</span>
+                      </div>
+                      <div v-if="vessel.length" class="spec-item">
+                        <span class="spec-label">总长：</span>
+                        <span class="spec-value">{{ vessel.length }}米</span>
+                      </div>
+                      <div v-if="vessel.width" class="spec-item">
+                        <span class="spec-label">型宽：</span>
+                        <span class="spec-value">{{ vessel.width }}米</span>
+                      </div>
+                      <div v-if="vessel.depth" class="spec-item">
+                        <span class="spec-label">型深：</span>
+                        <span class="spec-value">{{ vessel.depth }}米</span>
+                      </div>
+                    </div>
+                    <p class="vessel-description">{{ vessel.description }}</p>
+                    <div v-if="vessel.features && vessel.features.length > 0" class="vessel-features">
+                      <span v-for="(feature, index) in vessel.features" :key="index" class="feature-tag">
+                        {{ feature }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 没有找到相似船舶时显示提示 -->
+            <div v-else-if="showNoResults" class="no-results">
+              <svg class="no-results-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p class="no-results-text">未查询到相似船舶</p>
+              <p class="no-results-hint">当前船型暂无参考船舶数据，您可以继续填写需求信息</p>
+            </div>
+
+            <!-- 未输入船型和吨位时的提示 -->
+            <div v-else class="empty-state">
+              <p class="empty-text">请先选择船舶类型并输入吨位，系统将为您推荐相似船舶作为设计参考</p>
+            </div>
+          </section>
+
           <!-- 补充说明 -->
           <section class="form-section">
             <h2 class="section-title">补充说明</h2>
@@ -287,8 +347,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { findSimilarVessels } from '@/data/referenceVessels'
 
 const route = useRoute()
 const router = useRouter()
@@ -341,6 +402,55 @@ const generateTitle = computed(() => {
     return `${tonnage}${shipType}${demandTypeText}`
   }
   return ''
+})
+
+// 相似船舶推荐（仅用于设计和建造需求）
+const similarVessels = computed(() => {
+  // 维修需求不显示推荐
+  if (demandType.value === 'repair') {
+    return []
+  }
+
+  const shipType = formData.value.shipType
+  let tonnage = null
+
+  // 获取当前输入的吨位
+  if (demandType.value === 'design') {
+    tonnage = formData.value.designTonnage
+  } else if (demandType.value === 'build') {
+    tonnage = formData.value.buildTonnage
+  }
+
+  // 如果没有输入船舶类型或吨位，返回空数组
+  if (!shipType || !tonnage) {
+    return []
+  }
+
+  console.log('[v0] 查询相似船舶:', { shipType, tonnage })
+  const results = findSimilarVessels(shipType, tonnage, 500)
+  console.log('[v0] 找到相似船舶:', results.length, '艘')
+  
+  return results
+})
+
+// 是否显示"未查询到相似船舶"提示
+const showNoResults = computed(() => {
+  // 维修需求不显示
+  if (demandType.value === 'repair') {
+    return false
+  }
+
+  const shipType = formData.value.shipType
+  let tonnage = null
+
+  if (demandType.value === 'design') {
+    tonnage = formData.value.designTonnage
+  } else if (demandType.value === 'build') {
+    tonnage = formData.value.buildTonnage
+  }
+
+  // 只有在输入了船舶类型和吨位，但找不到相似船舶时才显示
+  return shipType && tonnage && similarVessels.value.length === 0
 })
 
 const formData = ref({
@@ -588,6 +698,159 @@ const handleSubmit = () => {
   margin-top: 4px;
 }
 
+/* 相似船舶推荐样式 */
+.recommendations-section {
+  background: linear-gradient(to bottom, #F0F9FF 0%, #FFFFFF 100%);
+  border: 1px solid #BFDBFE;
+}
+
+.recommendation-tip {
+  font-size: 14px;
+  color: #1E40AF;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: #DBEAFE;
+  border-radius: 8px;
+  border-left: 4px solid #3B82F6;
+}
+
+.vessels-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.vessel-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+  transition: all 0.3s ease;
+}
+
+.vessel-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.vessel-image-container {
+  width: 100%;
+  height: 280px;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.vessel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 20px;
+}
+
+.vessel-info {
+  padding: 24px;
+}
+
+.vessel-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 16px;
+}
+
+.vessel-specs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+}
+
+.spec-item {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.spec-label {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.spec-value {
+  color: #1E293B;
+  font-weight: 600;
+}
+
+.vessel-description {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.vessel-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feature-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #EFF6FF;
+  color: #1E40AF;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #BFDBFE;
+}
+
+/* 无结果提示 */
+.no-results {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.no-results-icon {
+  width: 64px;
+  height: 64px;
+  color: #F59E0B;
+  margin: 0 auto 16px;
+}
+
+.no-results-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 8px;
+}
+
+.no-results-hint {
+  font-size: 14px;
+  color: #64748B;
+}
+
+/* 空状态提示 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 2px dashed #CBD5E1;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.6;
+}
+
 .vessel-info-box {
   padding: 20px;
   background: #F8FAFC;
@@ -700,5 +963,21 @@ const handleSubmit = () => {
 .btn-submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .vessel-specs {
+    grid-template-columns: 1fr;
+  }
+
+  .vessel-image-container {
+    height: 200px;
+  }
+
+  .no-results-icon {
+    width: 48px;
+    height: 48px;
+  }
 }
 </style>
