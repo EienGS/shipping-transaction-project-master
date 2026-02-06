@@ -268,38 +268,36 @@
             
             <!-- 有相似船舶时显示推荐 -->
             <div v-if="similarVessels.length > 0" class="vessels-recommendations">
-              <p class="recommendation-tip">根据您输入的船舶类型和吨位，为您推荐以下相似船舶供设计参考：</p>
+              <p class="recommendation-tip">根据您输入的船舶类型和吨位，为您推荐以下相似船舶供设计参考，请选择一个参考船型：</p>
               
               <div class="vessels-grid">
-                <div v-for="vessel in similarVessels" :key="vessel.id" class="vessel-card">
-                  <div class="vessel-image-container">
-                    <img :src="vessel.image" :alt="vessel.name" class="vessel-image">
-                  </div>
-                  <div class="vessel-info">
-                    <h3 class="vessel-name">{{ vessel.name }}</h3>
-                    <div class="vessel-specs">
-                      <div class="spec-item">
-                        <span class="spec-label">吨位：</span>
-                        <span class="spec-value">{{ vessel.tonnage.toLocaleString() }} DWT</span>
-                      </div>
-                      <div v-if="vessel.length" class="spec-item">
-                        <span class="spec-label">总长：</span>
-                        <span class="spec-value">{{ vessel.length }}米</span>
-                      </div>
-                      <div v-if="vessel.width" class="spec-item">
-                        <span class="spec-label">型宽：</span>
-                        <span class="spec-value">{{ vessel.width }}米</span>
-                      </div>
-                      <div v-if="vessel.depth" class="spec-item">
-                        <span class="spec-label">型深：</span>
-                        <span class="spec-value">{{ vessel.depth }}米</span>
-                      </div>
+                <div 
+                  v-for="vessel in similarVessels" 
+                  :key="vessel.id" 
+                  class="vessel-card" 
+                  :class="{ 'selected': formData.selectedReferenceVessel === vessel.id }"
+                  @click="selectVessel(vessel.id)"
+                >
+                  <!-- 选中标识 -->
+                  <div class="select-indicator">
+                    <div class="radio-circle">
+                      <div class="radio-dot"></div>
                     </div>
-                    <p class="vessel-description">{{ vessel.description }}</p>
-                    <div v-if="vessel.features && vessel.features.length > 0" class="vessel-features">
-                      <span v-for="(feature, index) in vessel.features" :key="index" class="feature-tag">
-                        {{ feature }}
-                      </span>
+                  </div>
+
+                  <div class="vessel-content">
+                    <div class="vessel-image-container">
+                      <img :src="vessel.image" :alt="vessel.name" class="vessel-image">
+                    </div>
+                    <div class="vessel-info">
+                      <h3 class="vessel-name">{{ vessel.name }}</h3>
+                      <div class="vessel-specs">
+                        <span class="spec-badge">{{ vessel.tonnage.toLocaleString() }} DWT</span>
+                        <span v-if="vessel.length" class="spec-badge">总长 {{ vessel.length }}m</span>
+                        <span v-if="vessel.width" class="spec-badge">型宽 {{ vessel.width }}m</span>
+                        <span v-if="vessel.depth" class="spec-badge">型深 {{ vessel.depth }}m</span>
+                      </div>
+                      <p class="vessel-description">{{ vessel.description }}</p>
                     </div>
                   </div>
                 </div>
@@ -458,6 +456,7 @@ const formData = ref({
   contact: '',
   phone: '',
   notes: '',
+  selectedReferenceVessel: null, // 选中的参考船舶ID
   // 设计专属
   designTonnage: null,
   navigationArea: '',
@@ -478,6 +477,12 @@ const formData = ref({
   budgetMin: null,
   budgetMax: null,
 })
+
+// 选择参考船舶
+const selectVessel = (vesselId) => {
+  formData.value.selectedReferenceVessel = vesselId
+  console.log('[v0] 选择参考船舶:', vesselId)
+}
 
 const vesselInfo = ref({
   name: '',
@@ -526,6 +531,12 @@ const handlePreview = () => {
 }
 
 const handleSubmit = () => {
+  // 如果有相似船舶推荐，必须选择一个
+  if (similarVessels.value.length > 0 && !formData.value.selectedReferenceVessel) {
+    alert('请从推荐的参考船型中选择一个')
+    return
+  }
+
   // 使用自动生成的标题
   const submissionData = {
     ...formData.value,
@@ -533,7 +544,15 @@ const handleSubmit = () => {
   }
   console.log('提交需求:', submissionData)
   console.log('[v0] 自动生成的标题:', generateTitle.value)
-  alert(`提交成功，等待审核\n标题: ${generateTitle.value}`)
+  
+  if (formData.value.selectedReferenceVessel) {
+    const selectedVessel = similarVessels.value.find(v => v.id === formData.value.selectedReferenceVessel)
+    console.log('[v0] 选中的参考船型:', selectedVessel?.name)
+    alert(`提交成功，等待审核\n标题: ${generateTitle.value}\n参考船型: ${selectedVessel?.name}`)
+  } else {
+    alert(`提交成功，等待审核\n标题: ${generateTitle.value}`)
+  }
+  
   router.push('/ship-repair')
 }
 </script>
@@ -700,43 +719,96 @@ const handleSubmit = () => {
 
 /* 相似船舶推荐样式 */
 .recommendations-section {
-  background: linear-gradient(to bottom, #F0F9FF 0%, #FFFFFF 100%);
-  border: 1px solid #BFDBFE;
+  background: #FAFBFC;
+  border: 1px solid #E5E7EB;
 }
 
 .recommendation-tip {
-  font-size: 14px;
+  font-size: 13px;
   color: #1E40AF;
-  margin-bottom: 24px;
-  padding: 12px 16px;
-  background: #DBEAFE;
-  border-radius: 8px;
-  border-left: 4px solid #3B82F6;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: #EFF6FF;
+  border-radius: 6px;
+  border-left: 3px solid #3B82F6;
 }
 
 .vessels-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 12px;
 }
 
 .vessel-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
+  border: 2px solid #E5E7EB;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
   overflow: hidden;
-  border: 1px solid #E5E7EB;
-  transition: all 0.3s ease;
 }
 
 .vessel-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  border-color: #3B82F6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.vessel-card.selected {
+  border-color: #3B82F6;
+  background: #F0F9FF;
+  box-shadow: 0 0 0 1px #3B82F6;
+}
+
+.select-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.radio-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #CBD5E1;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.vessel-card.selected .radio-circle {
+  border-color: #3B82F6;
+  background: #3B82F6;
+}
+
+.radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.vessel-card.selected .radio-dot {
+  opacity: 1;
+}
+
+.vessel-content {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
 }
 
 .vessel-image-container {
-  width: 100%;
-  height: 280px;
+  width: 180px;
+  height: 120px;
+  flex-shrink: 0;
   background: #F8FAFC;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -747,68 +819,52 @@ const handleSubmit = () => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 20px;
+  padding: 8px;
 }
 
 .vessel-info {
-  padding: 24px;
+  flex: 1;
+  min-width: 0;
 }
 
 .vessel-name {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: #1E293B;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .vessel-specs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 16px;
-  background: #F8FAFC;
-  border-radius: 8px;
-}
-
-.spec-item {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: 13px;
+  margin-bottom: 10px;
 }
 
-.spec-label {
-  color: #64748B;
+.spec-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 11px;
   font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
-.spec-value {
-  color: #1E293B;
-  font-weight: 600;
+.vessel-card.selected .spec-badge {
+  background: #DBEAFE;
+  color: #1E40AF;
 }
 
 .vessel-description {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.vessel-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.feature-tag {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #EFF6FF;
-  color: #1E40AF;
   font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  border: 1px solid #BFDBFE;
+  color: #64748B;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* 无结果提示 */
@@ -967,17 +1023,23 @@ const handleSubmit = () => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .vessel-specs {
-    grid-template-columns: 1fr;
+  .vessel-content {
+    flex-direction: column;
   }
 
   .vessel-image-container {
-    height: 200px;
+    width: 100%;
+    height: 160px;
   }
 
   .no-results-icon {
     width: 48px;
     height: 48px;
+  }
+  
+  .spec-badge {
+    font-size: 10px;
+    padding: 2px 6px;
   }
 }
 </style>
