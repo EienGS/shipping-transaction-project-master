@@ -14,7 +14,7 @@
 
             <!-- 自动生成的标题预览 -->
             <div v-if="generateTitle" class="title-preview">
-              <span class="preview-label">需求标题（自动生成）：</span>
+              <span class="preview-label">需求标题：</span>
               <span class="preview-value">{{ generateTitle }}</span>
             </div>
 
@@ -35,7 +35,7 @@
           <section v-if="demandType === 'design'" class="form-section">
             <h2 class="section-title">设计需求</h2>
             
-            <div class="form-row">
+            <div class="form-row form-row-three">
               <div class="form-item">
                 <label class="form-label required">船舶类型</label>
                 <select v-model="formData.shipType" class="form-select" required>
@@ -54,9 +54,7 @@
                   <span class="input-suffix">DWT</span>
                 </div>
               </div>
-            </div>
 
-            <div class="form-row">
               <div class="form-item">
                 <label class="form-label required">航区要求</label>
                 <select v-model="formData.navigationArea" class="form-select" required>
@@ -65,11 +63,6 @@
                   <option value="coastal">沿海航区</option>
                   <option value="river">内河航区</option>
                 </select>
-              </div>
-
-              <div class="form-item">
-                <label class="form-label required">设计交付周期要求</label>
-                <input v-model="formData.deliveryCycle" type="text" class="form-input" placeholder="例如：3-6个月" required>
               </div>
             </div>
 
@@ -347,7 +340,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { findSimilarVessels } from '@/data/referenceVessels'
+import { findSimilarVessels } from '../../data/referenceVessels'
 
 const route = useRoute()
 const router = useRouter()
@@ -460,7 +453,6 @@ const formData = ref({
   // 设计专属
   designTonnage: null,
   navigationArea: '',
-  deliveryCycle: '',
   // 造船专属
   buildTonnage: null,
   hullMaterial: '',
@@ -623,7 +615,7 @@ const handleSubmit = () => {
 }
 
 .preview-label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #1E40AF;
 }
@@ -640,6 +632,10 @@ const handleSubmit = () => {
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   margin-bottom: 20px;
+}
+
+.form-row-three {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .form-row:last-child {
@@ -719,8 +715,8 @@ const handleSubmit = () => {
 
 /* 相似船舶推荐样式 */
 .recommendations-section {
-  background: #FAFBFC;
-  border: 1px solid #E5E7EB;
+  /* background: #FAFBFC; */
+  /* border: 1px solid #E5E7EB; */
 }
 
 .recommendation-tip {
@@ -1023,6 +1019,10 @@ const handleSubmit = () => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .form-row-three {
+    grid-template-columns: 1fr;
+  }
+
   .vessel-content {
     flex-direction: column;
   }
