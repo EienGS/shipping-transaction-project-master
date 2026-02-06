@@ -3,26 +3,29 @@
     <div class="detail-container">
       <!-- Main Content -->
       <div class="main-content">
-      <!-- Header -->
-      <div class="detail-header">
-        <div class="header-left">
-          <button class="back-btn" @click="goBack">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            返回列表
-          </button>
-          
-          <!-- 需求类型切换 (测试用) -->
-          <div class="type-switcher">
-            <button @click="switchDemandType('1')" :class="{ active: demandId === '1' }">设计需求</button>
-            <button @click="switchDemandType('2')" :class="{ active: demandId === '2' }">建造需求</button>
-            <button @click="switchDemandType('3')" :class="{ active: demandId === '3' }">维修需求</button>
+        <!-- Header -->
+        <section class="header-section">
+          <div class="detail-header">
+            <div class="header-left">
+              <button class="back-btn" @click="goBack">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                返回列表
+              </button>
+              
+              <!-- 需求类型切换 (测试用) -->
+              <div class="type-switcher">
+                <button @click="switchDemandType('1')" :class="{ active: demandId === '1' }">设计需求</button>
+                <button @click="switchDemandType('2')" :class="{ active: demandId === '2' }">建造需求</button>
+                <button @click="switchDemandType('3')" :class="{ active: demandId === '3' }">维修需求</button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-          
-      <div class="meta-info">
+
+          <h1 class="demand-title">{{ demand.title }}</h1>
+              
+          <div class="meta-info">
             <span class="meta-item">编号: {{ demand.id }}</span>
             <span class="meta-item">{{ demand.publishDate }}</span>
             <span class="meta-item">浏览 {{ demand.views }}</span>
@@ -56,7 +59,6 @@
         </section>
 
         <!-- Reference Vessel (仅设计和建造需求显示) -->
-        <!-- Debug: type={{ demand.type }}, hasRef={{ !!demand.referenceVessel }} -->
         <section v-if="(demand.type === 'design' || demand.type === 'build') && demand.referenceVessel" class="reference-section">
           <h2>设计参考</h2>
           <div class="reference-vessel-card">
@@ -77,7 +79,6 @@
         </section>
 
         <!-- Power System (仅建造需求显示) -->
-        <!-- Debug: type={{ demand.type }}, hasPowerSystem={{ !!demand.params.powerSystem }} -->
         <section v-if="demand.type === 'build' && demand.params.powerSystem" class="power-system-section">
           <h2>动力系统配置要求</h2>
           <div class="power-system-content">
@@ -279,12 +280,6 @@ const getDemandData = (id) => {
 
 // Mock demand data - 根据需求类型显示不同字段
 const demand = ref(getDemandData(demandId))
-
-// Debug: 打印需求数据
-console.log('[v0] Demand ID:', demandId)
-console.log('[v0] Demand Type:', demand.value.type)
-console.log('[v0] Demand Params:', demand.value.params)
-console.log('[v0] Has Reference Vessel:', !!demand.value.referenceVessel)
 
 console.log('[v0] 当前需求ID:', demandId)
 console.log('[v0] 需求类型:', demand.value.type)
