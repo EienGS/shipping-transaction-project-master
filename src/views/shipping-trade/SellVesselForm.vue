@@ -600,7 +600,19 @@ const handleSubmit = async () => {
     
     await new Promise(resolve => setTimeout(resolve, 1500))
     
-    alert('出售信息已提交，待审核后对外展示\n\n买方可查看的船舶信息包括：\n- 最近报港日期\n- 近三个月报港数量\n- 是否重点跟踪\n- 是否海事协查\n- 近五年安全状态')
+    // 显示详细的成功提示
+    const message = `✅ 出售信息已提交成功！
+
+📋 审核通过后，买方可查看以下船舶系统信息：
+• 最近报港日期
+• 近三个月报港数量
+• 是否重点跟踪状态
+• 是否海事协查状态
+• 近五年安全状态（PSC/FSC滞留、行政处罚、事故记录）
+
+这些信息将帮助买方更全面地评估船舶状况。`
+    
+    alert(message)
     router.push('/shipping-trade/vessel-trading')
   } catch (error) {
     console.error('提交失败:', error)
