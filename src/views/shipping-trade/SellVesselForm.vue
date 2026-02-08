@@ -178,13 +178,7 @@
               </select>
             </div>
           </div>
-
-          <!-- 报港信息 - 系统数据，使用卡片样式��示 -->
-          <div class="info-card-row">
-            <div class="info-card">
-              <div class="info-card-label">最近报港日期</div>
-              <div class="info-card-value">{{ formData.lastPortReportDate || '-' }}</div>
-            </div>
+        </div>
             <div class="info-card">
               <div class="info-card-label">近三个月报港数量</div>
               <div class="info-card-value">{{ formData.recentPortReports || 0 }} 次</div>
@@ -651,7 +645,7 @@ const handleSubmit = async () => {
     
     await new Promise(resolve => setTimeout(resolve, 1500))
     
-    alert('出售信息已提交，待审核后对外展示')
+    alert('出售信息已提交，待审核后对外展示\n\n买方可查看的船舶信息包括：\n- 最近报港日期\n- 近三个月报港数量\n- 是否重点跟踪\n- 是否海事协查\n- 近五年安全状态')
     router.push('/shipping-trade/vessel-trading')
   } catch (error) {
     console.error('提交失败:', error)
