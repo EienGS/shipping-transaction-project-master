@@ -161,6 +161,15 @@
         <div class="form-section">
           <h3 class="section-title">附加信息</h3>
           
+          <div class="info-notice">
+            <svg class="info-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+            </svg>
+            <div class="info-text">
+              <strong>温馨提示：</strong>审核通过后，买方可查看当前船舶的最近报港日期、近三个月报港数量、是否重点跟踪、是否海事协查以及近五年安全状态等系统信息。
+            </div>
+          </div>
+          
           <div class="form-row">
             <div class="form-item required">
               <label class="form-label">期望售价（万元）</label>
@@ -600,19 +609,7 @@ const handleSubmit = async () => {
     
     await new Promise(resolve => setTimeout(resolve, 1500))
     
-    // 显示详细的成功提示
-    const message = `✅ 出售信息已提交成功！
-
-📋 审核通过后，买方可查看以下船舶系统信息：
-• 最近报港日期
-• 近三个月报港数量
-• 是否重点跟踪状态
-• 是否海事协查状态
-• 近五年安全状态（PSC/FSC滞留、行政处罚、事故记录）
-
-这些信息将帮助买方更全面地评估船舶状况。`
-    
-    alert(message)
+    alert('出售信息已提交，待审核后对外展示')
     router.push('/shipping-trade/vessel-trading')
   } catch (error) {
     console.error('提交失败:', error)
@@ -786,7 +783,40 @@ const handleCancel = () => {
 }
 
 .form-section {
-  margin-bottom: 32px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.info-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #E8F4FD;
+  border: 1px solid #91C9F7;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.info-icon {
+  width: 20px;
+  height: 20px;
+  color: #1890FF;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #0C5F8A;
+  line-height: 1.6;
+}
+
+.info-text strong {
+  color: #0C5F8A;
+  font-weight: 600;
 }
 
 .section-title {
