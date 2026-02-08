@@ -89,44 +89,15 @@
               </span>
             </div>
           </div>
-
-          <!-- 状态标识 -->
-          <div class="status-indicators">
-            <div class="status-indicator-item">
-              <span class="indicator-label">是否重点跟踪：</span>
-              <span :class="['indicator-badge', vesselData.isKeyTracking ? 'badge-yes' : 'badge-no']">
-                {{ vesselData.isKeyTracking ? '是' : '否' }}
-              </span>
-            </div>
-            <div class="status-indicator-item">
-              <span class="indicator-label">是否海事协查：</span>
-              <span :class="['indicator-badge', vesselData.hasMaritimeInvestigation ? 'badge-yes' : 'badge-no']">
-                {{ vesselData.hasMaritimeInvestigation ? '是' : '否' }}
-              </span>
-            </div>
-          </div>
-        </section>
-
-        <!-- 4. 近五年安全状态 -->
-        <section class="safety-detail-section">
-          <h2>近五年安全状态</h2>
-          <div class="safety-stats">
-            <div class="stat-card">
-              <div class="stat-label">PSC滞留</div>
-              <div class="stat-value">{{ safetyStats.pscDetention || 0 }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">FSC滞留</div>
-              <div class="stat-value">{{ safetyStats.fscDetention || 0 }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">行政处罚</div>
-              <div class="stat-value">{{ safetyStats.administrativePenalty || 0 }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">事故数量</div>
-              <div class="stat-value">{{ safetyStats.accidents || 0 }}</div>
-            </div>
+          
+          <!-- 查看附加信息按钮 -->
+          <div class="additional-info-btn-container">
+            <button class="additional-info-btn" @click="showAdditionalInfo = true">
+              <svg viewBox="0 0 24 24" fill="none" class="btn-icon">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+              </svg>
+              查看附加信息
+            </button>
           </div>
         </section>
 
@@ -258,8 +229,78 @@
       </aside>
     </div>
 
-    <!-- Intention Dialog -->
-    <IntentionDialog v-model="isIntentionDialogOpen" :vessel-id="route.params.id" @submit="handleIntentionSubmit" />
+    <!-- 附加信息弹窗 -->
+    <div v-if="showAdditionalInfo" class="modal-overlay" @click="showAdditionalInfo = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>附加信息</h3>
+          <button class="modal-close" @click="showAdditionalInfo = false">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- 报港信息 -->
+          <div class="info-section">
+            <h4 class="info-section-title">报港信息</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">最近报港日期</span>
+                <span class="info-value">{{ additionalData.lastPortReportDate || '-' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">近三个月报港数量</span>
+                <span class="info-value">{{ additionalData.recentPortReports || 0 }} 次</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 状态信息 -->
+          <div class="info-section">
+            <h4 class="info-section-title">状态信息</h4>
+            <div class="status-indicators">
+              <div class="status-indicator-item">
+                <span class="indicator-label">是否重点跟踪：</span>
+                <span :class="['indicator-badge', additionalData.isKeyTracking ? 'badge-yes' : 'badge-no']">
+                  {{ additionalData.isKeyTracking ? '是' : '否' }}
+                </span>
+              </div>
+              <div class="status-indicator-item">
+                <span class="indicator-label">是否海事协查：</span>
+                <span :class="['indicator-badge', additionalData.hasMaritimeInvestigation ? 'badge-yes' : 'badge-no']">
+                  {{ additionalData.hasMaritimeInvestigation ? '是' : '否' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 近五年安全状态 -->
+          <div class="info-section">
+            <h4 class="info-section-title">近五年安全状态</h4>
+            <div class="safety-stats">
+              <div class="stat-card">
+                <div class="stat-label">PSC滞留</div>
+                <div class="stat-value">{{ additionalData.safetyStats.pscDetention || 0 }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">FSC滞留</div>
+                <div class="stat-value">{{ additionalData.safetyStats.fscDetention || 0 }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">行政处罚</div>
+                <div class="stat-value">{{ additionalData.safetyStats.administrativePenalty || 0 }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">事故数量</div>
+                <div class="stat-value">{{ additionalData.safetyStats.accidents || 0 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -301,6 +342,21 @@ const vesselData = ref({
 const isFavorited = ref(false)
 const showContact = ref(false)
 const currentPhotoIndex = ref(0)
+const showAdditionalInfo = ref(false)
+
+// 附加信息数据
+const additionalData = ref({
+  lastPortReportDate: '2024-02-01',
+  recentPortReports: 12,
+  isKeyTracking: false,
+  hasMaritimeInvestigation: false,
+  safetyStats: {
+    pscDetention: 0,
+    fscDetention: 1,
+    administrativePenalty: 0,
+    accidents: 0
+  }
+})
 
 // 平台服务
 const platformServices = ref([
@@ -327,9 +383,7 @@ const vesselParameters = ref([
   { key: 'depth', label: '型深（米）', value: '15米', linkable: false },
   { key: 'deadweight', label: '载重（吨）', value: '32,000吨', linkable: false },
   { key: 'mainEnginePower', label: '主机功率（kW）', value: '9,480', linkable: false },
-  { key: 'dockInspection', label: '坞检/特检情况', value: '一年内已做过', linkable: false },
-  { key: 'lastPortReportDate', label: '最近报港日期', value: '2024-02-01', linkable: false },
-  { key: 'recentPortReports', label: '近三个月报港数量', value: '12次', linkable: false }
+  { key: 'dockInspection', label: '坞检/特检情况', value: '一年内已做过', linkable: false }
 ])
 
 // 近五年安全状态
@@ -738,30 +792,170 @@ const nextRecommendation = () => {
   font-size: 12px;
 }
 
-/* 状态标识 */
-.status-indicators {
-  display: flex;
-  gap: 32px;
+/* 查看附加信息按钮 */
+.additional-info-btn-container {
   margin-top: 24px;
-  padding: 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
 }
 
-.status-indicator-item {
+.additional-info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.additional-info-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.additional-info-btn .btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1E293B;
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #F3F4F6;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #E5E7EB;
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+  color: #6B7280;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.info-section {
+  margin-bottom: 24px;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+.info-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #E5E7EB;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 15px;
+  color: #1E293B;
+  font-weight: 600;
+}
+
+/* 弹窗中的状态标识 */
+.modal-body .status-indicators {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.modal-body .status-indicator-item {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.indicator-label {
+.modal-body .indicator-label {
   font-size: 14px;
   color: #64748B;
   font-weight: 500;
 }
 
-.indicator-badge {
+.modal-body .indicator-badge {
   display: inline-flex;
   align-items: center;
   padding: 6px 16px;
@@ -771,16 +965,43 @@ const nextRecommendation = () => {
   transition: all 0.3s;
 }
 
-.badge-yes {
+.modal-body .badge-yes {
   background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
   color: #DC2626;
   border: 1px solid #FCA5A5;
 }
 
-.badge-no {
+.modal-body .badge-no {
   background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
   color: #059669;
   border: 1px solid #6EE7B7;
+}
+
+/* 弹窗中的安全统计 */
+.modal-body .safety-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.modal-body .stat-card {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #E5E7EB;
+}
+
+.modal-body .stat-label {
+  font-size: 13px;
+  color: #64748B;
+  margin-bottom: 8px;
+}
+
+.modal-body .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1E293B;
 }
 
 /* 近五年安全状态 */
