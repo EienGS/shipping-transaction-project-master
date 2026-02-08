@@ -179,51 +179,6 @@
             </div>
           </div>
         </div>
-            <div class="info-card">
-              <div class="info-card-label">近三个月报港数量</div>
-              <div class="info-card-value">{{ formData.recentPortReports || 0 }} 次</div>
-            </div>
-          </div>
-
-          <!-- 是否重点跟踪 - 使用标签样式 -->
-          <div class="tracking-status">
-            <span class="tracking-label">是否重点跟踪：</span>
-            <span :class="['tracking-badge', formData.isKeyTracking ? 'tracking-yes' : 'tracking-no']">
-              {{ formData.isKeyTracking ? '是' : '否' }}
-            </span>
-          </div>
-
-          <!-- 是否海事协查 - 使用标签样式 -->
-          <div class="tracking-status">
-            <span class="tracking-label">是否海事协查：</span>
-            <span :class="['tracking-badge', formData.hasMaritimeInvestigation ? 'tracking-yes' : 'tracking-no']">
-              {{ formData.hasMaritimeInvestigation ? '是' : '否' }}
-            </span>
-          </div>
-
-          <!-- 近五年安全状态 - 简约设计 -->
-          <div class="safety-section">
-            <h4 class="subsection-title">近五年安全状态</h4>
-            <div class="safety-stats">
-              <div class="stat-card">
-                <div class="stat-label">PSC滞留</div>
-                <div class="stat-value">{{ formData.safetyStats.pscDetention || 0 }}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">FSC滞留</div>
-                <div class="stat-value">{{ formData.safetyStats.fscDetention || 0 }}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">行政处罚</div>
-                <div class="stat-value">{{ formData.safetyStats.administrativePenalty || 0 }}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">事故数量</div>
-                <div class="stat-value">{{ formData.safetyStats.accidents || 0 }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 联系信息 -->
         <div class="form-section">
@@ -564,7 +519,7 @@ const handleCertificateUpload = (e) => {
     return
   }
   
-  // 验证文件大小
+  // 验证文件���小
   const invalidFiles = files.filter(file => file.size > 20 * 1024 * 1024)
   if (invalidFiles.length > 0) {
     alert('单个文件大小不能超过20MB')
